@@ -1,0 +1,80 @@
+{
+  "camera": {
+    "device_id": 0,
+    "resolution": [1920, 1080],
+    "fps": 30,
+    "buffer_size": 1,
+    "auto_exposure": false,
+    "exposure": -6
+  },
+  "detection": {
+    "confidence_threshold": 0.7,
+    "nms_threshold": 0.4,
+    "max_detections": 50,
+    "min_detection_size": 30
+  },
+  "visual": {
+    "show_bboxes": true,
+    "show_confidence": true,
+    "show_zones": true,
+    "show_status": true,
+    "overlay_opacity": 0.7,
+    "font_scale": 0.6,
+    "line_thickness": 2
+  },
+  "triggers": {
+    "immediate_zone": {
+      "distance": 100,
+      "priority": 10,
+      "cooldown": 2.0,
+      "enabled": true
+    },
+    "close_zone": {
+      "distance": 200,
+      "priority": 8,
+      "cooldown": 5.0,
+      "enabled": true
+    },
+    "medium_zone": {
+      "distance": 350,
+      "priority": 6,
+      "cooldown": 10.0,
+      "enabled": true
+    },
+    "far_zone": {
+      "distance": 500,
+      "priority": 4,
+      "cooldown": 15.0,
+      "enabled": true
+    }
+  },
+  "performance": {
+    "target_fps": 30,
+    "max_inference_time_ms": 100,
+    "max_queue_size": 10,
+    "tensorrt_enabled": true,
+    "fp16_enabled": true
+  },
+  "monitoring": {
+    "enable_agent_monitor": true,
+    "websocket_port": 8765,
+    "update_interval_ms": 100,
+    "save_screenshots": false
+  },
+  "star_wars": {
+    "costume_classes": [
+      "jedi", "sith", "rebel_alliance", "stormtrooper",
+      "imperial_officer", "mandalorian", "civilian"
+    ],
+    "response_categories": [
+      "curious", "cautious", "excited", "familiar",
+      "defensive", "friendly", "playful"
+    ]
+  },
+  "integration": {
+    "motion_api_enabled": true,
+    "audio_api_enabled": true,
+    "status_broadcast_enabled": true,
+    "real_time_updates": true
+  }
+}

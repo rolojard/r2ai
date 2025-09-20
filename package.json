@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "start": "node --max-old-space-size=4096 dashboard-server.js",
+    "dev": "node --max-old-space-size=4096 dashboard-server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}

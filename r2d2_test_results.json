@@ -1,0 +1,149 @@
+{
+  "test_session": {
+    "timestamp": "2025-09-18T20:20:22.510941",
+    "platform": "Nvidia Orin Nano",
+    "tester": "R2D2BasicTester v1.0"
+  },
+  "component_tests": [
+    {
+      "component": "Pololu Maestro",
+      "timestamp": "2025-09-18T20:20:22.511060",
+      "tests": [
+        {
+          "test": "Serial Device Detection",
+          "status": "FAIL",
+          "details": "No serial devices found (ACM/USB)"
+        },
+        {
+          "test": "I2C Bus Detection",
+          "status": "PASS",
+          "details": "Found I2C buses: /dev/i2c-9, /dev/i2c-7, /dev/i2c-1, /dev/i2c-5, /dev/i2c-2, /dev/i2c-0, /dev/i2c-4"
+        },
+        {
+          "test": "I2C Bus 0 Device Scan",
+          "status": "PASS",
+          "details": "Found devices: 0xUU, 0xUU"
+        },
+        {
+          "test": "I2C Bus 4 Device Scan",
+          "status": "PASS",
+          "details": "Found devices: 0xUU"
+        }
+      ]
+    },
+    {
+      "component": "HCR Sound System",
+      "timestamp": "2025-09-18T20:20:25.133552",
+      "tests": [
+        {
+          "test": "Audio Hardware Detection",
+          "status": "PASS",
+          "details": "Found 24 audio card(s) via ALSA"
+        },
+        {
+          "test": "Audio Device List",
+          "status": "INFO",
+          "details": "**** List of PLAYBACK Hardware Devices ****\ncard 1: HDA [NVIDIA Jetson Orin Nano HDA], device 3: HDMI 0 [HDMI 0]\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 1: HDA [NVIDIA Jetson Orin Nano HDA], device 7: HDMI 1 [HDMI 1]\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 1: HDA [NVIDIA Jetson Orin Nano HDA], device 8: HDMI 2 [HDMI 2]\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 1: HDA [NVIDIA Jetson Orin Nano HDA], device 9: HDMI 3 [HDMI 3]\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 0: tegra-dlink-0 XBAR-ADMAIF1-0 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 1: tegra-dlink-1 XBAR-ADMAIF2-1 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 2: tegra-dlink-2 XBAR-ADMAIF3-2 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 3: tegra-dlink-3 XBAR-ADMAIF4-3 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 4: tegra-dlink-4 XBAR-ADMAIF5-4 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 5: tegra-dlink-5 XBAR-ADMAIF6-5 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 6: tegra-dlink-6 XBAR-ADMAIF7-6 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 7: tegra-dlink-7 XBAR-ADMAIF8-7 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 8: tegra-dlink-8 XBAR-ADMAIF9-8 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 9: tegra-dlink-9 XBAR-ADMAIF10-9 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 10: tegra-dlink-10 XBAR-ADMAIF11-10 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 11: tegra-dlink-11 XBAR-ADMAIF12-11 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 12: tegra-dlink-12 XBAR-ADMAIF13-12 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 13: tegra-dlink-13 XBAR-ADMAIF14-13 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 14: tegra-dlink-14 XBAR-ADMAIF15-14 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 15: tegra-dlink-15 XBAR-ADMAIF16-15 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 16: tegra-dlink-16 XBAR-ADMAIF17-16 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 17: tegra-dlink-17 XBAR-ADMAIF18-17 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 18: tegra-dlink-18 XBAR-ADMAIF19-18 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0\ncard 2: APE [NVIDIA Jetson Orin Nano APE], device 19: tegra-dlink-19 XBAR-ADMAIF20-19 []\n  Subdevices: 1/1\n  Subdevice #0: subdevice #0"
+        },
+        {
+          "test": "PulseAudio Status",
+          "status": "PASS",
+          "details": "PulseAudio running"
+        },
+        {
+          "test": "Sound Files in /usr/share/sounds",
+          "status": "PASS",
+          "details": "Found 47 sound files"
+        },
+        {
+          "test": "Total Sound File Discovery",
+          "status": "PASS",
+          "details": "Total: 47 sound files found"
+        },
+        {
+          "test": "Audio Playback Test",
+          "status": "PASS",
+          "details": "Successfully played test sound via aplay"
+        }
+      ]
+    },
+    {
+      "component": "PSI and Logic Systems",
+      "timestamp": "2025-09-18T20:20:26.751755",
+      "tests": [
+        {
+          "test": "SPI Device Detection",
+          "status": "PASS",
+          "details": "Found SPI devices: /dev/spidev1.1, /dev/spidev1.0, /dev/spidev0.1, /dev/spidev0.0"
+        },
+        {
+          "test": "SPI Device Access",
+          "status": "PASS",
+          "details": "Accessible devices: /dev/spidev1.1, /dev/spidev1.0, /dev/spidev0.1, /dev/spidev0.0"
+        },
+        {
+          "test": "GPIO Device Detection",
+          "status": "PASS",
+          "details": "Found GPIO devices: /dev/gpiochip1, /dev/gpiochip0"
+        },
+        {
+          "test": "GPIO Device Access",
+          "status": "PASS",
+          "details": "Accessible GPIO: /dev/gpiochip1, /dev/gpiochip0"
+        },
+        {
+          "test": "LED Control Libraries",
+          "status": "PASS",
+          "details": "Found libraries: board, adafruit-blinka"
+        }
+      ]
+    },
+    {
+      "component": "Dome Panel Servos",
+      "timestamp": "2025-09-18T20:20:28.018568",
+      "tests": [
+        {
+          "test": "Servo Control Libraries",
+          "status": "FAIL",
+          "details": "No servo control libraries found"
+        },
+        {
+          "test": "PWM Device Detection",
+          "status": "PASS",
+          "details": "Found PWM devices: /sys/class/pwm/pwmchip4, /sys/class/pwm/pwmchip2, /sys/class/pwm/pwmchip0, /sys/class/pwm/pwmchip3, /sys/class/pwm/pwmchip1"
+        },
+        {
+          "test": "PWM Device Access",
+          "status": "PASS",
+          "details": "5 PWM devices accessible"
+        }
+      ]
+    },
+    {
+      "component": "System Integration",
+      "timestamp": "2025-09-18T20:20:29.091533",
+      "tests": [
+        {
+          "test": "CPU Power Management",
+          "status": "PASS",
+          "details": "CPU governor: schedutil"
+        },
+        {
+          "test": "Thermal Management",
+          "status": "PASS",
+          "details": "Temperatures: 48.7\u00b0C, 46.5\u00b0C, 47.9\u00b0C, 49.7\u00b0C, 49.7\u00b0C, 48.2\u00b0C"
+        },
+        {
+          "test": "Network Interfaces",
+          "status": "PASS",
+          "details": "Found 2 network interface(s)"
+        },
+        {
+          "test": "Timing Resolution",
+          "status": "PASS",
+          "details": "Minimum timing resolution: 1.07ms"
+        }
+      ]
+    }
+  ]
+}

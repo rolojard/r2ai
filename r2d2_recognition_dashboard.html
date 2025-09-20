@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R2D2 Person Recognition Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.connected {
+            background: #10b981;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .main-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h3 {
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+        }
+
+        #videoFeed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn:disabled {
+            background: #374151;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .btn.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+
+        .metric-card {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #3b82f6;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .recognition-log {
+            background: #000;
+            padding: 1rem;
+            border-radius: 8px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .log-timestamp {
+            color: #64748b;
+            margin-right: 0.5rem;
+        }
+
+        .log-new-person {
+            color: #10b981;
+        }
+
+        .log-returning-person {
+            color: #3b82f6;
+        }
+
+        .log-character {
+            color: #f59e0b;
+        }
+
+        .memory-status {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .memory-item {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .memory-count {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #8b5cf6;
+            margin-bottom: 0.25rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(148, 163, 184, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .settings-section {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .slider {
+            width: 120px;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(148, 163, 184, 0.3);
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+        }
+
+        .alert.info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: #3b82f6;
+            color: #93c5fd;
+        }
+
+        .alert.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: #f59e0b;
+            color: #fbbf24;
+        }
+
+        .alert.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .memory-status {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>
+            🤖 R2D2 Person Recognition System
+            <div class="status-indicator" id="connectionStatus"></div>
+        </h1>
+        <div class="connection-status">
+            <span id="connectionText">Disconnected</span>
+            <span>•</span>
+            <span id="systemTime">--:--:--</span>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="main-section">
+            <!-- Live Video Feed -->
+            <div class="card">
+                <h3>📹 Live Camera Feed with Recognition</h3>
+                <div class="video-container">
+                    <img id="videoFeed" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjQ4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzc0MTUxIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5Y2EzYWYiCiAgICAgICAgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjIwIj4KICAgIENhbWVyYSBJbml0aWFsaXppbmcuLi4KICA8L3RleHQ+Cjwvc3ZnPgo=" alt="Camera Feed">
+                    <div class="video-overlay">
+                        <div id="frameInfo">Frame: -- | FPS: --</div>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn success" onclick="startRecognition()">
+                        ▶️ Start Recognition
+                    </button>
+                    <button class="btn danger" onclick="stopRecognition()">
+                        ⏹️ Stop Recognition
+                    </button>
+                    <button class="btn" onclick="captureFrame()">
+                        📷 Capture Frame
+                    </button>
+                    <button class="btn" onclick="clearMemory()">
+                        🗑️ Clear Temp Memory
+                    </button>
+                </div>
+            </div>
+
+            <!-- Performance Metrics -->
+            <div class="card">
+                <h3>⚡ Performance Metrics</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="fpsValue">--</div>
+                        <div class="metric-label">Camera FPS</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="detectionFps">--</div>
+                        <div class="metric-label">Detection FPS</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="recognitionFps">--</div>
+                        <div class="metric-label">Recognition FPS</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="gpuMemory">--%</div>
+                        <div class="metric-label">GPU Memory</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="totalPersons">--</div>
+                        <div class="metric-label">Persons Detected</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="recognitionCount">--</div>
+                        <div class="metric-label">Successful IDs</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recognition Log -->
+            <div class="card">
+                <h3>📋 Recognition Activity Log</h3>
+                <div class="recognition-log" id="recognitionLog">
+                    <div class="log-entry">
+                        <span class="log-timestamp">[--:--:--]</span>
+                        R2D2 Person Recognition System initializing...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <!-- System Status -->
+            <div class="card">
+                <h3>🔧 System Status</h3>
+                <div id="systemAlerts"></div>
+                <div class="setting-item">
+                    <span>Camera Status</span>
+                    <span id="cameraStatus" class="metric-value">Offline</span>
+                </div>
+                <div class="setting-item">
+                    <span>Recognition System</span>
+                    <span id="recognitionStatus" class="metric-value">Stopped</span>
+                </div>
+                <div class="setting-item">
+                    <span>Memory Manager</span>
+                    <span id="memoryStatus" class="metric-value">Active</span>
+                </div>
+            </div>
+
+            <!-- Memory Status -->
+            <div class="card">
+                <h3>🧠 Memory Status</h3>
+                <div class="memory-status">
+                    <div class="memory-item">
+                        <div class="memory-count" id="tempIdentities">--</div>
+                        <div class="metric-label">Temporary Identities</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="tempProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="memory-item">
+                        <div class="memory-count" id="starWarsChars">--</div>
+                        <div class="metric-label">Star Wars Characters</div>
+                    </div>
+                    <div class="memory-item">
+                        <div class="memory-count" id="designatedPersons">--</div>
+                        <div class="metric-label">Designated Persons</div>
+                    </div>
+                    <div class="memory-item">
+                        <div class="memory-count" id="retentionDays">7</div>
+                        <div class="metric-label">Retention Days</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recognition Settings -->
+            <div class="card">
+                <h3>⚙️ Recognition Settings</h3>
+                <div class="settings-section">
+                    <div class="setting-item">
+                        <span>Detection Confidence</span>
+                        <input type="range" class="slider" id="detectionConfidence"
+                               min="0.1" max="1.0" step="0.1" value="0.7"
+                               onchange="updateDetectionConfidence(this.value)">
+                    </div>
+                    <div class="setting-item">
+                        <span>Face Quality Threshold</span>
+                        <input type="range" class="slider" id="faceQuality"
+                               min="0.1" max="1.0" step="0.1" value="0.4"
+                               onchange="updateFaceQuality(this.value)">
+                    </div>
+                    <div class="setting-item">
+                        <span>Detection Interval</span>
+                        <input type="range" class="slider" id="detectionInterval"
+                               min="1" max="5" step="1" value="2"
+                               onchange="updateDetectionInterval(this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- R2D2 Response Status -->
+            <div class="card">
+                <h3>🎭 R2D2 Response Status</h3>
+                <div class="setting-item">
+                    <span>Last Response</span>
+                    <span id="lastResponse">None</span>
+                </div>
+                <div class="setting-item">
+                    <span>Response Queue</span>
+                    <span id="responseQueue">0</span>
+                </div>
+                <div class="setting-item">
+                    <span>Active Behaviors</span>
+                    <span id="activeBehaviors">None</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // WebSocket connection
+        let ws = null;
+        let reconnectInterval = null;
+        let isConnected = false;
+
+        // Recognition state
+        let recognitionActive = false;
+        let lastFrameTime = Date.now();
+
+        // Initialize dashboard
+        function initializeDashboard() {
+            updateSystemTime();
+            setInterval(updateSystemTime, 1000);
+            connectWebSocket();
+        }
+
+        function updateSystemTime() {
+            const now = new Date();
+            document.getElementById('systemTime').textContent = now.toLocaleTimeString();
+        }
+
+        function connectWebSocket() {
+            try {
+                ws = new WebSocket('ws://localhost:8768');
+
+                ws.onopen = function(event) {
+                    console.log('WebSocket connected');
+                    isConnected = true;
+                    updateConnectionStatus(true);
+
+                    if (reconnectInterval) {
+                        clearInterval(reconnectInterval);
+                        reconnectInterval = null;
+                    }
+                };
+
+                ws.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        handleWebSocketMessage(data);
+                    } catch (e) {
+                        console.error('Error parsing WebSocket message:', e);
+                    }
+                };
+
+                ws.onclose = function(event) {
+                    console.log('WebSocket disconnected');
+                    isConnected = false;
+                    updateConnectionStatus(false);
+
+                    // Attempt to reconnect
+                    if (!reconnectInterval) {
+                        reconnectInterval = setInterval(connectWebSocket, 5000);
+                    }
+                };
+
+                ws.onerror = function(error) {
+                    console.error('WebSocket error:', error);
+                };
+
+            } catch (e) {
+                console.error('Error connecting to WebSocket:', e);
+                if (!reconnectInterval) {
+                    reconnectInterval = setInterval(connectWebSocket, 5000);
+                }
+            }
+        }
+
+        function updateConnectionStatus(connected) {
+            const statusIndicator = document.getElementById('connectionStatus');
+            const connectionText = document.getElementById('connectionText');
+
+            if (connected) {
+                statusIndicator.classList.add('connected');
+                connectionText.textContent = 'Connected';
+            } else {
+                statusIndicator.classList.remove('connected');
+                connectionText.textContent = 'Disconnected';
+            }
+        }
+
+        function handleWebSocketMessage(data) {
+            switch (data.type) {
+                case 'recognition_data':
+                    updateVideoFeed(data.frame);
+                    updateRecognitionResults(data.recognition_results);
+                    updatePerformanceMetrics(data.performance);
+                    break;
+
+                case 'heartbeat':
+                    updatePerformanceMetrics(data.metrics);
+                    break;
+
+                case 'connection_status':
+                    logMessage(data.message, 'info');
+                    break;
+
+                case 'r2d2_response':
+                    updateR2D2ResponseStatus(data);
+                    break;
+
+                case 'system_status':
+                    updateSystemStatus(data);
+                    break;
+
+                default:
+                    console.log('Unknown message type:', data.type);
+            }
+        }
+
+        function updateVideoFeed(frameBase64) {
+            const videoFeed = document.getElementById('videoFeed');
+            videoFeed.src = 'data:image/jpeg;base64,' + frameBase64;
+
+            const now = Date.now();
+            const timeDiff = now - lastFrameTime;
+            lastFrameTime = now;
+
+            const fps = Math.round(1000 / timeDiff);
+            document.getElementById('frameInfo').textContent = `Frame: ${Date.now()} | FPS: ${fps}`;
+        }
+
+        function updateRecognitionResults(results) {
+            if (results && results.length > 0) {
+                results.forEach(result => {
+                    const identity = result.identity;
+                    const character = result.character_detected;
+
+                    let logClass = 'log-new-person';
+                    let logText = `New person detected (Visit #${identity.visit_count})`;
+
+                    if (identity.visit_count > 1) {
+                        logClass = 'log-returning-person';
+                        logText = `Returning person (Visit #${identity.visit_count}, Familiarity: ${identity.familiarity_level})`;
+                    }
+
+                    if (character) {
+                        logClass = 'log-character';
+                        logText += ` - Star Wars Character: ${character}`;
+                    }
+
+                    logMessage(logText, logClass);
+                });
+            }
+        }
+
+        function updatePerformanceMetrics(metrics) {
+            if (!metrics) return;
+
+            document.getElementById('fpsValue').textContent = metrics.fps || '--';
+            document.getElementById('detectionFps').textContent = metrics.detection_fps || '--';
+            document.getElementById('recognitionFps').textContent = metrics.recognition_fps || '--';
+            document.getElementById('gpuMemory').textContent = (metrics.gpu_memory_used || 0) + '%';
+            document.getElementById('totalPersons').textContent = metrics.total_persons_detected || '--';
+            document.getElementById('recognitionCount').textContent = metrics.successful_recognitions || '--';
+        }
+
+        function updateR2D2ResponseStatus(data) {
+            document.getElementById('lastResponse').textContent = data.response.response_type || 'None';
+
+            const person = data.person_info;
+            logMessage(
+                `R2D2 Response: ${data.response.response_type} (Familiarity: ${person.familiarity_level}, Visits: ${person.visit_count})`,
+                'log-character'
+            );
+        }
+
+        function updateSystemStatus(data) {
+            // Update system status indicators
+            document.getElementById('cameraStatus').textContent = data.camera_active ? 'Online' : 'Offline';
+            document.getElementById('recognitionStatus').textContent = data.pipeline_running ? 'Active' : 'Stopped';
+            document.getElementById('memoryStatus').textContent = data.memory_system?.service_running ? 'Active' : 'Inactive';
+
+            // Update memory statistics
+            if (data.memory_system?.memory_counts) {
+                const memory = data.memory_system.memory_counts;
+                document.getElementById('tempIdentities').textContent = memory.temporary_identities || 0;
+                document.getElementById('starWarsChars').textContent = memory.star_wars_characters || 0;
+                document.getElementById('designatedPersons').textContent = memory.designated_persons || 0;
+
+                // Update progress bar for temporary identities
+                const maxTemp = 1000; // From config
+                const tempProgress = (memory.temporary_identities / maxTemp) * 100;
+                document.getElementById('tempProgress').style.width = `${Math.min(100, tempProgress)}%`;
+            }
+        }
+
+        function logMessage(message, className = '') {
+            const log = document.getElementById('recognitionLog');
+            const timestamp = new Date().toLocaleTimeString();
+
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${className}`;
+            entry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span>${message}`;
+
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+
+            // Keep only last 100 entries
+            while (log.children.length > 100) {
+                log.removeChild(log.firstChild);
+            }
+        }
+
+        function startRecognition() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'start_recognition',
+                    timestamp: new Date().toISOString()
+                }));
+                recognitionActive = true;
+                logMessage('Recognition system started', 'log-new-person');
+            } else {
+                logMessage('WebSocket not connected', 'error');
+            }
+        }
+
+        function stopRecognition() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'stop_recognition',
+                    timestamp: new Date().toISOString()
+                }));
+                recognitionActive = false;
+                logMessage('Recognition system stopped', 'log-new-person');
+            }
+        }
+
+        function captureFrame() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'capture_frame',
+                    timestamp: new Date().toISOString()
+                }));
+                logMessage('Frame captured', 'log-new-person');
+            }
+        }
+
+        function clearMemory() {
+            if (confirm('Are you sure you want to clear all temporary memory? This will remove all non-persistent person identities.')) {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: 'clear_temp_memory',
+                        timestamp: new Date().toISOString()
+                    }));
+                    logMessage('Temporary memory cleared', 'log-new-person');
+                }
+            }
+        }
+
+        function updateDetectionConfidence(value) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'update_setting',
+                    setting: 'detection_confidence',
+                    value: parseFloat(value)
+                }));
+                logMessage(`Detection confidence updated to ${value}`, 'log-new-person');
+            }
+        }
+
+        function updateFaceQuality(value) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'update_setting',
+                    setting: 'face_quality_threshold',
+                    value: parseFloat(value)
+                }));
+                logMessage(`Face quality threshold updated to ${value}`, 'log-new-person');
+            }
+        }
+
+        function updateDetectionInterval(value) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'update_setting',
+                    setting: 'detection_interval',
+                    value: parseInt(value)
+                }));
+                logMessage(`Detection interval updated to every ${value} frames`, 'log-new-person');
+            }
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
+
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // Page is hidden
+                console.log('Dashboard hidden');
+            } else {
+                // Page is visible
+                console.log('Dashboard visible');
+                if (!isConnected) {
+                    connectWebSocket();
+                }
+            }
+        });
+
+        // Handle window beforeunload
+        window.addEventListener('beforeunload', function() {
+            if (ws) {
+                ws.close();
+            }
+        });
+    </script>
+</body>
+</html>

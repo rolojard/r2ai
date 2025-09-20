@@ -1,0 +1,33 @@
+{
+  "cpu_governor": "schedutil",
+  "cpu_frequencies": {
+    "cpu0": "1728000",
+    "cpu1": "1728000",
+    "cpu2": "1728000",
+    "cpu3": "1728000",
+    "cpu4": "729600",
+    "cpu5": "729600"
+  },
+  "thermal_settings": {
+    "zone0": "48312",
+    "zone1": "48843",
+    "zone5": "47250",
+    "zone6": "47468",
+    "zone7": "45656",
+    "zone8": "48843"
+  },
+  "power_settings": {
+    "ac_online": "unknown"
+  },
+  "i2c_settings": {
+    "available_buses": [
+      0,
+      1,
+      2,
+      4,
+      5,
+      7,
+      9
+    ]
+  }
+}

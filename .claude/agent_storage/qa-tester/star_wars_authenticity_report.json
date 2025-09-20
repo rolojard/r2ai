@@ -1,0 +1,230 @@
+{
+  "authenticity_validation_summary": {
+    "status": "COMPLETED",
+    "total_execution_time_seconds": 0.004311561584472656,
+    "tests_executed": 8,
+    "tests_passed": 0,
+    "overall_success_rate": 0.0,
+    "authenticity_level": "NEEDS_AUTHENTICITY_IMPROVEMENT",
+    "timestamp": 1758327967.0739188
+  },
+  "authenticity_metrics": {
+    "average_authenticity_score": 0.6511458333333333,
+    "minimum_authenticity_score": 0.5252777777777777,
+    "maximum_authenticity_score": 0.7327777777777778,
+    "authenticity_grade": "C or below",
+    "character_consistency": 0.47569444444444453,
+    "canon_compliance": 0.6,
+    "response_appropriateness": 0.653888888888889
+  },
+  "character_assessment": {
+    "personality_authenticity": "NEEDS_IMPROVEMENT",
+    "canon_accuracy": "NEEDS_IMPROVEMENT",
+    "fan_appeal": "LOW",
+    "convention_readiness": false
+  },
+  "identified_issues": {
+    "total_issues": 5,
+    "critical_issues": 0,
+    "minor_issues": 5,
+    "all_issues": [
+      "Missing expected character traits: brave",
+      "Missing expected character traits: protective",
+      "Missing expected character traits: brave, stubborn",
+      "Missing expected character traits: stubborn, playful, loyal",
+      "Missing expected character traits: determined, resourceful, intelligent"
+    ]
+  },
+  "star_wars_compliance": {
+    "character_traits_demonstrated": {
+      "curious": 6,
+      "loyal": 2,
+      "helpful": 1,
+      "brave": 2,
+      "protective": 1,
+      "stubborn": 1,
+      "playful": 3,
+      "caring": 3,
+      "determined": 1,
+      "intelligent": 2
+    },
+    "context_responses_validated": {
+      "Jedi_Recognition_Response": "NEEDS_IMPROVEMENT",
+      "Sith_Detection_Response": "NEEDS_IMPROVEMENT",
+      "Child_Interaction_Authenticity": "NEEDS_IMPROVEMENT",
+      "Rebel_Alliance_Loyalty": "NEEDS_IMPROVEMENT",
+      "Stormtrooper_Encounter": "NEEDS_IMPROVEMENT",
+      "C3PO_Recognition_Response": "NEEDS_IMPROVEMENT",
+      "Mission_Critical_Behavior": "NEEDS_IMPROVEMENT",
+      "Emotional_Expression_Range": "NEEDS_IMPROVEMENT"
+    },
+    "emotional_authenticity": "NEEDS_WORK",
+    "overall_canon_compliance": "NON_COMPLIANT"
+  },
+  "recommendations": [
+    "Study failed scenarios for character development opportunities",
+    "Practice context-appropriate responses for challenging situations",
+    "Maintain balance between entertainment value and canonical accuracy"
+  ],
+  "detailed_test_results": [
+    {
+      "scenario_name": "Jedi_Recognition_Response",
+      "test_passed": false,
+      "authenticity_score": 0.6475,
+      "character_consistency": 0.6222222222222222,
+      "canon_compliance": 0.3333333333333333,
+      "response_appropriateness": 0.7177777777777777,
+      "detected_traits": [
+        "curious",
+        "loyal",
+        "helpful"
+      ],
+      "issues_found": [
+        "Missing expected character traits: brave"
+      ],
+      "recommendations": [
+        "Enhance character trait expression through movement and audio cues",
+        "Continue studying Star Wars canon for character development",
+        "Practice context-appropriate responses for different scenarios",
+        "Maintain balance between accessibility and authenticity"
+      ]
+    },
+    {
+      "scenario_name": "Sith_Detection_Response",
+      "test_passed": false,
+      "authenticity_score": 0.6463888888888889,
+      "character_consistency": 0.5611111111111111,
+      "canon_compliance": 0.3333333333333333,
+      "response_appropriateness": 0.6911111111111111,
+      "detected_traits": [
+        "brave",
+        "protective",
+        "stubborn"
+      ],
+      "issues_found": [],
+      "recommendations": [
+        "Excellent authenticity - maintain current behavior patterns"
+      ]
+    },
+    {
+      "scenario_name": "Child_Interaction_Authenticity",
+      "test_passed": false,
+      "authenticity_score": 0.7119444444444445,
+      "character_consistency": 0.4444444444444445,
+      "canon_compliance": 0.8666666666666667,
+      "response_appropriateness": 0.62,
+      "detected_traits": [
+        "playful",
+        "caring",
+        "curious"
+      ],
+      "issues_found": [
+        "Missing expected character traits: protective"
+      ],
+      "recommendations": [
+        "Enhance character trait expression through movement and audio cues",
+        "Continue studying Star Wars canon for character development",
+        "Practice context-appropriate responses for different scenarios",
+        "Maintain balance between accessibility and authenticity"
+      ]
+    },
+    {
+      "scenario_name": "Rebel_Alliance_Loyalty",
+      "test_passed": false,
+      "authenticity_score": 0.6666666666666666,
+      "character_consistency": 0.6222222222222222,
+      "canon_compliance": 0.3333333333333333,
+      "response_appropriateness": 0.7111111111111111,
+      "detected_traits": [
+        "loyal",
+        "determined",
+        "brave"
+      ],
+      "issues_found": [],
+      "recommendations": [
+        "Excellent authenticity - maintain current behavior patterns"
+      ]
+    },
+    {
+      "scenario_name": "Stormtrooper_Encounter",
+      "test_passed": false,
+      "authenticity_score": 0.5252777777777777,
+      "character_consistency": 0.3333333333333333,
+      "canon_compliance": 0.3333333333333333,
+      "response_appropriateness": 0.6844444444444444,
+      "detected_traits": [
+        "curious",
+        "intelligent"
+      ],
+      "issues_found": [
+        "Missing expected character traits: brave, stubborn"
+      ],
+      "recommendations": [
+        "Enhance character trait expression through movement and audio cues",
+        "Continue studying Star Wars canon for character development",
+        "Practice context-appropriate responses for different scenarios",
+        "Maintain balance between accessibility and authenticity"
+      ]
+    },
+    {
+      "scenario_name": "C3PO_Recognition_Response",
+      "test_passed": false,
+      "authenticity_score": 0.6083333333333334,
+      "character_consistency": 0.3333333333333333,
+      "canon_compliance": 0.8666666666666667,
+      "response_appropriateness": 0.5666666666666667,
+      "detected_traits": [
+        "curious",
+        "intelligent"
+      ],
+      "issues_found": [
+        "Missing expected character traits: stubborn, playful, loyal"
+      ],
+      "recommendations": [
+        "Enhance character trait expression through movement and audio cues",
+        "Continue studying Star Wars canon for character development",
+        "Practice context-appropriate responses for different scenarios",
+        "Maintain balance between accessibility and authenticity"
+      ]
+    },
+    {
+      "scenario_name": "Mission_Critical_Behavior",
+      "test_passed": false,
+      "authenticity_score": 0.6702777777777778,
+      "character_consistency": 0.4444444444444445,
+      "canon_compliance": 0.8666666666666667,
+      "response_appropriateness": 0.62,
+      "detected_traits": [
+        "playful",
+        "caring",
+        "curious"
+      ],
+      "issues_found": [
+        "Missing expected character traits: determined, resourceful, intelligent"
+      ],
+      "recommendations": [
+        "Enhance character trait expression through movement and audio cues",
+        "Continue studying Star Wars canon for character development",
+        "Practice context-appropriate responses for different scenarios",
+        "Maintain balance between accessibility and authenticity"
+      ]
+    },
+    {
+      "scenario_name": "Emotional_Expression_Range",
+      "test_passed": false,
+      "authenticity_score": 0.7327777777777778,
+      "character_consistency": 0.4444444444444445,
+      "canon_compliance": 0.8666666666666667,
+      "response_appropriateness": 0.62,
+      "detected_traits": [
+        "playful",
+        "caring",
+        "curious"
+      ],
+      "issues_found": [],
+      "recommendations": [
+        "Excellent authenticity - maintain current behavior patterns"
+      ]
+    }
+  ]
+}

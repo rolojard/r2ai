@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R2D2 Multi-Agent Monitoring Dashboard</title>
+    <link rel="stylesheet" href="dashboard_styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <div class="system-logo">
+                <h1>R2D2 System Monitor</h1>
+                <div class="system-status" id="systemStatus">
+                    <span class="status-indicator online"></span>
+                    <span class="status-text">System Online</span>
+                </div>
+            </div>
+            <div class="header-controls">
+                <button class="screenshot-btn" id="screenshotBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                    Screenshot
+                </button>
+                <div class="connection-status" id="connectionStatus">
+                    <span class="connection-indicator connecting"></span>
+                    <span class="connection-text">Connecting...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav class="agent-nav">
+                <h2>Agent Panels</h2>
+                <div class="agent-list">
+                    <button class="agent-btn active" data-agent="project_manager">
+                        <div class="agent-icon pm-icon"></div>
+                        <span class="agent-name">Project Manager</span>
+                        <div class="agent-status-dot online"></div>
+                    </button>
+                    <button class="agent-btn" data-agent="qa_tester">
+                        <div class="agent-icon qa-icon"></div>
+                        <span class="agent-name">QA Tester</span>
+                        <div class="agent-status-dot online"></div>
+                    </button>
+                    <button class="agent-btn" data-agent="imagineer">
+                        <div class="agent-icon im-icon"></div>
+                        <span class="agent-name">Imagineer</span>
+                        <div class="agent-status-dot online"></div>
+                    </button>
+                    <button class="agent-btn" data-agent="video_model_trainer">
+                        <div class="agent-icon vm-icon"></div>
+                        <span class="agent-name">Video Model Trainer</span>
+                        <div class="agent-status-dot online"></div>
+                    </button>
+                    <button class="agent-btn" data-agent="star_wars_expert">
+                        <div class="agent-icon sw-icon"></div>
+                        <span class="agent-name">Star Wars Expert</span>
+                        <div class="agent-status-dot online"></div>
+                    </button>
+                    <button class="agent-btn" data-agent="super_coder">
+                        <div class="agent-icon sc-icon"></div>
+                        <span class="agent-name">Super Coder</span>
+                        <div class="agent-status-dot online"></div>
+                    </button>
+                    <button class="agent-btn" data-agent="ux_designer">
+                        <div class="agent-icon ux-icon"></div>
+                        <span class="agent-name">UX Designer</span>
+                        <div class="agent-status-dot online"></div>
+                    </button>
+                    <button class="agent-btn" data-agent="nvidia_specialist">
+                        <div class="agent-icon nv-icon"></div>
+                        <span class="agent-name">NVIDIA Specialist</span>
+                        <div class="agent-status-dot online"></div>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <h3>System Overview</h3>
+                <div class="stat-item">
+                    <span class="stat-label">CPU Usage</span>
+                    <span class="stat-value" id="cpuUsage">0%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Memory</span>
+                    <span class="stat-value" id="memoryUsage">0%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Temperature</span>
+                    <span class="stat-value" id="temperature">0°C</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Active Agents</span>
+                    <span class="stat-value" id="activeAgents">8</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Agent Panels -->
+
+            <!-- Project Manager Panel -->
+            <div class="agent-panel active" id="panel-project_manager">
+                <div class="panel-header">
+                    <h2>Project Manager Dashboard</h2>
+                    <div class="panel-actions">
+                        <button class="refresh-btn">Refresh</button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <h3>System Health</h3>
+                            <div class="health-indicator excellent">
+                                <div class="health-score">98%</div>
+                                <div class="health-status">Excellent</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Agent Status</h3>
+                            <div class="agent-status-grid">
+                                <div class="status-item online">All Agents Online</div>
+                                <div class="status-count">8/8 Active</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Performance Overview</h3>
+                            <div class="performance-chart">
+                                <canvas id="performanceChart" width="300" height="150"></canvas>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Alert Center</h3>
+                            <div class="alert-list" id="alertList">
+                                <div class="alert-item info">System startup complete</div>
+                                <div class="alert-item success">All components operational</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QA Tester Panel -->
+            <div class="agent-panel" id="panel-qa_tester">
+                <div class="panel-header">
+                    <h2>QA Tester Dashboard</h2>
+                    <div class="panel-actions">
+                        <button class="run-tests-btn">Run Tests</button>
+                        <button class="refresh-btn">Refresh</button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <h3>Test Results</h3>
+                            <div class="test-summary">
+                                <div class="test-stat passed">
+                                    <span class="test-count">127</span>
+                                    <span class="test-label">Passed</span>
+                                </div>
+                                <div class="test-stat failed">
+                                    <span class="test-count">3</span>
+                                    <span class="test-label">Failed</span>
+                                </div>
+                                <div class="test-stat skipped">
+                                    <span class="test-count">2</span>
+                                    <span class="test-label">Skipped</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Quality Score</h3>
+                            <div class="quality-meter">
+                                <div class="quality-circle">
+                                    <div class="quality-score">96.2%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Validation Status</h3>
+                            <div class="validation-grid">
+                                <div class="validation-item">
+                                    <span class="validation-check">✓</span>
+                                    <span class="validation-text">Hardware Tests</span>
+                                </div>
+                                <div class="validation-item">
+                                    <span class="validation-check">✓</span>
+                                    <span class="validation-text">Software Tests</span>
+                                </div>
+                                <div class="validation-item">
+                                    <span class="validation-check">⚠</span>
+                                    <span class="validation-text">Performance Tests</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card full-width">
+                            <h3>Recent Test Logs</h3>
+                            <div class="test-log">
+                                <div class="log-entry success">✓ Servo calibration test passed - All 16 servos responding</div>
+                                <div class="log-entry success">✓ Audio system test passed - All sound channels clear</div>
+                                <div class="log-entry warning">⚠ Camera feed latency at 45ms - Above 30ms threshold</div>
+                                <div class="log-entry success">✓ I2C communication test passed - All devices responding</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Imagineer Panel -->
+            <div class="agent-panel" id="panel-imagineer">
+                <div class="panel-header">
+                    <h2>Imagineer Motion Control</h2>
+                    <div class="panel-actions">
+                        <button class="calibrate-btn">Calibrate</button>
+                        <button class="test-sequence-btn">Test Sequence</button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <h3>Servo Status</h3>
+                            <div class="servo-grid" id="servoGrid">
+                                <!-- Servo status items will be populated by JavaScript -->
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Motion Visualizer</h3>
+                            <div class="motion-canvas">
+                                <canvas id="motionVisualizer" width="300" height="200"></canvas>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Animation Queue</h3>
+                            <div class="animation-queue">
+                                <div class="queue-item active">Head Turn Left</div>
+                                <div class="queue-item pending">Dome Rotation</div>
+                                <div class="queue-item pending">Body Lean Forward</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Motion Controls</h3>
+                            <div class="motion-controls">
+                                <button class="motion-btn" data-motion="happy">Happy</button>
+                                <button class="motion-btn" data-motion="sad">Sad</button>
+                                <button class="motion-btn" data-motion="excited">Excited</button>
+                                <button class="motion-btn" data-motion="curious">Curious</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Model Trainer Panel -->
+            <div class="agent-panel" id="panel-video_model_trainer">
+                <div class="panel-header">
+                    <h2>Video Model Trainer</h2>
+                    <div class="panel-actions">
+                        <button class="start-detection-btn">Start Detection</button>
+                        <button class="refresh-btn">Refresh</button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="metrics-grid">
+                        <div class="metric-card camera-feed">
+                            <h3>Live Camera Feed</h3>
+                            <div class="camera-container">
+                                <canvas id="cameraCanvas" width="320" height="240"></canvas>
+                                <div class="detection-overlay" id="detectionOverlay"></div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Detection Metrics</h3>
+                            <div class="detection-stats">
+                                <div class="stat-row">
+                                    <span>Frame Rate:</span>
+                                    <span id="frameRate">30 FPS</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>Accuracy:</span>
+                                    <span id="detectionAccuracy">94.7%</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>Objects Detected:</span>
+                                    <span id="objectCount">3</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Model Performance</h3>
+                            <div class="performance-metrics">
+                                <canvas id="accuracyChart" width="300" height="150"></canvas>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Recent Detections</h3>
+                            <div class="detection-log">
+                                <div class="detection-item">Person - 97.3% confidence</div>
+                                <div class="detection-item">Face - 89.1% confidence</div>
+                                <div class="detection-item">Hand - 76.8% confidence</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Star Wars Expert Panel -->
+            <div class="agent-panel" id="panel-star_wars_expert">
+                <div class="panel-header">
+                    <h2>Star Wars Canon Expert</h2>
+                    <div class="panel-actions">
+                        <button class="validate-btn">Validate Canon</button>
+                        <button class="refresh-btn">Refresh</button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <h3>Character Authenticity</h3>
+                            <div class="authenticity-meter">
+                                <div class="authenticity-score">98.5%</div>
+                                <div class="authenticity-status">Highly Authentic</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Interaction Quality</h3>
+                            <div class="interaction-stats">
+                                <div class="interaction-item">
+                                    <span>Voice Match:</span>
+                                    <span class="quality-high">Excellent</span>
+                                </div>
+                                <div class="interaction-item">
+                                    <span>Movement Style:</span>
+                                    <span class="quality-high">Excellent</span>
+                                </div>
+                                <div class="interaction-item">
+                                    <span>Response Timing:</span>
+                                    <span class="quality-good">Good</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Canon Compliance</h3>
+                            <div class="canon-checklist">
+                                <div class="canon-item compliant">✓ Astromech Protocols</div>
+                                <div class="canon-item compliant">✓ Beep/Whistle Patterns</div>
+                                <div class="canon-item compliant">✓ Movement Behaviors</div>
+                                <div class="canon-item warning">⚠ Color Accuracy (98%)</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Guest Interaction Log</h3>
+                            <div class="interaction-log">
+                                <div class="interaction-entry positive">Guest enjoyed R2's beeping response</div>
+                                <div class="interaction-entry positive">Perfect head tilt timing</div>
+                                <div class="interaction-entry neutral">Extended interaction - 3 minutes</div>
+                                <div class="interaction-entry positive">Photo opportunity executed well</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Super Coder Panel -->
+            <div class="agent-panel" id="panel-super_coder">
+                <div class="panel-header">
+                    <h2>Super Coder System Performance</h2>
+                    <div class="panel-actions">
+                        <button class="optimize-btn">Optimize</button>
+                        <button class="refresh-btn">Refresh</button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <h3>System Performance</h3>
+                            <div class="performance-overview">
+                                <div class="perf-metric">
+                                    <span class="perf-label">CPU</span>
+                                    <div class="perf-bar">
+                                        <div class="perf-fill" style="width: 65%"></div>
+                                    </div>
+                                    <span class="perf-value">65%</span>
+                                </div>
+                                <div class="perf-metric">
+                                    <span class="perf-label">Memory</span>
+                                    <div class="perf-bar">
+                                        <div class="perf-fill" style="width: 42%"></div>
+                                    </div>
+                                    <span class="perf-value">42%</span>
+                                </div>
+                                <div class="perf-metric">
+                                    <span class="perf-label">GPU</span>
+                                    <div class="perf-bar">
+                                        <div class="perf-fill" style="width: 78%"></div>
+                                    </div>
+                                    <span class="perf-value">78%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Optimization Status</h3>
+                            <div class="optimization-panel">
+                                <div class="opt-item completed">✓ CPU Governor Optimized</div>
+                                <div class="opt-item completed">✓ Memory Management Tuned</div>
+                                <div class="opt-item completed">✓ I2C Bus Optimized</div>
+                                <div class="opt-item in-progress">⟳ GPU Performance Tuning</div>
+                            </div>
+                        </div>
+                        <div class="metric-card full-width">
+                            <h3>System Logs</h3>
+                            <div class="log-viewer">
+                                <div class="log-entry info">[2025-09-20 10:30:15] System performance optimization completed</div>
+                                <div class="log-entry success">[2025-09-20 10:29:42] All hardware components initialized successfully</div>
+                                <div class="log-entry warning">[2025-09-20 10:29:38] Temperature spike detected - 62°C (within limits)</div>
+                                <div class="log-entry info">[2025-09-20 10:29:35] WebSocket server started on port 8765</div>
+                                <div class="log-entry success">[2025-09-20 10:29:30] R2D2 system startup sequence initiated</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UX Designer Panel -->
+            <div class="agent-panel" id="panel-ux_designer">
+                <div class="panel-header">
+                    <h2>UX Designer Interface</h2>
+                    <div class="panel-actions">
+                        <button class="analyze-btn">Analyze UX</button>
+                        <button class="refresh-btn">Refresh</button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <h3>User Interaction Heatmap</h3>
+                            <div class="heatmap-container">
+                                <canvas id="interactionHeatmap" width="300" height="200"></canvas>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Accessibility Score</h3>
+                            <div class="accessibility-meter">
+                                <div class="accessibility-score">92%</div>
+                                <div class="accessibility-grade">A-</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>UI Responsiveness</h3>
+                            <div class="responsiveness-metrics">
+                                <div class="resp-item">
+                                    <span>Load Time:</span>
+                                    <span class="resp-good">1.2s</span>
+                                </div>
+                                <div class="resp-item">
+                                    <span>First Paint:</span>
+                                    <span class="resp-excellent">0.8s</span>
+                                </div>
+                                <div class="resp-item">
+                                    <span>Interactive:</span>
+                                    <span class="resp-good">1.5s</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Design System Status</h3>
+                            <div class="design-status">
+                                <div class="design-item active">✓ Color Consistency</div>
+                                <div class="design-item active">✓ Typography Scale</div>
+                                <div class="design-item active">✓ Component Library</div>
+                                <div class="design-item review">⚠ Icon Standardization</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NVIDIA Specialist Panel -->
+            <div class="agent-panel" id="panel-nvidia_specialist">
+                <div class="panel-header">
+                    <h2>NVIDIA Hardware Monitor</h2>
+                    <div class="panel-actions">
+                        <button class="optimize-gpu-btn">Optimize GPU</button>
+                        <button class="refresh-btn">Refresh</button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <h3>GPU Utilization</h3>
+                            <div class="gpu-meter">
+                                <canvas id="gpuChart" width="200" height="200"></canvas>
+                                <div class="gpu-stats">
+                                    <div class="gpu-stat">
+                                        <span>Usage:</span>
+                                        <span>78%</span>
+                                    </div>
+                                    <div class="gpu-stat">
+                                        <span>Memory:</span>
+                                        <span>3.2GB/8GB</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Thermal Status</h3>
+                            <div class="thermal-display">
+                                <div class="temp-gauge">
+                                    <div class="temp-value">58°C</div>
+                                    <div class="temp-status safe">Safe</div>
+                                </div>
+                                <div class="thermal-chart">
+                                    <canvas id="thermalChart" width="250" height="100"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Power Consumption</h3>
+                            <div class="power-metrics">
+                                <div class="power-item">
+                                    <span>Current Draw:</span>
+                                    <span>15.2W</span>
+                                </div>
+                                <div class="power-item">
+                                    <span>Peak Usage:</span>
+                                    <span>18.7W</span>
+                                </div>
+                                <div class="power-item">
+                                    <span>Efficiency:</span>
+                                    <span class="efficiency-good">94%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3>Optimization Controls</h3>
+                            <div class="optimization-controls">
+                                <div class="control-group">
+                                    <label for="powerMode">Power Mode:</label>
+                                    <select id="powerMode">
+                                        <option value="performance">Performance</option>
+                                        <option value="balanced" selected>Balanced</option>
+                                        <option value="efficiency">Efficiency</option>
+                                    </select>
+                                </div>
+                                <div class="control-group">
+                                    <label for="thermalTarget">Thermal Target:</label>
+                                    <input type="range" id="thermalTarget" min="50" max="80" value="65">
+                                    <span id="thermalValue">65°C</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="footer-content">
+            <div class="system-info">
+                <span>R2D2 Multi-Agent System v2.1.0</span>
+                <span>|</span>
+                <span>NVIDIA Orin Nano</span>
+                <span>|</span>
+                <span id="uptime">Uptime: 02:34:15</span>
+            </div>
+            <div class="footer-status">
+                <span class="websocket-status" id="websocketStatus">WebSocket: Connected</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="dashboard_script.js"></script>
+</body>
+</html>
