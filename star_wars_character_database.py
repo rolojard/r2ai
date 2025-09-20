@@ -25,12 +25,7 @@ def create_star_wars_character_database() -> CharacterDatabase:
     # Luke Skywalker - R2-D2's closest friend and primary master
     luke = StarWarsCharacter(
         name="Luke Skywalker",
-        aliases=["Luke", "Red Five", "Jedi Luke"],
-        full_name="Luke Skywalker",
-        titles=["Jedi Knight", "Jedi Master", "Commander"],
         faction=FactionAlignment.JEDI,
-        species="human",
-        homeworld="Tatooine",
         relationship_to_r2d2=RelationshipType.CLOSE_FRIEND,
         r2d2_reaction=R2D2Reaction(
             primary_emotion=EmotionalResponse.EXCITED_BEEPS,
@@ -39,7 +34,6 @@ def create_star_wars_character_database() -> CharacterDatabase:
             behavioral_notes="R2-D2 becomes very animated, extends periscope, rocks back and forth",
             confidence_modifier=1.2
         ),
-        trust_level=10,
         visual_descriptor=VisualDescriptor(
             primary_outfit="Black Jedi robes",
             distinctive_features=["blonde hair", "blue eyes", "Jedi lightsaber"],
@@ -55,6 +49,12 @@ def create_star_wars_character_database() -> CharacterDatabase:
             sequel_era=True,
             tv_series=["The Mandalorian", "The Book of Boba Fett"]
         ),
+        aliases=["Luke", "Red Five", "Jedi Luke"],
+        full_name="Luke Skywalker",
+        titles=["Jedi Knight", "Jedi Master", "Commander"],
+        species="human",
+        homeworld="Tatooine",
+        trust_level=10,
         first_meeting_context="Owen Lars' moisture farm on Tatooine",
         recognition_priority=10,
         confidence_threshold=0.85,

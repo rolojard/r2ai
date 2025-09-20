@@ -1,0 +1,1648 @@
+{
+  "dataset_overview": {
+    "total_characters": 15,
+    "estimated_total_images": 8550,
+    "dataset_organization": {
+      "base_path": "/home/rolo/r2ai/star_wars_dataset",
+      "validation_split": 0.2,
+      "test_split": 0.1,
+      "augmentation_factor": 3
+    },
+    "quality_standards": {
+      "minimum_resolution": [
+        224,
+        224
+      ],
+      "maximum_blur_threshold": 0.3,
+      "minimum_face_size": 64,
+      "maximum_occlusion": 30
+    }
+  },
+  "character_guidelines": {
+    "Luke Skywalker": {
+      "collection_priority": "HIGH",
+      "recommended_sources": [
+        "Official movie stills",
+        "High-quality promotional materials",
+        "Behind-the-scenes photography",
+        "Official merchandise photography",
+        "Star Wars official social media",
+        "Lucasfilm archives",
+        "Convention photography"
+      ],
+      "search_terms": [
+        "Luke Skywalker",
+        "farmboy_tunic",
+        "rebel_pilot_suit",
+        "bespin_fatigues",
+        "endor_camouflage",
+        "black_jedi_robes",
+        "ceremony_jacket",
+        "Mark Hamill",
+        "Jedi Knight",
+        "X-wing pilot",
+        "Tatooine"
+      ],
+      "quality_checklist": [
+        "Face clearly visible and unobscured",
+        "Adequate lighting for facial feature recognition",
+        "Minimum resolution requirements met",
+        "Image not significantly blurred or distorted",
+        "Character is primary subject in frame",
+        "No watermarks or text overlays on face",
+        "Special consideration: Include images with and without lightsaber illumination",
+        "Special consideration: Capture expressions during emotional scenes",
+        "Special consideration: Include helmet-wearing images (pilot)",
+        "Special consideration: Various hair lengths throughout saga",
+        "Special consideration: Mechanical hand visibility in some shots"
+      ],
+      "organization_structure": {
+        "base_folder": "luke_skywalker",
+        "subfolders": {
+          "train": "luke_skywalker/train",
+          "validation": "luke_skywalker/validation",
+          "test": "luke_skywalker/test"
+        },
+        "costume_folders": {
+          "farmboy_tunic": {
+            "train": "luke_skywalker/train/farmboy_tunic",
+            "validation": "luke_skywalker/validation/farmboy_tunic",
+            "test": "luke_skywalker/test/farmboy_tunic"
+          },
+          "rebel_pilot_suit": {
+            "train": "luke_skywalker/train/rebel_pilot_suit",
+            "validation": "luke_skywalker/validation/rebel_pilot_suit",
+            "test": "luke_skywalker/test/rebel_pilot_suit"
+          },
+          "bespin_fatigues": {
+            "train": "luke_skywalker/train/bespin_fatigues",
+            "validation": "luke_skywalker/validation/bespin_fatigues",
+            "test": "luke_skywalker/test/bespin_fatigues"
+          },
+          "endor_camouflage": {
+            "train": "luke_skywalker/train/endor_camouflage",
+            "validation": "luke_skywalker/validation/endor_camouflage",
+            "test": "luke_skywalker/test/endor_camouflage"
+          },
+          "black_jedi_robes": {
+            "train": "luke_skywalker/train/black_jedi_robes",
+            "validation": "luke_skywalker/validation/black_jedi_robes",
+            "test": "luke_skywalker/test/black_jedi_robes"
+          },
+          "ceremony_jacket": {
+            "train": "luke_skywalker/train/ceremony_jacket",
+            "validation": "luke_skywalker/validation/ceremony_jacket",
+            "test": "luke_skywalker/test/ceremony_jacket"
+          }
+        }
+      },
+      "augmentation_strategy": {
+        "rotation": {
+          "range": [
+            -15,
+            15
+          ],
+          "probability": 0.7
+        },
+        "brightness": {
+          "range": [
+            0.8,
+            1.2
+          ],
+          "probability": 0.6
+        },
+        "contrast": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.5
+        },
+        "horizontal_flip": {
+          "probability": 0.5
+        },
+        "zoom": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.4
+        },
+        "gaussian_noise": {
+          "sigma": 0.01,
+          "probability": 0.3
+        }
+      },
+      "validation_criteria": {
+        "minimum_accuracy": 0.9,
+        "minimum_precision": 0.88,
+        "minimum_recall": 0.85,
+        "maximum_false_positive_rate": 0.03
+      }
+    },
+    "Leia Organa": {
+      "collection_priority": "HIGH",
+      "recommended_sources": [
+        "Official movie stills",
+        "High-quality promotional materials",
+        "Behind-the-scenes photography",
+        "Official merchandise photography"
+      ],
+      "search_terms": [
+        "Leia Organa",
+        "white_alderaanian_dress",
+        "hoth_combat_gear",
+        "endor_camouflage",
+        "boushh_disguise",
+        "resistance_general_uniform",
+        "ceremony_gown",
+        "Princess Leia",
+        "Carrie Fisher",
+        "General Organa"
+      ],
+      "quality_checklist": [
+        "Face clearly visible and unobscured",
+        "Adequate lighting for facial feature recognition",
+        "Minimum resolution requirements met",
+        "Image not significantly blurred or distorted",
+        "Character is primary subject in frame",
+        "No watermarks or text overlays on face",
+        "Special consideration: Include various hairstyle changes",
+        "Special consideration: Capture leadership expressions",
+        "Special consideration: Include armed/combat poses",
+        "Special consideration: Various royal jewelry and accessories",
+        "Special consideration: Disguised vs. revealed identity shots"
+      ],
+      "organization_structure": {
+        "base_folder": "leia_organa",
+        "subfolders": {
+          "train": "leia_organa/train",
+          "validation": "leia_organa/validation",
+          "test": "leia_organa/test"
+        },
+        "costume_folders": {
+          "white_alderaanian_dress": {
+            "train": "leia_organa/train/white_alderaanian_dress",
+            "validation": "leia_organa/validation/white_alderaanian_dress",
+            "test": "leia_organa/test/white_alderaanian_dress"
+          },
+          "hoth_combat_gear": {
+            "train": "leia_organa/train/hoth_combat_gear",
+            "validation": "leia_organa/validation/hoth_combat_gear",
+            "test": "leia_organa/test/hoth_combat_gear"
+          },
+          "endor_camouflage": {
+            "train": "leia_organa/train/endor_camouflage",
+            "validation": "leia_organa/validation/endor_camouflage",
+            "test": "leia_organa/test/endor_camouflage"
+          },
+          "boushh_disguise": {
+            "train": "leia_organa/train/boushh_disguise",
+            "validation": "leia_organa/validation/boushh_disguise",
+            "test": "leia_organa/test/boushh_disguise"
+          },
+          "resistance_general_uniform": {
+            "train": "leia_organa/train/resistance_general_uniform",
+            "validation": "leia_organa/validation/resistance_general_uniform",
+            "test": "leia_organa/test/resistance_general_uniform"
+          },
+          "ceremony_gown": {
+            "train": "leia_organa/train/ceremony_gown",
+            "validation": "leia_organa/validation/ceremony_gown",
+            "test": "leia_organa/test/ceremony_gown"
+          }
+        }
+      },
+      "augmentation_strategy": {
+        "rotation": {
+          "range": [
+            -15,
+            15
+          ],
+          "probability": 0.7
+        },
+        "brightness": {
+          "range": [
+            0.8,
+            1.2
+          ],
+          "probability": 0.6
+        },
+        "contrast": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.5
+        },
+        "horizontal_flip": {
+          "probability": 0.5
+        },
+        "zoom": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.4
+        },
+        "gaussian_noise": {
+          "sigma": 0.01,
+          "probability": 0.3
+        }
+      },
+      "validation_criteria": {
+        "minimum_accuracy": 0.9,
+        "minimum_precision": 0.88,
+        "minimum_recall": 0.85,
+        "maximum_false_positive_rate": 0.03
+      }
+    },
+    "Han Solo": {
+      "collection_priority": "MEDIUM",
+      "recommended_sources": [
+        "Official movie stills",
+        "High-quality promotional materials",
+        "Behind-the-scenes photography",
+        "Official merchandise photography"
+      ],
+      "search_terms": [
+        "Han Solo",
+        "smuggler_outfit",
+        "hoth_parka",
+        "endor_trench_coat",
+        "formal_wear",
+        "carbonite_preparation"
+      ],
+      "quality_checklist": [
+        "Face clearly visible and unobscured",
+        "Adequate lighting for facial feature recognition",
+        "Minimum resolution requirements met",
+        "Image not significantly blurred or distorted",
+        "Character is primary subject in frame",
+        "No watermarks or text overlays on face",
+        "Special consideration: Include cocky expressions and smirks",
+        "Special consideration: Capture with and without blaster",
+        "Special consideration: Various states of facial hair",
+        "Special consideration: Include action poses",
+        "Special consideration: Weather-beaten appearances"
+      ],
+      "organization_structure": {
+        "base_folder": "han_solo",
+        "subfolders": {
+          "train": "han_solo/train",
+          "validation": "han_solo/validation",
+          "test": "han_solo/test"
+        },
+        "costume_folders": {
+          "smuggler_outfit": {
+            "train": "han_solo/train/smuggler_outfit",
+            "validation": "han_solo/validation/smuggler_outfit",
+            "test": "han_solo/test/smuggler_outfit"
+          },
+          "hoth_parka": {
+            "train": "han_solo/train/hoth_parka",
+            "validation": "han_solo/validation/hoth_parka",
+            "test": "han_solo/test/hoth_parka"
+          },
+          "endor_trench_coat": {
+            "train": "han_solo/train/endor_trench_coat",
+            "validation": "han_solo/validation/endor_trench_coat",
+            "test": "han_solo/test/endor_trench_coat"
+          },
+          "formal_wear": {
+            "train": "han_solo/train/formal_wear",
+            "validation": "han_solo/validation/formal_wear",
+            "test": "han_solo/test/formal_wear"
+          },
+          "carbonite_preparation": {
+            "train": "han_solo/train/carbonite_preparation",
+            "validation": "han_solo/validation/carbonite_preparation",
+            "test": "han_solo/test/carbonite_preparation"
+          }
+        }
+      },
+      "augmentation_strategy": {
+        "rotation": {
+          "range": [
+            -15,
+            15
+          ],
+          "probability": 0.7
+        },
+        "brightness": {
+          "range": [
+            0.8,
+            1.2
+          ],
+          "probability": 0.6
+        },
+        "contrast": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.5
+        },
+        "horizontal_flip": {
+          "probability": 0.5
+        },
+        "zoom": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.4
+        },
+        "gaussian_noise": {
+          "sigma": 0.01,
+          "probability": 0.3
+        }
+      },
+      "validation_criteria": {
+        "minimum_accuracy": 0.85,
+        "minimum_precision": 0.8,
+        "minimum_recall": 0.75,
+        "maximum_false_positive_rate": 0.05
+      }
+    },
+    "Chewbacca": {
+      "collection_priority": "STANDARD",
+      "recommended_sources": [
+        "Official movie stills",
+        "High-quality promotional materials",
+        "Behind-the-scenes photography",
+        "Official merchandise photography"
+      ],
+      "search_terms": [
+        "Chewbacca",
+        "standard_fur",
+        "endor_gear",
+        "formal_ceremony",
+        "battle_damaged"
+      ],
+      "quality_checklist": [
+        "Face clearly visible and unobscured",
+        "Adequate lighting for facial feature recognition",
+        "Minimum resolution requirements met",
+        "Image not significantly blurred or distorted",
+        "Character is primary subject in frame",
+        "No watermarks or text overlays on face",
+        "Special consideration: Focus on facial features within fur",
+        "Special consideration: Capture distinctive eye expressions",
+        "Special consideration: Include bowcaster carrying poses",
+        "Special consideration: Various fur conditions (clean vs. battle-worn)",
+        "Special consideration: Roaring and calm expressions"
+      ],
+      "organization_structure": {
+        "base_folder": "chewbacca",
+        "subfolders": {
+          "train": "chewbacca/train",
+          "validation": "chewbacca/validation",
+          "test": "chewbacca/test"
+        },
+        "costume_folders": {
+          "standard_fur": {
+            "train": "chewbacca/train/standard_fur",
+            "validation": "chewbacca/validation/standard_fur",
+            "test": "chewbacca/test/standard_fur"
+          },
+          "endor_gear": {
+            "train": "chewbacca/train/endor_gear",
+            "validation": "chewbacca/validation/endor_gear",
+            "test": "chewbacca/test/endor_gear"
+          },
+          "formal_ceremony": {
+            "train": "chewbacca/train/formal_ceremony",
+            "validation": "chewbacca/validation/formal_ceremony",
+            "test": "chewbacca/test/formal_ceremony"
+          },
+          "battle_damaged": {
+            "train": "chewbacca/train/battle_damaged",
+            "validation": "chewbacca/validation/battle_damaged",
+            "test": "chewbacca/test/battle_damaged"
+          }
+        }
+      },
+      "augmentation_strategy": {
+        "rotation": {
+          "range": [
+            -15,
+            15
+          ],
+          "probability": 0.7
+        },
+        "brightness": {
+          "range": [
+            0.8,
+            1.2
+          ],
+          "probability": 0.6
+        },
+        "contrast": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.5
+        },
+        "horizontal_flip": {
+          "probability": 0.5
+        },
+        "zoom": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.4
+        },
+        "gaussian_noise": {
+          "sigma": 0.01,
+          "probability": 0.3
+        }
+      },
+      "validation_criteria": {
+        "minimum_accuracy": 0.85,
+        "minimum_precision": 0.8,
+        "minimum_recall": 0.75,
+        "maximum_false_positive_rate": 0.05
+      }
+    },
+    "C-3PO": {
+      "collection_priority": "HIGH",
+      "recommended_sources": [
+        "Official movie stills",
+        "High-quality promotional materials",
+        "Behind-the-scenes photography",
+        "Official merchandise photography",
+        "Product photography",
+        "Museum displays",
+        "Technical documentation"
+      ],
+      "search_terms": [
+        "C-3PO",
+        "golden_plating",
+        "silver_leg",
+        "dismantled_parts",
+        "red_arm",
+        "ewok_deity_decoration",
+        "protocol droid",
+        "golden droid",
+        "Anthony Daniels"
+      ],
+      "quality_checklist": [
+        "Face clearly visible and unobscured",
+        "Adequate lighting for facial feature recognition",
+        "Minimum resolution requirements met",
+        "Image not significantly blurred or distorted",
+        "Character is primary subject in frame",
+        "No watermarks or text overlays on face",
+        "Special consideration: Capture reflective plating under various lighting",
+        "Special consideration: Include damaged vs. pristine conditions",
+        "Special consideration: Focus on photoreceptor (eye) glow",
+        "Special consideration: Various states of assembly/disassembly",
+        "Special consideration: Include pose variations for protocol functions"
+      ],
+      "organization_structure": {
+        "base_folder": "c_3po",
+        "subfolders": {
+          "train": "c_3po/train",
+          "validation": "c_3po/validation",
+          "test": "c_3po/test"
+        },
+        "costume_folders": {
+          "golden_plating": {
+            "train": "c_3po/train/golden_plating",
+            "validation": "c_3po/validation/golden_plating",
+            "test": "c_3po/test/golden_plating"
+          },
+          "silver_leg": {
+            "train": "c_3po/train/silver_leg",
+            "validation": "c_3po/validation/silver_leg",
+            "test": "c_3po/test/silver_leg"
+          },
+          "dismantled_parts": {
+            "train": "c_3po/train/dismantled_parts",
+            "validation": "c_3po/validation/dismantled_parts",
+            "test": "c_3po/test/dismantled_parts"
+          },
+          "red_arm": {
+            "train": "c_3po/train/red_arm",
+            "validation": "c_3po/validation/red_arm",
+            "test": "c_3po/test/red_arm"
+          },
+          "ewok_deity_decoration": {
+            "train": "c_3po/train/ewok_deity_decoration",
+            "validation": "c_3po/validation/ewok_deity_decoration",
+            "test": "c_3po/test/ewok_deity_decoration"
+          }
+        }
+      },
+      "augmentation_strategy": {
+        "rotation": {
+          "range": [
+            -15,
+            15
+          ],
+          "probability": 0.7
+        },
+        "brightness": {
+          "range": [
+            0.8,
+            1.2
+          ],
+          "probability": 0.6
+        },
+        "contrast": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.5
+        },
+        "horizontal_flip": {
+          "probability": 0.5
+        },
+        "zoom": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.4
+        },
+        "gaussian_noise": {
+          "sigma": 0.01,
+          "probability": 0.3
+        }
+      },
+      "validation_criteria": {
+        "minimum_accuracy": 0.9,
+        "minimum_precision": 0.88,
+        "minimum_recall": 0.85,
+        "maximum_false_positive_rate": 0.03
+      }
+    },
+    "Obi-Wan Kenobi": {
+      "collection_priority": "MEDIUM",
+      "recommended_sources": [
+        "Official movie stills",
+        "High-quality promotional materials",
+        "Behind-the-scenes photography",
+        "Official merchandise photography"
+      ],
+      "search_terms": [
+        "Obi-Wan Kenobi",
+        "jedi_robes_prequel",
+        "clone_wars_armor",
+        "tatooine_hermit_robes",
+        "young_padawan",
+        "formal_jedi_attire"
+      ],
+      "quality_checklist": [
+        "Face clearly visible and unobscured",
+        "Adequate lighting for facial feature recognition",
+        "Minimum resolution requirements met",
+        "Image not significantly blurred or distorted",
+        "Character is primary subject in frame",
+        "No watermarks or text overlays on face",
+        "Special consideration: Include images across major age changes",
+        "Special consideration: Capture with and without beard variations",
+        "Special consideration: Include lightsaber combat illumination",
+        "Special consideration: Various expressions from wise to concerned",
+        "Special consideration: Hood up vs. hood down variations"
+      ],
+      "organization_structure": {
+        "base_folder": "obi_wan_kenobi",
+        "subfolders": {
+          "train": "obi_wan_kenobi/train",
+          "validation": "obi_wan_kenobi/validation",
+          "test": "obi_wan_kenobi/test"
+        },
+        "costume_folders": {
+          "jedi_robes_prequel": {
+            "train": "obi_wan_kenobi/train/jedi_robes_prequel",
+            "validation": "obi_wan_kenobi/validation/jedi_robes_prequel",
+            "test": "obi_wan_kenobi/test/jedi_robes_prequel"
+          },
+          "clone_wars_armor": {
+            "train": "obi_wan_kenobi/train/clone_wars_armor",
+            "validation": "obi_wan_kenobi/validation/clone_wars_armor",
+            "test": "obi_wan_kenobi/test/clone_wars_armor"
+          },
+          "tatooine_hermit_robes": {
+            "train": "obi_wan_kenobi/train/tatooine_hermit_robes",
+            "validation": "obi_wan_kenobi/validation/tatooine_hermit_robes",
+            "test": "obi_wan_kenobi/test/tatooine_hermit_robes"
+          },
+          "young_padawan": {
+            "train": "obi_wan_kenobi/train/young_padawan",
+            "validation": "obi_wan_kenobi/validation/young_padawan",
+            "test": "obi_wan_kenobi/test/young_padawan"
+          },
+          "formal_jedi_attire": {
+            "train": "obi_wan_kenobi/train/formal_jedi_attire",
+            "validation": "obi_wan_kenobi/validation/formal_jedi_attire",
+            "test": "obi_wan_kenobi/test/formal_jedi_attire"
+          }
+        }
+      },
+      "augmentation_strategy": {
+        "rotation": {
+          "range": [
+            -15,
+            15
+          ],
+          "probability": 0.7
+        },
+        "brightness": {
+          "range": [
+            0.8,
+            1.2
+          ],
+          "probability": 0.6
+        },
+        "contrast": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.5
+        },
+        "horizontal_flip": {
+          "probability": 0.5
+        },
+        "zoom": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.4
+        },
+        "gaussian_noise": {
+          "sigma": 0.01,
+          "probability": 0.3
+        }
+      },
+      "validation_criteria": {
+        "minimum_accuracy": 0.85,
+        "minimum_precision": 0.8,
+        "minimum_recall": 0.75,
+        "maximum_false_positive_rate": 0.05
+      }
+    },
+    "Darth Vader": {
+      "collection_priority": "STANDARD",
+      "recommended_sources": [
+        "Official movie stills",
+        "High-quality promotional materials",
+        "Behind-the-scenes photography",
+        "Official merchandise photography"
+      ],
+      "search_terms": [
+        "Darth Vader",
+        "standard_black_armor",
+        "meditation_chamber",
+        "damaged_armor",
+        "cape_variations",
+        "Sith Lord",
+        "Dark Lord",
+        "Imperial",
+        "James Earl Jones"
+      ],
+      "quality_checklist": [
+        "Face clearly visible and unobscured",
+        "Adequate lighting for facial feature recognition",
+        "Minimum resolution requirements met",
+        "Image not significantly blurred or distorted",
+        "Character is primary subject in frame",
+        "No watermarks or text overlays on face",
+        "Special consideration: Focus on mask details and reflection patterns",
+        "Special consideration: Capture distinctive silhouette",
+        "Special consideration: Include cape dramatic poses",
+        "Special consideration: Red lightsaber illumination effects",
+        "Special consideration: Control panel chest piece visibility",
+        "Special consideration: Intimidating poses and stances"
+      ],
+      "organization_structure": {
+        "base_folder": "darth_vader",
+        "subfolders": {
+          "train": "darth_vader/train",
+          "validation": "darth_vader/validation",
+          "test": "darth_vader/test"
+        },
+        "costume_folders": {
+          "standard_black_armor": {
+            "train": "darth_vader/train/standard_black_armor",
+            "validation": "darth_vader/validation/standard_black_armor",
+            "test": "darth_vader/test/standard_black_armor"
+          },
+          "meditation_chamber": {
+            "train": "darth_vader/train/meditation_chamber",
+            "validation": "darth_vader/validation/meditation_chamber",
+            "test": "darth_vader/test/meditation_chamber"
+          },
+          "damaged_armor": {
+            "train": "darth_vader/train/damaged_armor",
+            "validation": "darth_vader/validation/damaged_armor",
+            "test": "darth_vader/test/damaged_armor"
+          },
+          "cape_variations": {
+            "train": "darth_vader/train/cape_variations",
+            "validation": "darth_vader/validation/cape_variations",
+            "test": "darth_vader/test/cape_variations"
+          }
+        }
+      },
+      "augmentation_strategy": {
+        "rotation": {
+          "range": [
+            -15,
+            15
+          ],
+          "probability": 0.7
+        },
+        "brightness": {
+          "range": [
+            0.8,
+            1.2
+          ],
+          "probability": 0.6
+        },
+        "contrast": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.5
+        },
+        "horizontal_flip": {
+          "probability": 0.5
+        },
+        "zoom": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.4
+        },
+        "gaussian_noise": {
+          "sigma": 0.01,
+          "probability": 0.3
+        }
+      },
+      "validation_criteria": {
+        "minimum_accuracy": 0.85,
+        "minimum_precision": 0.8,
+        "minimum_recall": 0.75,
+        "maximum_false_positive_rate": 0.05
+      }
+    },
+    "Anakin Skywalker": {
+      "collection_priority": "HIGH",
+      "recommended_sources": [
+        "Official movie stills",
+        "High-quality promotional materials",
+        "Behind-the-scenes photography",
+        "Official merchandise photography"
+      ],
+      "search_terms": [
+        "Anakin Skywalker",
+        "slave_boy_clothes",
+        "padawan_robes",
+        "jedi_knight_robes",
+        "dark_side_transition",
+        "clone_wars_armor"
+      ],
+      "quality_checklist": [
+        "Face clearly visible and unobscured",
+        "Adequate lighting for facial feature recognition",
+        "Minimum resolution requirements met",
+        "Image not significantly blurred or distorted",
+        "Character is primary subject in frame",
+        "No watermarks or text overlays on face",
+        "Special consideration: Include major age transitions",
+        "Special consideration: Capture emotional range from innocent to angry",
+        "Special consideration: Include mechanical hand visibility",
+        "Special consideration: Various hair lengths and styles",
+        "Special consideration: Lightsaber combat scenes",
+        "Special consideration: Padawan braid vs. without"
+      ],
+      "organization_structure": {
+        "base_folder": "anakin_skywalker",
+        "subfolders": {
+          "train": "anakin_skywalker/train",
+          "validation": "anakin_skywalker/validation",
+          "test": "anakin_skywalker/test"
+        },
+        "costume_folders": {
+          "slave_boy_clothes": {
+            "train": "anakin_skywalker/train/slave_boy_clothes",
+            "validation": "anakin_skywalker/validation/slave_boy_clothes",
+            "test": "anakin_skywalker/test/slave_boy_clothes"
+          },
+          "padawan_robes": {
+            "train": "anakin_skywalker/train/padawan_robes",
+            "validation": "anakin_skywalker/validation/padawan_robes",
+            "test": "anakin_skywalker/test/padawan_robes"
+          },
+          "jedi_knight_robes": {
+            "train": "anakin_skywalker/train/jedi_knight_robes",
+            "validation": "anakin_skywalker/validation/jedi_knight_robes",
+            "test": "anakin_skywalker/test/jedi_knight_robes"
+          },
+          "dark_side_transition": {
+            "train": "anakin_skywalker/train/dark_side_transition",
+            "validation": "anakin_skywalker/validation/dark_side_transition",
+            "test": "anakin_skywalker/test/dark_side_transition"
+          },
+          "clone_wars_armor": {
+            "train": "anakin_skywalker/train/clone_wars_armor",
+            "validation": "anakin_skywalker/validation/clone_wars_armor",
+            "test": "anakin_skywalker/test/clone_wars_armor"
+          }
+        }
+      },
+      "augmentation_strategy": {
+        "rotation": {
+          "range": [
+            -15,
+            15
+          ],
+          "probability": 0.7
+        },
+        "brightness": {
+          "range": [
+            0.8,
+            1.2
+          ],
+          "probability": 0.6
+        },
+        "contrast": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.5
+        },
+        "horizontal_flip": {
+          "probability": 0.5
+        },
+        "zoom": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.4
+        },
+        "gaussian_noise": {
+          "sigma": 0.01,
+          "probability": 0.3
+        }
+      },
+      "validation_criteria": {
+        "minimum_accuracy": 0.9,
+        "minimum_precision": 0.88,
+        "minimum_recall": 0.85,
+        "maximum_false_positive_rate": 0.03
+      }
+    },
+    "Padm\u00e9 Amidala": {
+      "collection_priority": "MEDIUM",
+      "recommended_sources": [
+        "Official movie stills",
+        "High-quality promotional materials",
+        "Behind-the-scenes photography",
+        "Official merchandise photography"
+      ],
+      "search_terms": [
+        "Padm\u00e9 Amidala",
+        "royal_gowns",
+        "handmaiden_disguise",
+        "senator_outfits",
+        "travel_clothes",
+        "geonosis_arena_outfit"
+      ],
+      "quality_checklist": [
+        "Face clearly visible and unobscured",
+        "Adequate lighting for facial feature recognition",
+        "Minimum resolution requirements met",
+        "Image not significantly blurred or distorted",
+        "Character is primary subject in frame",
+        "No watermarks or text overlays on face",
+        "Special consideration: Include elaborate hairstyles and makeup",
+        "Special consideration: Capture royal bearing vs. disguised appearances",
+        "Special consideration: Various jewelry and headdresses",
+        "Special consideration: Leadership expressions",
+        "Special consideration: Combat-ready poses",
+        "Special consideration: Formal vs. casual appearances"
+      ],
+      "organization_structure": {
+        "base_folder": "padm\u00e9_amidala",
+        "subfolders": {
+          "train": "padm\u00e9_amidala/train",
+          "validation": "padm\u00e9_amidala/validation",
+          "test": "padm\u00e9_amidala/test"
+        },
+        "costume_folders": {
+          "royal_gowns": {
+            "train": "padm\u00e9_amidala/train/royal_gowns",
+            "validation": "padm\u00e9_amidala/validation/royal_gowns",
+            "test": "padm\u00e9_amidala/test/royal_gowns"
+          },
+          "handmaiden_disguise": {
+            "train": "padm\u00e9_amidala/train/handmaiden_disguise",
+            "validation": "padm\u00e9_amidala/validation/handmaiden_disguise",
+            "test": "padm\u00e9_amidala/test/handmaiden_disguise"
+          },
+          "senator_outfits": {
+            "train": "padm\u00e9_amidala/train/senator_outfits",
+            "validation": "padm\u00e9_amidala/validation/senator_outfits",
+            "test": "padm\u00e9_amidala/test/senator_outfits"
+          },
+          "travel_clothes": {
+            "train": "padm\u00e9_amidala/train/travel_clothes",
+            "validation": "padm\u00e9_amidala/validation/travel_clothes",
+            "test": "padm\u00e9_amidala/test/travel_clothes"
+          },
+          "geonosis_arena_outfit": {
+            "train": "padm\u00e9_amidala/train/geonosis_arena_outfit",
+            "validation": "padm\u00e9_amidala/validation/geonosis_arena_outfit",
+            "test": "padm\u00e9_amidala/test/geonosis_arena_outfit"
+          }
+        }
+      },
+      "augmentation_strategy": {
+        "rotation": {
+          "range": [
+            -15,
+            15
+          ],
+          "probability": 0.7
+        },
+        "brightness": {
+          "range": [
+            0.8,
+            1.2
+          ],
+          "probability": 0.6
+        },
+        "contrast": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.5
+        },
+        "horizontal_flip": {
+          "probability": 0.5
+        },
+        "zoom": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.4
+        },
+        "gaussian_noise": {
+          "sigma": 0.01,
+          "probability": 0.3
+        }
+      },
+      "validation_criteria": {
+        "minimum_accuracy": 0.85,
+        "minimum_precision": 0.8,
+        "minimum_recall": 0.75,
+        "maximum_false_positive_rate": 0.05
+      }
+    },
+    "Rey": {
+      "collection_priority": "STANDARD",
+      "recommended_sources": [
+        "Official movie stills",
+        "High-quality promotional materials",
+        "Behind-the-scenes photography",
+        "Official merchandise photography"
+      ],
+      "search_terms": [
+        "Rey",
+        "jakku_scavenger_outfit",
+        "resistance_fighter_gear",
+        "jedi_training_robes",
+        "formal_attire"
+      ],
+      "quality_checklist": [
+        "Face clearly visible and unobscured",
+        "Adequate lighting for facial feature recognition",
+        "Minimum resolution requirements met",
+        "Image not significantly blurred or distorted",
+        "Character is primary subject in frame",
+        "No watermarks or text overlays on face",
+        "Special consideration: Include determined and fierce expressions",
+        "Special consideration: Capture with staff weapon and lightsaber",
+        "Special consideration: Various hair bun styles",
+        "Special consideration: Desert environment adaptations",
+        "Special consideration: Force-user concentration expressions"
+      ],
+      "organization_structure": {
+        "base_folder": "rey",
+        "subfolders": {
+          "train": "rey/train",
+          "validation": "rey/validation",
+          "test": "rey/test"
+        },
+        "costume_folders": {
+          "jakku_scavenger_outfit": {
+            "train": "rey/train/jakku_scavenger_outfit",
+            "validation": "rey/validation/jakku_scavenger_outfit",
+            "test": "rey/test/jakku_scavenger_outfit"
+          },
+          "resistance_fighter_gear": {
+            "train": "rey/train/resistance_fighter_gear",
+            "validation": "rey/validation/resistance_fighter_gear",
+            "test": "rey/test/resistance_fighter_gear"
+          },
+          "jedi_training_robes": {
+            "train": "rey/train/jedi_training_robes",
+            "validation": "rey/validation/jedi_training_robes",
+            "test": "rey/test/jedi_training_robes"
+          },
+          "formal_attire": {
+            "train": "rey/train/formal_attire",
+            "validation": "rey/validation/formal_attire",
+            "test": "rey/test/formal_attire"
+          }
+        }
+      },
+      "augmentation_strategy": {
+        "rotation": {
+          "range": [
+            -15,
+            15
+          ],
+          "probability": 0.7
+        },
+        "brightness": {
+          "range": [
+            0.8,
+            1.2
+          ],
+          "probability": 0.6
+        },
+        "contrast": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.5
+        },
+        "horizontal_flip": {
+          "probability": 0.5
+        },
+        "zoom": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.4
+        },
+        "gaussian_noise": {
+          "sigma": 0.01,
+          "probability": 0.3
+        }
+      },
+      "validation_criteria": {
+        "minimum_accuracy": 0.85,
+        "minimum_precision": 0.8,
+        "minimum_recall": 0.75,
+        "maximum_false_positive_rate": 0.05
+      }
+    },
+    "Finn": {
+      "collection_priority": "STANDARD",
+      "recommended_sources": [
+        "Official movie stills",
+        "High-quality promotional materials",
+        "Behind-the-scenes photography",
+        "Official merchandise photography"
+      ],
+      "search_terms": [
+        "Finn",
+        "stormtrooper_armor",
+        "resistance_jacket",
+        "resistance_uniform",
+        "formal_wear"
+      ],
+      "quality_checklist": [
+        "Face clearly visible and unobscured",
+        "Adequate lighting for facial feature recognition",
+        "Minimum resolution requirements met",
+        "Image not significantly blurred or distorted",
+        "Character is primary subject in frame",
+        "No watermarks or text overlays on face",
+        "Special consideration: Include stormtrooper helmet vs. unmasked",
+        "Special consideration: Capture transition from soldier to hero",
+        "Special consideration: Various expressions showing character growth",
+        "Special consideration: Combat poses with different weapons"
+      ],
+      "organization_structure": {
+        "base_folder": "finn",
+        "subfolders": {
+          "train": "finn/train",
+          "validation": "finn/validation",
+          "test": "finn/test"
+        },
+        "costume_folders": {
+          "stormtrooper_armor": {
+            "train": "finn/train/stormtrooper_armor",
+            "validation": "finn/validation/stormtrooper_armor",
+            "test": "finn/test/stormtrooper_armor"
+          },
+          "resistance_jacket": {
+            "train": "finn/train/resistance_jacket",
+            "validation": "finn/validation/resistance_jacket",
+            "test": "finn/test/resistance_jacket"
+          },
+          "resistance_uniform": {
+            "train": "finn/train/resistance_uniform",
+            "validation": "finn/validation/resistance_uniform",
+            "test": "finn/test/resistance_uniform"
+          },
+          "formal_wear": {
+            "train": "finn/train/formal_wear",
+            "validation": "finn/validation/formal_wear",
+            "test": "finn/test/formal_wear"
+          }
+        }
+      },
+      "augmentation_strategy": {
+        "rotation": {
+          "range": [
+            -15,
+            15
+          ],
+          "probability": 0.7
+        },
+        "brightness": {
+          "range": [
+            0.8,
+            1.2
+          ],
+          "probability": 0.6
+        },
+        "contrast": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.5
+        },
+        "horizontal_flip": {
+          "probability": 0.5
+        },
+        "zoom": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.4
+        },
+        "gaussian_noise": {
+          "sigma": 0.01,
+          "probability": 0.3
+        }
+      },
+      "validation_criteria": {
+        "minimum_accuracy": 0.85,
+        "minimum_precision": 0.8,
+        "minimum_recall": 0.75,
+        "maximum_false_positive_rate": 0.05
+      }
+    },
+    "Poe Dameron": {
+      "collection_priority": "STANDARD",
+      "recommended_sources": [
+        "Official movie stills",
+        "High-quality promotional materials",
+        "Behind-the-scenes photography",
+        "Official merchandise photography"
+      ],
+      "search_terms": [
+        "Poe Dameron",
+        "x_wing_pilot_suit",
+        "resistance_uniform",
+        "casual_jacket",
+        "undercover_disguise"
+      ],
+      "quality_checklist": [
+        "Face clearly visible and unobscured",
+        "Adequate lighting for facial feature recognition",
+        "Minimum resolution requirements met",
+        "Image not significantly blurred or distorted",
+        "Character is primary subject in frame",
+        "No watermarks or text overlays on face",
+        "Special consideration: Include pilot helmet vs. unmasked",
+        "Special consideration: Capture confident pilot expressions",
+        "Special consideration: Various flight gear configurations",
+        "Special consideration: Leadership poses and expressions"
+      ],
+      "organization_structure": {
+        "base_folder": "poe_dameron",
+        "subfolders": {
+          "train": "poe_dameron/train",
+          "validation": "poe_dameron/validation",
+          "test": "poe_dameron/test"
+        },
+        "costume_folders": {
+          "x_wing_pilot_suit": {
+            "train": "poe_dameron/train/x_wing_pilot_suit",
+            "validation": "poe_dameron/validation/x_wing_pilot_suit",
+            "test": "poe_dameron/test/x_wing_pilot_suit"
+          },
+          "resistance_uniform": {
+            "train": "poe_dameron/train/resistance_uniform",
+            "validation": "poe_dameron/validation/resistance_uniform",
+            "test": "poe_dameron/test/resistance_uniform"
+          },
+          "casual_jacket": {
+            "train": "poe_dameron/train/casual_jacket",
+            "validation": "poe_dameron/validation/casual_jacket",
+            "test": "poe_dameron/test/casual_jacket"
+          },
+          "undercover_disguise": {
+            "train": "poe_dameron/train/undercover_disguise",
+            "validation": "poe_dameron/validation/undercover_disguise",
+            "test": "poe_dameron/test/undercover_disguise"
+          }
+        }
+      },
+      "augmentation_strategy": {
+        "rotation": {
+          "range": [
+            -15,
+            15
+          ],
+          "probability": 0.7
+        },
+        "brightness": {
+          "range": [
+            0.8,
+            1.2
+          ],
+          "probability": 0.6
+        },
+        "contrast": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.5
+        },
+        "horizontal_flip": {
+          "probability": 0.5
+        },
+        "zoom": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.4
+        },
+        "gaussian_noise": {
+          "sigma": 0.01,
+          "probability": 0.3
+        }
+      },
+      "validation_criteria": {
+        "minimum_accuracy": 0.85,
+        "minimum_precision": 0.8,
+        "minimum_recall": 0.75,
+        "maximum_false_positive_rate": 0.05
+      }
+    },
+    "Kylo Ren": {
+      "collection_priority": "STANDARD",
+      "recommended_sources": [
+        "Official movie stills",
+        "High-quality promotional materials",
+        "Behind-the-scenes photography",
+        "Official merchandise photography"
+      ],
+      "search_terms": [
+        "Kylo Ren",
+        "masked_appearance",
+        "unmasked",
+        "supreme_leader_attire",
+        "redeemed_ben_solo"
+      ],
+      "quality_checklist": [
+        "Face clearly visible and unobscured",
+        "Adequate lighting for facial feature recognition",
+        "Minimum resolution requirements met",
+        "Image not significantly blurred or distorted",
+        "Character is primary subject in frame",
+        "No watermarks or text overlays on face",
+        "Special consideration: Include masked vs. unmasked recognition",
+        "Special consideration: Capture scar progression",
+        "Special consideration: Various emotional states from calm to rage",
+        "Special consideration: Crossguard lightsaber illumination",
+        "Special consideration: Dramatic cape and hood positions"
+      ],
+      "organization_structure": {
+        "base_folder": "kylo_ren",
+        "subfolders": {
+          "train": "kylo_ren/train",
+          "validation": "kylo_ren/validation",
+          "test": "kylo_ren/test"
+        },
+        "costume_folders": {
+          "masked_appearance": {
+            "train": "kylo_ren/train/masked_appearance",
+            "validation": "kylo_ren/validation/masked_appearance",
+            "test": "kylo_ren/test/masked_appearance"
+          },
+          "unmasked": {
+            "train": "kylo_ren/train/unmasked",
+            "validation": "kylo_ren/validation/unmasked",
+            "test": "kylo_ren/test/unmasked"
+          },
+          "supreme_leader_attire": {
+            "train": "kylo_ren/train/supreme_leader_attire",
+            "validation": "kylo_ren/validation/supreme_leader_attire",
+            "test": "kylo_ren/test/supreme_leader_attire"
+          },
+          "redeemed_ben_solo": {
+            "train": "kylo_ren/train/redeemed_ben_solo",
+            "validation": "kylo_ren/validation/redeemed_ben_solo",
+            "test": "kylo_ren/test/redeemed_ben_solo"
+          }
+        }
+      },
+      "augmentation_strategy": {
+        "rotation": {
+          "range": [
+            -15,
+            15
+          ],
+          "probability": 0.7
+        },
+        "brightness": {
+          "range": [
+            0.8,
+            1.2
+          ],
+          "probability": 0.6
+        },
+        "contrast": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.5
+        },
+        "horizontal_flip": {
+          "probability": 0.5
+        },
+        "zoom": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.4
+        },
+        "gaussian_noise": {
+          "sigma": 0.01,
+          "probability": 0.3
+        }
+      },
+      "validation_criteria": {
+        "minimum_accuracy": 0.85,
+        "minimum_precision": 0.8,
+        "minimum_recall": 0.75,
+        "maximum_false_positive_rate": 0.05
+      }
+    },
+    "Ahsoka Tano": {
+      "collection_priority": "MEDIUM",
+      "recommended_sources": [
+        "Official movie stills",
+        "High-quality promotional materials",
+        "Behind-the-scenes photography",
+        "Official merchandise photography",
+        "Animation reference materials",
+        "Clone Wars promotional materials",
+        "Live-action series stills"
+      ],
+      "search_terms": [
+        "Ahsoka Tano",
+        "padawan_outfit",
+        "jedi_attire",
+        "civilian_disguise",
+        "rebel_agent_gear",
+        "white_robes",
+        "Togruta",
+        "Snips",
+        "Clone Wars",
+        "Rebels"
+      ],
+      "quality_checklist": [
+        "Face clearly visible and unobscured",
+        "Adequate lighting for facial feature recognition",
+        "Minimum resolution requirements met",
+        "Image not significantly blurred or distorted",
+        "Character is primary subject in frame",
+        "No watermarks or text overlays on face",
+        "Special consideration: Include head-tail (lekku) growth stages",
+        "Special consideration: Capture distinctive Togruta markings",
+        "Special consideration: Various expressions from playful to serious",
+        "Special consideration: Twin lightsaber poses",
+        "Special consideration: Head-tail positioning variations"
+      ],
+      "organization_structure": {
+        "base_folder": "ahsoka_tano",
+        "subfolders": {
+          "train": "ahsoka_tano/train",
+          "validation": "ahsoka_tano/validation",
+          "test": "ahsoka_tano/test"
+        },
+        "costume_folders": {
+          "padawan_outfit": {
+            "train": "ahsoka_tano/train/padawan_outfit",
+            "validation": "ahsoka_tano/validation/padawan_outfit",
+            "test": "ahsoka_tano/test/padawan_outfit"
+          },
+          "jedi_attire": {
+            "train": "ahsoka_tano/train/jedi_attire",
+            "validation": "ahsoka_tano/validation/jedi_attire",
+            "test": "ahsoka_tano/test/jedi_attire"
+          },
+          "civilian_disguise": {
+            "train": "ahsoka_tano/train/civilian_disguise",
+            "validation": "ahsoka_tano/validation/civilian_disguise",
+            "test": "ahsoka_tano/test/civilian_disguise"
+          },
+          "rebel_agent_gear": {
+            "train": "ahsoka_tano/train/rebel_agent_gear",
+            "validation": "ahsoka_tano/validation/rebel_agent_gear",
+            "test": "ahsoka_tano/test/rebel_agent_gear"
+          },
+          "white_robes": {
+            "train": "ahsoka_tano/train/white_robes",
+            "validation": "ahsoka_tano/validation/white_robes",
+            "test": "ahsoka_tano/test/white_robes"
+          }
+        }
+      },
+      "augmentation_strategy": {
+        "rotation": {
+          "range": [
+            -15,
+            15
+          ],
+          "probability": 0.7
+        },
+        "brightness": {
+          "range": [
+            0.8,
+            1.2
+          ],
+          "probability": 0.6
+        },
+        "contrast": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.5
+        },
+        "horizontal_flip": {
+          "probability": 0.5
+        },
+        "zoom": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.4
+        },
+        "gaussian_noise": {
+          "sigma": 0.01,
+          "probability": 0.3
+        }
+      },
+      "validation_criteria": {
+        "minimum_accuracy": 0.85,
+        "minimum_precision": 0.8,
+        "minimum_recall": 0.75,
+        "maximum_false_positive_rate": 0.05
+      }
+    },
+    "BB-8": {
+      "collection_priority": "STANDARD",
+      "recommended_sources": [
+        "Official movie stills",
+        "High-quality promotional materials",
+        "Behind-the-scenes photography",
+        "Official merchandise photography"
+      ],
+      "search_terms": [
+        "BB-8",
+        "standard_orange_white",
+        "battle_damaged",
+        "disguised"
+      ],
+      "quality_checklist": [
+        "Face clearly visible and unobscured",
+        "Adequate lighting for facial feature recognition",
+        "Minimum resolution requirements met",
+        "Image not significantly blurred or distorted",
+        "Character is primary subject in frame",
+        "No watermarks or text overlays on face",
+        "Special consideration: Focus on photoreceptor (eye) as main feature",
+        "Special consideration: Include rolling motion blur considerations",
+        "Special consideration: Various antenna and tool configurations",
+        "Special consideration: Distinctive spherical shape recognition",
+        "Special consideration: Orange and white pattern variations"
+      ],
+      "organization_structure": {
+        "base_folder": "bb_8",
+        "subfolders": {
+          "train": "bb_8/train",
+          "validation": "bb_8/validation",
+          "test": "bb_8/test"
+        },
+        "costume_folders": {
+          "standard_orange_white": {
+            "train": "bb_8/train/standard_orange_white",
+            "validation": "bb_8/validation/standard_orange_white",
+            "test": "bb_8/test/standard_orange_white"
+          },
+          "battle_damaged": {
+            "train": "bb_8/train/battle_damaged",
+            "validation": "bb_8/validation/battle_damaged",
+            "test": "bb_8/test/battle_damaged"
+          },
+          "disguised": {
+            "train": "bb_8/train/disguised",
+            "validation": "bb_8/validation/disguised",
+            "test": "bb_8/test/disguised"
+          }
+        }
+      },
+      "augmentation_strategy": {
+        "rotation": {
+          "range": [
+            -15,
+            15
+          ],
+          "probability": 0.7
+        },
+        "brightness": {
+          "range": [
+            0.8,
+            1.2
+          ],
+          "probability": 0.6
+        },
+        "contrast": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.5
+        },
+        "horizontal_flip": {
+          "probability": 0.5
+        },
+        "zoom": {
+          "range": [
+            0.9,
+            1.1
+          ],
+          "probability": 0.4
+        },
+        "gaussian_noise": {
+          "sigma": 0.01,
+          "probability": 0.3
+        }
+      },
+      "validation_criteria": {
+        "minimum_accuracy": 0.85,
+        "minimum_precision": 0.8,
+        "minimum_recall": 0.75,
+        "maximum_false_positive_rate": 0.05
+      }
+    }
+  },
+  "technical_specifications": {
+    "supported_formats": [
+      "JPEG",
+      "PNG"
+    ],
+    "color_space": "RGB",
+    "preprocessing_pipeline": [
+      "Face detection and alignment",
+      "Resize to 224x224 pixels",
+      "Normalization (0-1 range)",
+      "Augmentation application"
+    ]
+  }
+}

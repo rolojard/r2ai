@@ -258,7 +258,7 @@ class R2D2ReactionEngine:
             ],
             EmotionalResponse.AFFECTIONATE_WHISTLES: [
                 BehaviorSequence(
-                    behaviors=[BehaviorType.DOME_ROTATION, BehaviorType.GENTLE_SWAY],
+                    behaviors=[BehaviorType.DOME_ROTATION, BehaviorType.BODY_ROCK],
                     timing=[2.0, 3.0],
                     intensity=BehaviorIntensity.MODERATE,
                     description="Gentle, caring acknowledgment",
@@ -294,10 +294,10 @@ class R2D2ReactionEngine:
             ],
             EmotionalResponse.BINARY_PROFANITY: [
                 BehaviorSequence(
-                    behaviors=[BehaviorType.SHOCK_PROD, BehaviorType.DOME_ROTATION, BehaviorType.ANGRY_WIGGLE],
+                    behaviors=[BehaviorType.ARM_EXTEND, BehaviorType.DOME_ROTATION, BehaviorType.BODY_ROCK],
                     timing=[0.5, 2.0, 1.0],
                     intensity=BehaviorIntensity.DRAMATIC,
-                    description="Aggressive response with shock prod (for C-3PO)",
+                    description="Aggressive response with extended arm (for C-3PO)",
                     total_duration=3.5
                 )
             ],
@@ -312,7 +312,7 @@ class R2D2ReactionEngine:
             ],
             EmotionalResponse.PLAYFUL_TRILLS: [
                 BehaviorSequence(
-                    behaviors=[BehaviorType.DOME_ROTATION, BehaviorType.PLAYFUL_WIGGLE, BehaviorType.PANEL_OPEN],
+                    behaviors=[BehaviorType.DOME_ROTATION, BehaviorType.BODY_ROCK, BehaviorType.PANEL_OPEN],
                     timing=[1.5, 2.0, 1.0],
                     intensity=BehaviorIntensity.MODERATE,
                     description="Mischievous and playful movements",
@@ -321,7 +321,7 @@ class R2D2ReactionEngine:
             ],
             EmotionalResponse.SURPRISED_SQUEAKS: [
                 BehaviorSequence(
-                    behaviors=[BehaviorType.STARTLED_JUMP, BehaviorType.DOME_ROTATION],
+                    behaviors=[BehaviorType.BODY_ROCK, BehaviorType.DOME_ROTATION],
                     timing=[0.5, 1.0],
                     intensity=BehaviorIntensity.DRAMATIC,
                     description="Startled reaction with quick recovery",

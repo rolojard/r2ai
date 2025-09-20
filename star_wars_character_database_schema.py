@@ -60,6 +60,7 @@ class EmotionalResponse(Enum):
     PLAYFUL_TRILLS = "playful_trills"                  # Mischievous, fun sounds
     BINARY_PROFANITY = "binary_profanity"              # Foul language (canon confirmed)
     MECHANICAL_NEUTRAL = "mechanical_neutral"          # Standard acknowledgment
+    RESPECTFUL_ACKNOWLEDGMENT = "respectful_acknowledgment"  # Formal respect
 
 
 @dataclass
@@ -99,27 +100,21 @@ class CharacterTimeline:
 class StarWarsCharacter:
     """Complete Star Wars character profile for R2-D2 recognition system"""
 
-    # Basic Identity
+    # Basic Identity (required fields first)
     name: str
+    faction: FactionAlignment
+    relationship_to_r2d2: RelationshipType
+    r2d2_reaction: R2D2Reaction
+    visual_descriptor: VisualDescriptor
+    timeline: CharacterTimeline
+
+    # Optional fields with defaults
     aliases: List[str] = field(default_factory=list)
     full_name: Optional[str] = None
     titles: List[str] = field(default_factory=list)
-
-    # Classification
-    faction: FactionAlignment
     species: str = "human"
     homeworld: Optional[str] = None
-
-    # R2-D2 Relationship Data
-    relationship_to_r2d2: RelationshipType
-    r2d2_reaction: R2D2Reaction
     trust_level: int = 5  # 1-10 scale (1=enemy, 10=closest friend)
-
-    # Visual Recognition
-    visual_descriptor: VisualDescriptor
-
-    # Timeline and Context
-    timeline: CharacterTimeline
     first_meeting_context: Optional[str] = None
     last_known_interaction: Optional[str] = None
 
@@ -297,8 +292,8 @@ def validate_character_data(character: StarWarsCharacter) -> List[str]:
 
     # Visual descriptor validation
     height_min, height_max = character.visual_descriptor.height_range
-    if height_min >= height_max:
-        issues.append(f"Invalid height range: {height_min} >= {height_max}")
+    if height_min > height_max:
+        issues.append(f"Invalid height range: {height_min} > {height_max}")
 
     return issues
 

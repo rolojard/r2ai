@@ -1,0 +1,26 @@
+{
+  "auto_commit_interval": 3600,
+  "commit_message_template": "Auto-backup: {timestamp}",
+  "include_patterns": [
+    "*.py",
+    "*.js",
+    "*.json",
+    "*.md",
+    "*.txt",
+    "*.sh"
+  ],
+  "exclude_patterns": [
+    "*.log",
+    "*.pyc",
+    "__pycache__",
+    "node_modules"
+  ],
+  "max_file_size_mb": 50,
+  "agent_commit_prefix": "\ud83e\udd16 Agent commit:",
+  "backup_branches": [
+    "main",
+    "development",
+    "feature/*"
+  ],
+  "remote_name": "origin"
+}
