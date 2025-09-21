@@ -429,6 +429,7 @@ This project is developed for educational and hobbyist purposes. Please respect 
 - [Agent Management](/.claude/)
 - [Backup System](/scripts/git_auto_backup.py)
 
-**Repository**: https://github.com/YOUR_USERNAME/r2ai
+**Repository**: https://github.com/rolojard
+/r2ai
 **Last Updated**: September 2025
 **Version**: 1.0.0 (Operational)
