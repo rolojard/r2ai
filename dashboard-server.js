@@ -16,7 +16,7 @@ const WEBSOCKET_PORT = 8766;
 const server = http.createServer((req, res) => {
     let filePath = '.' + req.url;
     if (filePath === './') {
-        filePath = './dashboard_with_vision.html';
+        filePath = './r2d2_enhanced_dashboard.html';
     }
 
     const extname = String(path.extname(filePath)).toLowerCase();
@@ -398,6 +398,21 @@ function handleWebSocketMessage(ws, data) {
         case 'command':
             executeCommand(ws, data.command, data.params);
             break;
+        case 'servo_command':
+            handleServoCommand(ws, data);
+            break;
+        case 'audio_command':
+            handleAudioCommand(ws, data);
+            break;
+        case 'audio_stop_all':
+            handleAudioStopAll(ws, data);
+            break;
+        case 'behavior_pattern':
+            handleBehaviorPattern(ws, data);
+            break;
+        case 'emergency_stop':
+            handleEmergencyStop(ws, data);
+            break;
     }
 }
 
@@ -532,5 +547,139 @@ process.on('SIGINT', () => {
     wss.close();
     process.exit(0);
 });
+
+// Enhanced command handlers for R2D2 control
+
+function handleServoCommand(ws, data) {
+    console.log(`Servo command: Channel ${data.channel} -> ${data.position}µs`);
+
+    // Execute servo command via Python script
+    const { spawn } = require('child_process');
+
+    const servoScript = spawn('python3', [
+        'servo_control_interface.py',
+        '--channel', data.channel.toString(),
+        '--position', data.position.toString()
+    ]);
+
+    servoScript.stdout.on('data', (output) => {
+        console.log('Servo output:', output.toString());
+    });
+
+    servoScript.stderr.on('data', (error) => {
+        console.error('Servo error:', error.toString());
+        sendAlert(ws, `Servo error: Channel ${data.channel}`, 'error');
+    });
+
+    servoScript.on('close', (code) => {
+        if (code === 0) {
+            sendAlert(ws, `Servo ${data.channel} moved to ${data.position}µs`, 'success');
+        } else {
+            sendAlert(ws, `Servo command failed: Code ${code}`, 'error');
+        }
+    });
+}
+
+function handleAudioCommand(ws, data) {
+    console.log(`Audio command: Playing ${data.sound}`);
+
+    const { spawn } = require('child_process');
+
+    const audioScript = spawn('python3', [
+        'r2d2_audio_player.py',
+        '--sound', data.sound
+    ]);
+
+    audioScript.stdout.on('data', (output) => {
+        console.log('Audio output:', output.toString());
+    });
+
+    audioScript.stderr.on('data', (error) => {
+        console.error('Audio error:', error.toString());
+        sendAlert(ws, `Audio error: ${data.sound}`, 'error');
+    });
+
+    audioScript.on('close', (code) => {
+        if (code === 0) {
+            sendAlert(ws, `Playing: ${data.sound}`, 'info');
+        } else {
+            sendAlert(ws, `Audio playback failed`, 'error');
+        }
+    });
+}
+
+function handleAudioStopAll(ws, data) {
+    console.log('Stopping all audio');
+
+    const { spawn } = require('child_process');
+
+    const stopScript = spawn('python3', [
+        'r2d2_audio_player.py',
+        '--stop-all'
+    ]);
+
+    stopScript.on('close', (code) => {
+        sendAlert(ws, 'All audio stopped', 'info');
+    });
+}
+
+function handleBehaviorPattern(ws, data) {
+    console.log(`Executing behavior pattern: ${data.pattern}`);
+
+    const { spawn } = require('child_process');
+
+    const behaviorScript = spawn('python3', [
+        'r2d2_behavior_controller.py',
+        '--pattern', data.pattern
+    ]);
+
+    behaviorScript.stdout.on('data', (output) => {
+        console.log('Behavior output:', output.toString());
+    });
+
+    behaviorScript.stderr.on('data', (error) => {
+        console.error('Behavior error:', error.toString());
+        sendAlert(ws, `Behavior pattern error: ${data.pattern}`, 'error');
+    });
+
+    behaviorScript.on('close', (code) => {
+        if (code === 0) {
+            sendAlert(ws, `Executed pattern: ${data.pattern}`, 'success');
+        } else {
+            sendAlert(ws, `Behavior pattern failed: ${data.pattern}`, 'error');
+        }
+    });
+}
+
+function handleEmergencyStop(ws, data) {
+    console.log(`EMERGENCY STOP: ${data.system}`);
+
+    const { spawn } = require('child_process');
+
+    // Stop all systems
+    const emergencyScript = spawn('python3', [
+        'r2d2_emergency_stop.py',
+        '--system', data.system
+    ]);
+
+    emergencyScript.stdout.on('data', (output) => {
+        console.log('Emergency stop output:', output.toString());
+    });
+
+    emergencyScript.on('close', (code) => {
+        sendAlert(ws, `EMERGENCY STOP EXECUTED: ${data.system}`, 'error');
+
+        // Broadcast emergency stop to all clients
+        wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({
+                    type: 'emergency_stop_alert',
+                    system: data.system,
+                    timestamp: Date.now()
+                }));
+            }
+        });
+    });
+}
 
 module.exports = { server, wss };

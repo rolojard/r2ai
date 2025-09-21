@@ -337,6 +337,338 @@
         </div>
     </div>
 
+    <!-- Enhanced Control Sections -->
+    <div class="control-sections">
+        <!-- Servo Control Matrix -->
+        <div class="status-card servo-control-section">
+            <h3>⚙️ Servo Control Matrix - Pololu Maestro Mini 12</h3>
+            <div class="servo-grid">
+                <div class="servo-channel" data-channel="0">
+                    <label>Dome Rotation</label>
+                    <input type="range" min="0" max="180" value="90" class="servo-slider"
+                           onchange="updateServo(0, this.value)">
+                    <span class="servo-value">90°</span>
+                </div>
+                <div class="servo-channel" data-channel="1">
+                    <label>Head Tilt</label>
+                    <input type="range" min="0" max="180" value="90" class="servo-slider"
+                           onchange="updateServo(1, this.value)">
+                    <span class="servo-value">90°</span>
+                </div>
+                <div class="servo-channel" data-channel="2">
+                    <label>Periscope</label>
+                    <input type="range" min="0" max="180" value="90" class="servo-slider"
+                           onchange="updateServo(2, this.value)">
+                    <span class="servo-value">90°</span>
+                </div>
+                <div class="servo-channel" data-channel="3">
+                    <label>Radar Eye</label>
+                    <input type="range" min="0" max="180" value="90" class="servo-slider"
+                           onchange="updateServo(3, this.value)">
+                    <span class="servo-value">90°</span>
+                </div>
+                <div class="servo-channel" data-channel="4">
+                    <label>Panel 1</label>
+                    <input type="range" min="0" max="120" value="0" class="servo-slider"
+                           onchange="updateServo(4, this.value)">
+                    <span class="servo-value">0°</span>
+                </div>
+                <div class="servo-channel" data-channel="5">
+                    <label>Panel 2</label>
+                    <input type="range" min="0" max="120" value="0" class="servo-slider"
+                           onchange="updateServo(5, this.value)">
+                    <span class="servo-value">0°</span>
+                </div>
+                <div class="servo-channel" data-channel="6">
+                    <label>Panel 3</label>
+                    <input type="range" min="0" max="120" value="0" class="servo-slider"
+                           onchange="updateServo(6, this.value)">
+                    <span class="servo-value">0°</span>
+                </div>
+                <div class="servo-channel" data-channel="7">
+                    <label>Panel 4</label>
+                    <input type="range" min="0" max="120" value="0" class="servo-slider"
+                           onchange="updateServo(7, this.value)">
+                    <span class="servo-value">0°</span>
+                </div>
+                <div class="servo-channel" data-channel="8">
+                    <label>Utility Arm 1</label>
+                    <input type="range" min="0" max="180" value="90" class="servo-slider"
+                           onchange="updateServo(8, this.value)">
+                    <span class="servo-value">90°</span>
+                </div>
+                <div class="servo-channel" data-channel="9">
+                    <label>Utility Arm 2</label>
+                    <input type="range" min="0" max="180" value="90" class="servo-slider"
+                           onchange="updateServo(9, this.value)">
+                    <span class="servo-value">90°</span>
+                </div>
+                <div class="servo-channel" data-channel="10">
+                    <label>Interface Arm</label>
+                    <input type="range" min="0" max="180" value="90" class="servo-slider"
+                           onchange="updateServo(10, this.value)">
+                    <span class="servo-value">90°</span>
+                </div>
+                <div class="servo-channel" data-channel="11">
+                    <label>Gripper</label>
+                    <input type="range" min="0" max="180" value="90" class="servo-slider"
+                           onchange="updateServo(11, this.value)">
+                    <span class="servo-value">90°</span>
+                </div>
+            </div>
+            <div class="servo-controls">
+                <button onclick="homeAllServos()">Home All</button>
+                <button onclick="enableAllServos()">Enable All</button>
+                <button onclick="disableAllServos()">Disable All</button>
+                <button onclick="saveServoPreset()">Save Preset</button>
+                <button onclick="loadServoPreset()">Load Preset</button>
+            </div>
+        </div>
+
+        <!-- Audio Control Panel -->
+        <div class="status-card audio-control-section">
+            <h3>🔊 Audio Control Panel - R2D2 Sound Effects</h3>
+            <div class="audio-grid">
+                <div class="audio-category">
+                    <h4>Emotional Responses</h4>
+                    <div class="audio-buttons">
+                        <button onclick="playSound('happy')">Happy/Excited</button>
+                        <button onclick="playSound('sad')">Sad/Worried</button>
+                        <button onclick="playSound('curious')">Curious</button>
+                        <button onclick="playSound('frustrated')">Frustrated</button>
+                        <button onclick="playSound('surprised')">Surprised</button>
+                        <button onclick="playSound('playful')">Playful</button>
+                    </div>
+                </div>
+                <div class="audio-category">
+                    <h4>Character Interactions</h4>
+                    <div class="audio-buttons">
+                        <button onclick="playSound('greeting')">Greeting</button>
+                        <button onclick="playSound('chatting')">Chatting</button>
+                        <button onclick="playSound('sarcastic')">Sarcastic</button>
+                        <button onclick="playSound('affection')">Affectionate</button>
+                        <button onclick="playSound('stubborn')">Stubborn</button>
+                        <button onclick="playSound('alert')">Alert/Warning</button>
+                    </div>
+                </div>
+                <div class="audio-category">
+                    <h4>Star Wars Specific</h4>
+                    <div class="audio-buttons">
+                        <button onclick="playSound('jedi_recognition')">Jedi Recognition</button>
+                        <button onclick="playSound('princess_leia')">Princess Leia Message</button>
+                        <button onclick="playSound('astromech_duties')">Astromech Duties</button>
+                        <button onclick="playSound('power_up')">Power Up</button>
+                        <button onclick="playSound('memory_wipe')">Memory Wipe</button>
+                        <button onclick="playSound('musical')">Musical Entertainment</button>
+                    </div>
+                </div>
+            </div>
+            <div class="audio-controls">
+                <label for="volumeSlider">Volume: <span id="volumeValue">75</span>%</label>
+                <input type="range" id="volumeSlider" min="0" max="100" value="75"
+                       onchange="updateVolume(this.value)">
+                <button onclick="stopAllAudio()">Stop All</button>
+                <button onclick="muteAudio()">Mute</button>
+            </div>
+            <div class="audio-queue">
+                <h4>Audio Queue</h4>
+                <div id="audioQueue" class="queue-list">
+                    <div style="text-align: center; color: #64748b;">No sounds queued</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Character Recognition Panel -->
+        <div class="status-card character-recognition-section">
+            <h3>🎭 Character Recognition Display</h3>
+            <div class="character-grid">
+                <div class="character-stats">
+                    <div class="character-stat">
+                        <div class="stat-value" id="recognizedCharacters">--</div>
+                        <div class="stat-label">Recognized Characters</div>
+                    </div>
+                    <div class="character-stat">
+                        <div class="stat-value" id="confidenceLevel">--%</div>
+                        <div class="stat-label">Avg Confidence</div>
+                    </div>
+                    <div class="character-stat">
+                        <div class="stat-value" id="recognitionTime">--</div>
+                        <div class="stat-label">Recognition Time (ms)</div>
+                    </div>
+                </div>
+                <div class="character-list">
+                    <h4>Current Characters</h4>
+                    <div id="characterList" class="character-detections">
+                        <div style="text-align: center; color: #64748b;">No characters detected</div>
+                    </div>
+                </div>
+                <div class="character-history">
+                    <h4>Recent History</h4>
+                    <div id="characterHistory" class="character-history-list">
+                        <div style="text-align: center; color: #64748b;">No history available</div>
+                    </div>
+                </div>
+            </div>
+            <div class="character-controls">
+                <button onclick="enableCharacterRecognition()">Enable Recognition</button>
+                <button onclick="disableCharacterRecognition()">Disable Recognition</button>
+                <button onclick="clearCharacterHistory()">Clear History</button>
+                <button onclick="exportCharacterData()">Export Data</button>
+            </div>
+        </div>
+
+        <!-- Behavior Sequences Library -->
+        <div class="status-card behavior-sequences-section">
+            <h3>🎪 Behavior Sequences Library</h3>
+            <div class="sequence-grid">
+                <div class="sequence-category">
+                    <h4>Emotional Sequences</h4>
+                    <div class="sequence-buttons">
+                        <button onclick="playSequence('excited')" class="sequence-btn">
+                            <span class="sequence-name">Excited</span>
+                            <span class="sequence-duration">4s</span>
+                        </button>
+                        <button onclick="playSequence('curious')" class="sequence-btn">
+                            <span class="sequence-name">Curious</span>
+                            <span class="sequence-duration">3s</span>
+                        </button>
+                        <button onclick="playSequence('frustrated')" class="sequence-btn">
+                            <span class="sequence-name">Frustrated</span>
+                            <span class="sequence-duration">5s</span>
+                        </button>
+                        <button onclick="playSequence('happy')" class="sequence-btn">
+                            <span class="sequence-name">Happy</span>
+                            <span class="sequence-duration">3s</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="sequence-category">
+                    <h4>Functional Sequences</h4>
+                    <div class="sequence-buttons">
+                        <button onclick="playSequence('scanning')" class="sequence-btn">
+                            <span class="sequence-name">Scanning</span>
+                            <span class="sequence-duration">6s loop</span>
+                        </button>
+                        <button onclick="playSequence('maintenance')" class="sequence-btn">
+                            <span class="sequence-name">Maintenance</span>
+                            <span class="sequence-duration">8s</span>
+                        </button>
+                        <button onclick="playSequence('greeting')" class="sequence-btn">
+                            <span class="sequence-name">Greeting</span>
+                            <span class="sequence-duration">4s</span>
+                        </button>
+                        <button onclick="playSequence('demonstration')" class="sequence-btn">
+                            <span class="sequence-name">Demonstration</span>
+                            <span class="sequence-duration">12s</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="sequence-category">
+                    <h4>Custom Sequences</h4>
+                    <div class="sequence-buttons">
+                        <button onclick="playSequence('user_defined_1')" class="sequence-btn">
+                            <span class="sequence-name">Custom 1</span>
+                            <span class="sequence-duration">--</span>
+                        </button>
+                        <button onclick="playSequence('user_defined_2')" class="sequence-btn">
+                            <span class="sequence-name">Custom 2</span>
+                            <span class="sequence-duration">--</span>
+                        </button>
+                        <button onclick="createCustomSequence()" class="sequence-btn create-btn">
+                            <span class="sequence-name">Create New</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="sequence-controls">
+                <button onclick="stopCurrentSequence()">Stop Current</button>
+                <button onclick="pauseCurrentSequence()">Pause</button>
+                <button onclick="resumeCurrentSequence()">Resume</button>
+                <select id="sequenceSpeed" onchange="updateSequenceSpeed(this.value)">
+                    <option value="0.5">0.5x Speed</option>
+                    <option value="1.0" selected>Normal Speed</option>
+                    <option value="1.5">1.5x Speed</option>
+                    <option value="2.0">2x Speed</option>
+                </select>
+            </div>
+            <div class="sequence-status">
+                <div class="current-sequence">
+                    <span>Current: </span><span id="currentSequence">None</span>
+                </div>
+                <div class="sequence-progress">
+                    <span>Progress: </span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="sequenceProgress"></div>
+                    </div>
+                    <span id="sequenceTime">0:00 / 0:00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Safety Dashboard -->
+        <div class="status-card safety-dashboard-section">
+            <h3>🛡️ Safety Dashboard</h3>
+            <div class="safety-grid">
+                <div class="safety-status">
+                    <h4>System Status</h4>
+                    <div class="safety-indicators">
+                        <div class="safety-indicator" id="servoSafety">
+                            <span class="indicator-light"></span>
+                            <span>Servo Systems</span>
+                            <span class="status-text">Normal</span>
+                        </div>
+                        <div class="safety-indicator" id="audioSafety">
+                            <span class="indicator-light"></span>
+                            <span>Audio Systems</span>
+                            <span class="status-text">Normal</span>
+                        </div>
+                        <div class="safety-indicator" id="visionSafety">
+                            <span class="indicator-light"></span>
+                            <span>Vision Systems</span>
+                            <span class="status-text">Normal</span>
+                        </div>
+                        <div class="safety-indicator" id="powerSafety">
+                            <span class="indicator-light"></span>
+                            <span>Power Systems</span>
+                            <span class="status-text">Normal</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="safety-controls">
+                    <h4>Emergency Controls</h4>
+                    <button onclick="emergencyStopAll()" class="emergency-btn">
+                        🚨 EMERGENCY STOP ALL
+                    </button>
+                    <button onclick="emergencyStopServos()" class="emergency-btn-small">
+                        Stop Servos
+                    </button>
+                    <button onclick="emergencyStopAudio()" class="emergency-btn-small">
+                        Stop Audio
+                    </button>
+                    <button onclick="softShutdown()" class="emergency-btn-small">
+                        Soft Shutdown
+                    </button>
+                </div>
+                <div class="safety-diagnostics">
+                    <h4>Diagnostics</h4>
+                    <div class="diagnostic-tests">
+                        <button onclick="runDiagnostic('servo')">Test Servos</button>
+                        <button onclick="runDiagnostic('audio')">Test Audio</button>
+                        <button onclick="runDiagnostic('vision')">Test Vision</button>
+                        <button onclick="runDiagnostic('communication')">Test Comms</button>
+                        <button onclick="runDiagnostic('full')">Full System Test</button>
+                    </div>
+                    <div class="diagnostic-results">
+                        <h5>Last Test Results</h5>
+                        <div id="diagnosticResults">
+                            <div style="text-align: center; color: #64748b;">No tests run</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="status-card">
         <h3>🎮 Control Panel</h3>
         <div class="controls">

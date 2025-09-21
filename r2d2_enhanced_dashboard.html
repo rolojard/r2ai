@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R2D2 Enhanced Control Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 15px;
+            border: 1px solid #334155;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #3b82f6, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-panel {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid #334155;
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-panel h2 {
+            color: #10b981;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .vision-feed {
+            grid-column: 1 / -1;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid #334155;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .vision-frame {
+            width: 100%;
+            height: 350px;
+            background: #000;
+            border-radius: 10px;
+            border: 2px solid #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-size: 1.2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vision-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .servo-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .servo-group {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #475569;
+        }
+
+        .servo-group h3 {
+            color: #f59e0b;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .servo-control {
+            margin-bottom: 15px;
+        }
+
+        .servo-control label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+
+        .servo-slider {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .servo-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #10b981;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .servo-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #10b981;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .servo-value {
+            float: right;
+            color: #10b981;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .control-button {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .control-button.danger {
+            background: linear-gradient(45deg, #dc2626, #991b1b);
+        }
+
+        .control-button.danger:hover {
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.3);
+        }
+
+        .control-button.success {
+            background: linear-gradient(45deg, #10b981, #059669);
+        }
+
+        .control-button.success:hover {
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .status-card {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #475569;
+        }
+
+        .status-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #10b981;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .character-detection {
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid #10b981;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .character-detection.active {
+            display: block;
+        }
+
+        .character-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #10b981;
+            margin-bottom: 5px;
+        }
+
+        .character-confidence {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        .emergency-stop {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .emergency-stop button {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            background: #dc2626;
+            color: white;
+            z-index: 1000;
+        }
+
+        .connection-status.connected {
+            background: #10b981;
+        }
+
+        .audio-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .audio-button {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .audio-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .servo-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .button-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="emergency-stop">
+        <button onclick="emergencyStop()">🚨 EMERGENCY STOP</button>
+    </div>
+
+    <div class="connection-status" id="connectionStatus">Disconnected</div>
+
+    <div class="header">
+        <h1>🤖 R2D2 Enhanced Control Dashboard</h1>
+        <p>Real-time Character Recognition • Servo Control • Audio System</p>
+    </div>
+
+    <div class="main-grid">
+        <!-- Vision Feed -->
+        <div class="vision-feed">
+            <h2>🎥 Live Vision Feed with Character Recognition</h2>
+            <div class="vision-frame" id="visionFrame">
+                Connecting to vision system...
+            </div>
+            <div class="character-detection" id="characterDetection">
+                <div class="character-name" id="characterName">Unknown Character</div>
+                <div class="character-confidence" id="characterConfidence">Confidence: 0%</div>
+                <div id="characterReaction">R2D2 Reaction: Neutral</div>
+            </div>
+        </div>
+
+        <!-- Servo Controls -->
+        <div class="control-panel">
+            <h2>🔧 Servo Control System</h2>
+            <div class="servo-controls">
+                <!-- Dome Controls -->
+                <div class="servo-group">
+                    <h3>Dome Movement</h3>
+                    <div class="servo-control">
+                        <label for="domeRotation">Dome Rotation <span class="servo-value" id="domeRotationValue">1500µs</span></label>
+                        <input type="range" id="domeRotation" class="servo-slider" min="1000" max="2000" value="1500" oninput="updateServo(0, this.value)">
+                    </div>
+                    <div class="servo-control">
+                        <label for="headTilt">Head Tilt <span class="servo-value" id="headTiltValue">1500µs</span></label>
+                        <input type="range" id="headTilt" class="servo-slider" min="1200" max="1800" value="1500" oninput="updateServo(1, this.value)">
+                    </div>
+                </div>
+
+                <!-- Panel Controls -->
+                <div class="servo-group">
+                    <h3>Dome Panels</h3>
+                    <div class="servo-control">
+                        <label for="frontPanel">Front Panel <span class="servo-value" id="frontPanelValue">1000µs</span></label>
+                        <input type="range" id="frontPanel" class="servo-slider" min="1000" max="1800" value="1000" oninput="updateServo(6, this.value)">
+                    </div>
+                    <div class="servo-control">
+                        <label for="leftPanel">Left Panel <span class="servo-value" id="leftPanelValue">1000µs</span></label>
+                        <input type="range" id="leftPanel" class="servo-slider" min="1000" max="1800" value="1000" oninput="updateServo(7, this.value)">
+                    </div>
+                    <div class="servo-control">
+                        <label for="rightPanel">Right Panel <span class="servo-value" id="rightPanelValue">1000µs</span></label>
+                        <input type="range" id="rightPanel" class="servo-slider" min="1000" max="1800" value="1000" oninput="updateServo(8, this.value)">
+                    </div>
+                </div>
+
+                <!-- Utility Controls -->
+                <div class="servo-group">
+                    <h3>Utility Systems</h3>
+                    <div class="servo-control">
+                        <label for="periscope">Periscope <span class="servo-value" id="periscopeValue">1000µs</span></label>
+                        <input type="range" id="periscope" class="servo-slider" min="1000" max="1800" value="1000" oninput="updateServo(2, this.value)">
+                    </div>
+                    <div class="servo-control">
+                        <label for="leftArm">Left Utility Arm <span class="servo-value" id="leftArmValue">1000µs</span></label>
+                        <input type="range" id="leftArm" class="servo-slider" min="1000" max="1800" value="1000" oninput="updateServo(4, this.value)">
+                    </div>
+                    <div class="servo-control">
+                        <label for="rightArm">Right Utility Arm <span class="servo-value" id="rightArmValue">1000µs</span></label>
+                        <input type="range" id="rightArm" class="servo-slider" min="1000" max="1800" value="1000" oninput="updateServo(5, this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-grid">
+                <button class="control-button success" onclick="homeAllServos()">🏠 Home All</button>
+                <button class="control-button" onclick="testServos()">🔧 Test Servos</button>
+                <button class="control-button danger" onclick="servoEmergencyStop()">⛔ Stop Servos</button>
+            </div>
+        </div>
+
+        <!-- Audio Controls -->
+        <div class="control-panel">
+            <h2>🔊 R2D2 Audio System</h2>
+            <div class="audio-controls">
+                <button class="audio-button" onclick="playSound('beep_happy')">😊 Happy Beep</button>
+                <button class="audio-button" onclick="playSound('beep_sad')">😢 Sad Beep</button>
+                <button class="audio-button" onclick="playSound('beep_excited')">🤩 Excited</button>
+                <button class="audio-button" onclick="playSound('beep_worried')">😰 Worried</button>
+                <button class="audio-button" onclick="playSound('whistle')">🎵 Whistle</button>
+                <button class="audio-button" onclick="playSound('scream')">😱 Scream</button>
+                <button class="audio-button" onclick="playSound('chirp')">🐦 Chirp</button>
+                <button class="audio-button" onclick="playSound('spin')">🌀 Spin Sound</button>
+            </div>
+
+            <div class="button-grid">
+                <button class="control-button" onclick="playCharacterGreeting()">👋 Character Greeting</button>
+                <button class="control-button" onclick="playRandomSound()">🎲 Random Sound</button>
+                <button class="control-button danger" onclick="stopAllAudio()">🔇 Stop Audio</button>
+            </div>
+        </div>
+
+        <!-- Behavior Patterns -->
+        <div class="control-panel">
+            <h2>🎭 Behavior Patterns</h2>
+            <div class="button-grid">
+                <button class="control-button success" onclick="executePattern('excited_greeting')">🎉 Excited Greeting</button>
+                <button class="control-button" onclick="executePattern('head_nod_yes')">✅ Head Nod Yes</button>
+                <button class="control-button" onclick="executePattern('head_shake_no')">❌ Head Shake No</button>
+                <button class="control-button" onclick="executePattern('cautious_behavior')">⚠️ Cautious Mode</button>
+                <button class="control-button" onclick="executePattern('idle_behavior')">😴 Idle Behavior</button>
+                <button class="control-button" onclick="executePattern('scan_area')">🔍 Scan Area</button>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="control-panel">
+            <h2>📊 System Status</h2>
+            <div class="status-grid">
+                <div class="status-card">
+                    <div>Vision System</div>
+                    <span class="status-value" id="visionStatus">Disconnected</span>
+                </div>
+                <div class="status-card">
+                    <div>Servo Controller</div>
+                    <span class="status-value" id="servoStatus">Unknown</span>
+                </div>
+                <div class="status-card">
+                    <div>Characters Detected</div>
+                    <span class="status-value" id="charactersDetected">0</span>
+                </div>
+                <div class="status-card">
+                    <div>System FPS</div>
+                    <span class="status-value" id="systemFPS">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let visionWs = null;
+        let dashboardWs = null;
+        let reconnectInterval = null;
+        let currentCharacter = null;
+
+        // Initialize connections
+        function initialize() {
+            connectToVisionSystem();
+            connectToDashboard();
+        }
+
+        function connectToVisionSystem() {
+            try {
+                visionWs = new WebSocket('ws://localhost:8767');
+
+                visionWs.onopen = function() {
+                    console.log('Connected to vision system');
+                    document.getElementById('visionStatus').textContent = 'Connected';
+                    updateConnectionStatus(true);
+                };
+
+                visionWs.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    handleVisionData(data);
+                };
+
+                visionWs.onclose = function() {
+                    console.log('Vision system disconnected');
+                    document.getElementById('visionStatus').textContent = 'Disconnected';
+                    updateConnectionStatus(false);
+                    attemptReconnect();
+                };
+
+                visionWs.onerror = function(error) {
+                    console.error('Vision WebSocket error:', error);
+                };
+
+            } catch (error) {
+                console.error('Failed to connect to vision system:', error);
+                attemptReconnect();
+            }
+        }
+
+        function connectToDashboard() {
+            try {
+                dashboardWs = new WebSocket('ws://localhost:8766');
+
+                dashboardWs.onopen = function() {
+                    console.log('Connected to dashboard');
+                };
+
+                dashboardWs.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    handleDashboardData(data);
+                };
+
+                dashboardWs.onclose = function() {
+                    console.log('Dashboard disconnected');
+                };
+
+            } catch (error) {
+                console.error('Failed to connect to dashboard:', error);
+            }
+        }
+
+        function handleVisionData(data) {
+            if (data.type === 'character_vision_data') {
+                // Update vision frame
+                if (data.frame) {
+                    const visionFrame = document.getElementById('visionFrame');
+                    visionFrame.innerHTML = `<img src="data:image/jpeg;base64,${data.frame}" alt="Vision Feed">`;
+                }
+
+                // Update character detection
+                if (data.character_detections && data.character_detections.length > 0) {
+                    const character = data.character_detections[0];
+                    showCharacterDetection(character);
+                    currentCharacter = character;
+                } else {
+                    hideCharacterDetection();
+                    currentCharacter = null;
+                }
+
+                // Update stats
+                if (data.stats) {
+                    document.getElementById('systemFPS').textContent = data.stats.fps.toFixed(1);
+                    document.getElementById('charactersDetected').textContent = data.character_detections ? data.character_detections.length : 0;
+                }
+            }
+        }
+
+        function handleDashboardData(data) {
+            // Handle dashboard-specific data
+            console.log('Dashboard data:', data);
+        }
+
+        function showCharacterDetection(character) {
+            const detection = document.getElementById('characterDetection');
+            const name = document.getElementById('characterName');
+            const confidence = document.getElementById('characterConfidence');
+            const reaction = document.getElementById('characterReaction');
+
+            name.textContent = character.name;
+            confidence.textContent = `Confidence: ${(character.confidence * 100).toFixed(1)}%`;
+            reaction.textContent = `R2D2 Reaction: ${character.r2d2_reaction.primary_emotion}`;
+
+            detection.classList.add('active');
+        }
+
+        function hideCharacterDetection() {
+            document.getElementById('characterDetection').classList.remove('active');
+        }
+
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById('connectionStatus');
+            if (connected) {
+                status.textContent = 'Connected';
+                status.classList.add('connected');
+            } else {
+                status.textContent = 'Disconnected';
+                status.classList.remove('connected');
+            }
+        }
+
+        function attemptReconnect() {
+            if (!reconnectInterval) {
+                reconnectInterval = setInterval(() => {
+                    console.log('Attempting to reconnect...');
+                    connectToVisionSystem();
+                }, 5000);
+            }
+        }
+
+        // Servo control functions
+        function updateServo(channel, value) {
+            const valueElement = document.getElementById(getServoValueId(channel));
+            if (valueElement) {
+                valueElement.textContent = value + 'µs';
+            }
+
+            // Send servo command
+            sendServoCommand(channel, parseInt(value));
+        }
+
+        function getServoValueId(channel) {
+            const ids = {
+                0: 'domeRotationValue',
+                1: 'headTiltValue',
+                2: 'periscopeValue',
+                4: 'leftArmValue',
+                5: 'rightArmValue',
+                6: 'frontPanelValue',
+                7: 'leftPanelValue',
+                8: 'rightPanelValue'
+            };
+            return ids[channel];
+        }
+
+        function sendServoCommand(channel, position) {
+            const command = {
+                type: 'servo_command',
+                channel: channel,
+                position: position,
+                timestamp: Date.now()
+            };
+
+            if (dashboardWs && dashboardWs.readyState === WebSocket.OPEN) {
+                dashboardWs.send(JSON.stringify(command));
+            }
+
+            console.log(`Servo ${channel}: ${position}µs`);
+        }
+
+        function homeAllServos() {
+            console.log('Homing all servos...');
+            const homePositions = {
+                0: 1500, 1: 1500, 2: 1000, 4: 1000, 5: 1000,
+                6: 1000, 7: 1000, 8: 1000
+            };
+
+            for (const [channel, position] of Object.entries(homePositions)) {
+                sendServoCommand(parseInt(channel), position);
+                const slider = document.querySelector(`input[oninput*="updateServo(${channel}"`);
+                if (slider) {
+                    slider.value = position;
+                    updateServo(parseInt(channel), position);
+                }
+            }
+        }
+
+        function testServos() {
+            console.log('Testing servos...');
+            // Implement servo test sequence
+        }
+
+        function servoEmergencyStop() {
+            console.log('Servo emergency stop!');
+            const command = {
+                type: 'emergency_stop',
+                system: 'servos',
+                timestamp: Date.now()
+            };
+
+            if (dashboardWs && dashboardWs.readyState === WebSocket.OPEN) {
+                dashboardWs.send(JSON.stringify(command));
+            }
+        }
+
+        // Audio functions
+        function playSound(soundName) {
+            console.log(`Playing sound: ${soundName}`);
+            const command = {
+                type: 'audio_command',
+                sound: soundName,
+                timestamp: Date.now()
+            };
+
+            if (dashboardWs && dashboardWs.readyState === WebSocket.OPEN) {
+                dashboardWs.send(JSON.stringify(command));
+            }
+        }
+
+        function playCharacterGreeting() {
+            if (currentCharacter) {
+                console.log(`Playing greeting for ${currentCharacter.name}`);
+                playSound(`greeting_${currentCharacter.name.toLowerCase().replace(' ', '_')}`);
+            } else {
+                playSound('beep_happy');
+            }
+        }
+
+        function playRandomSound() {
+            const sounds = ['beep_happy', 'beep_excited', 'whistle', 'chirp'];
+            const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
+            playSound(randomSound);
+        }
+
+        function stopAllAudio() {
+            console.log('Stopping all audio');
+            const command = {
+                type: 'audio_stop_all',
+                timestamp: Date.now()
+            };
+
+            if (dashboardWs && dashboardWs.readyState === WebSocket.OPEN) {
+                dashboardWs.send(JSON.stringify(command));
+            }
+        }
+
+        // Behavior pattern functions
+        function executePattern(patternName) {
+            console.log(`Executing pattern: ${patternName}`);
+            const command = {
+                type: 'behavior_pattern',
+                pattern: patternName,
+                timestamp: Date.now()
+            };
+
+            if (dashboardWs && dashboardWs.readyState === WebSocket.OPEN) {
+                dashboardWs.send(JSON.stringify(command));
+            }
+        }
+
+        // Emergency stop
+        function emergencyStop() {
+            console.log('EMERGENCY STOP ACTIVATED!');
+            const command = {
+                type: 'emergency_stop',
+                system: 'all',
+                timestamp: Date.now()
+            };
+
+            if (dashboardWs && dashboardWs.readyState === WebSocket.OPEN) {
+                dashboardWs.send(JSON.stringify(command));
+            }
+
+            if (visionWs && visionWs.readyState === WebSocket.OPEN) {
+                visionWs.send(JSON.stringify(command));
+            }
+
+            // Visual feedback
+            document.body.style.background = 'linear-gradient(135deg, #991b1b 0%, #dc2626 100%)';
+            setTimeout(() => {
+                document.body.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
+            }, 2000);
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', initialize);
+    </script>
+</body>
+</html>
