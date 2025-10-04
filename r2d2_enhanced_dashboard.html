@@ -1832,7 +1832,7 @@
             try {
                 console.log('🎥 Connecting to Vision System (Attempt ' + (connection.reconnectAttempts + 1) + ')');
 
-                connection.ws = new WebSocket('ws://localhost:8766');
+                connection.ws = new WebSocket('ws://localhost:8767');
                 visionWs = connection.ws; // Maintain backward compatibility
 
                 // Enhanced connection timeout
