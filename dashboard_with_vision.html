@@ -135,6 +135,70 @@
             object-fit: contain;
             transition: opacity 0.1s ease-in-out;
         }
+        /* Performance Monitoring Styles */
+        .performance-monitor {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .performance-metric {
+            background: #1e293b;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            border-left: 3px solid #64748b;
+        }
+        .performance-metric.good {
+            border-left-color: #10b981;
+        }
+        .performance-metric.warning {
+            border-left-color: #f59e0b;
+        }
+        .performance-metric.bad {
+            border-left-color: #ef4444;
+        }
+        .performance-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #10b981;
+        }
+        .performance-metric.warning .performance-value {
+            color: #f59e0b;
+        }
+        .performance-metric.bad .performance-value {
+            color: #ef4444;
+        }
+        .performance-label {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        .ws-health-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            margin-left: 8px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .ws-health-indicator.healthy {
+            background: #10b981;
+        }
+        .ws-health-indicator.degraded {
+            background: #f59e0b;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
         .no-video {
             display: flex;
             align-items: center;
@@ -510,6 +574,37 @@
                 <h4>Live Detections</h4>
                 <div id="detectionList" class="detection-list">
                     <div style="text-align: center; color: #64748b;">No detections yet...</div>
+                </div>
+            </div>
+
+            <!-- Performance Monitoring Section -->
+            <div class="performance-monitor">
+                <h4>Performance Monitor <span class="ws-health-indicator" id="wsHealthIndicator"></span></h4>
+                <div class="performance-grid">
+                    <div class="performance-metric" id="actualFpsMetric">
+                        <div class="performance-value" id="actualFps">--</div>
+                        <div class="performance-label">Actual FPS</div>
+                    </div>
+                    <div class="performance-metric" id="frameVarianceMetric">
+                        <div class="performance-value" id="frameVariance">--%</div>
+                        <div class="performance-label">Frame Variance</div>
+                    </div>
+                    <div class="performance-metric" id="wsLatencyMetric">
+                        <div class="performance-value" id="wsLatency">-- ms</div>
+                        <div class="performance-label">WS Latency</div>
+                    </div>
+                    <div class="performance-metric" id="msgQueueMetric">
+                        <div class="performance-value" id="msgQueue">0</div>
+                        <div class="performance-label">Message Queue</div>
+                    </div>
+                    <div class="performance-metric" id="droppedFramesMetric">
+                        <div class="performance-value" id="droppedFrames">0</div>
+                        <div class="performance-label">Dropped Frames</div>
+                    </div>
+                    <div class="performance-metric" id="targetFpsMetric">
+                        <div class="performance-value" id="targetFps">15</div>
+                        <div class="performance-label">Target FPS</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -934,11 +1029,38 @@
             showDetections: true,
             lastFrameTime: 0,
             frameThrottleInterval: 1000 / 15, // Max 15 FPS display
+            targetFPS: 15,
             pendingFrameUpdate: false,
             detectionStats: {
                 totalFrames: 0,
                 totalDetections: 0,
                 avgFPS: 0
+            },
+            // Performance monitoring
+            performanceMonitor: {
+                frameTimestamps: [], // Circular buffer for frame timing
+                maxFrameHistory: 30, // Track last 30 frames for variance calculation
+                droppedFrames: 0,
+                messageQueue: [],
+                maxQueueSize: 10,
+                lastMessageTime: 0,
+                wsLatency: 0,
+                reconnectAttempts: 0,
+                reconnectBackoff: 1000, // Initial backoff: 1 second
+                maxReconnectBackoff: 30000, // Max backoff: 30 seconds
+                heartbeatInterval: null,
+                lastHeartbeat: 0,
+                missedHeartbeats: 0,
+                maxMissedHeartbeats: 3
+            },
+            // Adaptive frame rate control
+            adaptiveFrameRate: {
+                enabled: true,
+                currentFPS: 15,
+                minFPS: 5,
+                maxFPS: 30,
+                adjustmentFactor: 0.1, // Gradual adjustment
+                performanceThreshold: 0.15 // 15% variance threshold
             }
         };
 
@@ -951,16 +1073,23 @@
                     DashboardState.dashboardWs.onopen = () => {
                         UIManager.updateConnectionStatus('Dashboard Connected', true);
                         clearInterval(DashboardState.dashboardReconnectInterval);
+                        // Reset reconnection backoff on successful connection
+                        DashboardState.performanceMonitor.reconnectAttempts = 0;
+                        DashboardState.performanceMonitor.reconnectBackoff = 1000;
                         this.requestSystemData();
+                        this.startHeartbeat();
                     };
 
                     DashboardState.dashboardWs.onmessage = (event) => {
+                        // Track message latency
+                        DashboardState.performanceMonitor.lastMessageTime = Date.now();
                         const data = JSON.parse(event.data);
                         MessageHandler.handleDashboardMessage(data);
                     };
 
                     DashboardState.dashboardWs.onclose = () => {
                         UIManager.updateConnectionStatus('Dashboard Disconnected', false);
+                        this.stopHeartbeat();
                         this.attemptDashboardReconnect();
                     };
 
@@ -986,23 +1115,30 @@
                         UIManager.updateVisionConnectionStatus('Vision Connected', true);
                         clearInterval(DashboardState.visionReconnectInterval);
                         DashboardState.visionSystemActive = true;
+                        // Reset reconnection state
+                        DashboardState.performanceMonitor.reconnectAttempts = 0;
+                        DashboardState.performanceMonitor.reconnectBackoff = 1000;
+                        PerformanceMonitor.updateWSHealth('healthy');
                         UIManager.showAlert('Vision system connected', 'success');
                     };
 
                     DashboardState.visionWs.onmessage = (event) => {
-                        const data = JSON.parse(event.data);
-                        MessageHandler.handleVisionMessage(data);
+                        // Queue message for processing to prevent blocking
+                        const sentTime = Date.now();
+                        this.queueMessage(event.data, sentTime);
                     };
 
                     DashboardState.visionWs.onclose = () => {
                         UIManager.updateVisionConnectionStatus('Vision Disconnected', false);
                         DashboardState.visionSystemActive = false;
                         VisionManager.hideVideo();
+                        PerformanceMonitor.updateWSHealth('disconnected');
                         this.attemptVisionReconnect();
                     };
 
                     DashboardState.visionWs.onerror = (error) => {
                         console.error('Vision WebSocket error:', error);
+                        PerformanceMonitor.updateWSHealth('error');
                     };
                 } catch (error) {
                     console.error('Vision connection failed:', error);
@@ -1012,19 +1148,134 @@
 
             attemptDashboardReconnect() {
                 if (!DashboardState.dashboardReconnectInterval) {
-                    DashboardState.dashboardReconnectInterval = setInterval(() => {
-                        console.log('Attempting to reconnect to dashboard...');
+                    // Exponential backoff for reconnection
+                    DashboardState.performanceMonitor.reconnectAttempts++;
+                    const backoff = Math.min(
+                        DashboardState.performanceMonitor.reconnectBackoff *
+                        Math.pow(2, DashboardState.performanceMonitor.reconnectAttempts - 1),
+                        DashboardState.performanceMonitor.maxReconnectBackoff
+                    );
+
+                    console.log(`Attempting dashboard reconnect in ${backoff}ms (attempt ${DashboardState.performanceMonitor.reconnectAttempts})`);
+
+                    DashboardState.dashboardReconnectInterval = setTimeout(() => {
+                        DashboardState.dashboardReconnectInterval = null;
                         this.connectToDashboard();
-                    }, 5000);
+                    }, backoff);
                 }
             },
 
             attemptVisionReconnect() {
                 if (!DashboardState.visionReconnectInterval) {
-                    DashboardState.visionReconnectInterval = setInterval(() => {
-                        console.log('Attempting to reconnect to vision system...');
+                    // Exponential backoff for reconnection
+                    DashboardState.performanceMonitor.reconnectAttempts++;
+                    const backoff = Math.min(
+                        DashboardState.performanceMonitor.reconnectBackoff *
+                        Math.pow(2, DashboardState.performanceMonitor.reconnectAttempts - 1),
+                        DashboardState.performanceMonitor.maxReconnectBackoff
+                    );
+
+                    console.log(`Attempting vision reconnect in ${backoff}ms (attempt ${DashboardState.performanceMonitor.reconnectAttempts})`);
+
+                    DashboardState.visionReconnectInterval = setTimeout(() => {
+                        DashboardState.visionReconnectInterval = null;
                         this.connectToVision();
-                    }, 5000);
+                    }, backoff);
+                }
+            },
+
+            // Message queue management to handle bursts
+            queueMessage(data, receivedTime) {
+                const queue = DashboardState.performanceMonitor.messageQueue;
+
+                // Add message to queue
+                queue.push({ data, receivedTime });
+
+                // Process queue if not already processing
+                if (!this.processingQueue) {
+                    this.processMessageQueue();
+                }
+
+                // Maintain queue size limit
+                if (queue.length > DashboardState.performanceMonitor.maxQueueSize) {
+                    const dropped = queue.shift();
+                    console.warn('Message queue full, dropping oldest message');
+                }
+            },
+
+            processMessageQueue() {
+                this.processingQueue = true;
+
+                const processNext = () => {
+                    const queue = DashboardState.performanceMonitor.messageQueue;
+
+                    if (queue.length === 0) {
+                        this.processingQueue = false;
+                        return;
+                    }
+
+                    const { data, receivedTime } = queue.shift();
+                    const processingTime = Date.now();
+
+                    // Calculate latency
+                    DashboardState.performanceMonitor.wsLatency = processingTime - receivedTime;
+
+                    try {
+                        const parsedData = JSON.parse(data);
+                        MessageHandler.handleVisionMessage(parsedData);
+                    } catch (error) {
+                        console.error('Error processing queued message:', error);
+                    }
+
+                    // Update queue display
+                    PerformanceMonitor.updateQueueDepth(queue.length);
+
+                    // Process next message using requestAnimationFrame for smooth performance
+                    if (queue.length > 0) {
+                        requestAnimationFrame(processNext);
+                    } else {
+                        this.processingQueue = false;
+                    }
+                };
+
+                processNext();
+            },
+
+            // Heartbeat mechanism for connection health
+            startHeartbeat() {
+                this.stopHeartbeat(); // Clear any existing heartbeat
+
+                DashboardState.performanceMonitor.heartbeatInterval = setInterval(() => {
+                    if (DashboardState.dashboardWs && DashboardState.dashboardWs.readyState === WebSocket.OPEN) {
+                        try {
+                            DashboardState.dashboardWs.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }));
+
+                            // Check for missed heartbeats
+                            const now = Date.now();
+                            if (DashboardState.performanceMonitor.lastHeartbeat > 0 &&
+                                now - DashboardState.performanceMonitor.lastHeartbeat > 10000) { // 10 seconds
+                                DashboardState.performanceMonitor.missedHeartbeats++;
+
+                                if (DashboardState.performanceMonitor.missedHeartbeats >=
+                                    DashboardState.performanceMonitor.maxMissedHeartbeats) {
+                                    console.warn('Too many missed heartbeats, reconnecting...');
+                                    this.stopHeartbeat();
+                                    DashboardState.dashboardWs.close();
+                                }
+                            }
+
+                            DashboardState.performanceMonitor.lastHeartbeat = now;
+                        } catch (error) {
+                            console.error('Heartbeat error:', error);
+                        }
+                    }
+                }, 5000); // Send heartbeat every 5 seconds
+            },
+
+            stopHeartbeat() {
+                if (DashboardState.performanceMonitor.heartbeatInterval) {
+                    clearInterval(DashboardState.performanceMonitor.heartbeatInterval);
+                    DashboardState.performanceMonitor.heartbeatInterval = null;
                 }
             },
 
@@ -1080,10 +1331,29 @@
         const VisionManager = {
             updateVisionDisplay(data) {
                 const currentTime = Date.now();
-                if (currentTime - DashboardState.lastFrameTime < DashboardState.frameThrottleInterval ||
-                    DashboardState.pendingFrameUpdate) {
-                    return; // Skip frame to maintain smooth display
+                const timeSinceLastFrame = currentTime - DashboardState.lastFrameTime;
+
+                // Adaptive frame rate control
+                if (DashboardState.adaptiveFrameRate.enabled) {
+                    const targetInterval = 1000 / DashboardState.adaptiveFrameRate.currentFPS;
+
+                    if (timeSinceLastFrame < targetInterval || DashboardState.pendingFrameUpdate) {
+                        // Track dropped frames for performance monitoring
+                        DashboardState.performanceMonitor.droppedFrames++;
+                        PerformanceMonitor.updateDroppedFrames(DashboardState.performanceMonitor.droppedFrames);
+                        return; // Skip frame to maintain smooth display
+                    }
+                } else {
+                    // Original throttle logic
+                    if (timeSinceLastFrame < DashboardState.frameThrottleInterval || DashboardState.pendingFrameUpdate) {
+                        DashboardState.performanceMonitor.droppedFrames++;
+                        PerformanceMonitor.updateDroppedFrames(DashboardState.performanceMonitor.droppedFrames);
+                        return;
+                    }
                 }
+
+                // Record frame timestamp for variance calculation
+                PerformanceMonitor.recordFrameTimestamp(currentTime);
 
                 // Update video feed
                 if (data.frame) {
@@ -1170,6 +1440,199 @@
                         <div style="font-size: 14px; margin-top: 10px;">Attempting to reconnect...</div>
                     </div>
                 `;
+            }
+        };
+
+        // ========== Performance Monitor ==========
+        const PerformanceMonitor = {
+            // Record frame timestamp and calculate metrics
+            recordFrameTimestamp(timestamp) {
+                const timestamps = DashboardState.performanceMonitor.frameTimestamps;
+                timestamps.push(timestamp);
+
+                // Keep circular buffer of last N frames
+                if (timestamps.length > DashboardState.performanceMonitor.maxFrameHistory) {
+                    timestamps.shift();
+                }
+
+                // Calculate and update performance metrics
+                this.updatePerformanceMetrics();
+            },
+
+            updatePerformanceMetrics() {
+                const timestamps = DashboardState.performanceMonitor.frameTimestamps;
+
+                if (timestamps.length < 2) return;
+
+                // Calculate actual FPS
+                const timeDiff = timestamps[timestamps.length - 1] - timestamps[0];
+                const actualFPS = ((timestamps.length - 1) / timeDiff) * 1000;
+
+                // Calculate frame timing variance
+                const frameIntervals = [];
+                for (let i = 1; i < timestamps.length; i++) {
+                    frameIntervals.push(timestamps[i] - timestamps[i - 1]);
+                }
+
+                const avgInterval = frameIntervals.reduce((a, b) => a + b, 0) / frameIntervals.length;
+                const variance = frameIntervals.reduce((sum, interval) => {
+                    return sum + Math.pow(interval - avgInterval, 2);
+                }, 0) / frameIntervals.length;
+
+                const stdDev = Math.sqrt(variance);
+                const variancePercent = (stdDev / avgInterval) * 100;
+
+                // Update UI
+                this.updateActualFPS(actualFPS);
+                this.updateFrameVariance(variancePercent);
+                this.updateWSLatency(DashboardState.performanceMonitor.wsLatency);
+
+                // Adaptive frame rate adjustment based on variance
+                if (DashboardState.adaptiveFrameRate.enabled) {
+                    this.adjustFrameRate(variancePercent);
+                }
+
+                // Update WebSocket health based on performance
+                this.updateWSHealthStatus(variancePercent);
+            },
+
+            adjustFrameRate(variancePercent) {
+                const adaptive = DashboardState.adaptiveFrameRate;
+                const threshold = adaptive.performanceThreshold * 100; // Convert to percentage
+
+                if (variancePercent > threshold) {
+                    // High variance - reduce FPS
+                    const newFPS = Math.max(
+                        adaptive.minFPS,
+                        adaptive.currentFPS * (1 - adaptive.adjustmentFactor)
+                    );
+                    adaptive.currentFPS = newFPS;
+                    console.log(`Reducing FPS to ${newFPS.toFixed(1)} due to high variance (${variancePercent.toFixed(1)}%)`);
+                } else if (variancePercent < threshold / 2 && adaptive.currentFPS < adaptive.maxFPS) {
+                    // Low variance - can increase FPS
+                    const newFPS = Math.min(
+                        adaptive.maxFPS,
+                        adaptive.currentFPS * (1 + adaptive.adjustmentFactor)
+                    );
+                    adaptive.currentFPS = newFPS;
+                    console.log(`Increasing FPS to ${newFPS.toFixed(1)} due to good performance (${variancePercent.toFixed(1)}%)`);
+                }
+
+                // Update target FPS display
+                document.getElementById('targetFps').textContent = adaptive.currentFPS.toFixed(1);
+            },
+
+            updateActualFPS(fps) {
+                const element = document.getElementById('actualFps');
+                const metric = document.getElementById('actualFpsMetric');
+                element.textContent = fps.toFixed(1);
+
+                // Color code based on target
+                const target = DashboardState.adaptiveFrameRate.currentFPS;
+                if (fps >= target * 0.9) {
+                    metric.className = 'performance-metric good';
+                } else if (fps >= target * 0.7) {
+                    metric.className = 'performance-metric warning';
+                } else {
+                    metric.className = 'performance-metric bad';
+                }
+            },
+
+            updateFrameVariance(variance) {
+                const element = document.getElementById('frameVariance');
+                const metric = document.getElementById('frameVarianceMetric');
+                element.textContent = variance.toFixed(1) + '%';
+
+                // Color code based on thresholds
+                if (variance < 10) {
+                    metric.className = 'performance-metric good';
+                } else if (variance < 15) {
+                    metric.className = 'performance-metric warning';
+                } else {
+                    metric.className = 'performance-metric bad';
+                }
+            },
+
+            updateWSLatency(latency) {
+                const element = document.getElementById('wsLatency');
+                const metric = document.getElementById('wsLatencyMetric');
+                element.textContent = latency.toFixed(0) + ' ms';
+
+                // Color code based on latency
+                if (latency < 50) {
+                    metric.className = 'performance-metric good';
+                } else if (latency < 100) {
+                    metric.className = 'performance-metric warning';
+                } else {
+                    metric.className = 'performance-metric bad';
+                }
+            },
+
+            updateQueueDepth(depth) {
+                const element = document.getElementById('msgQueue');
+                const metric = document.getElementById('msgQueueMetric');
+                element.textContent = depth;
+
+                // Color code based on queue depth
+                if (depth < 3) {
+                    metric.className = 'performance-metric good';
+                } else if (depth < 7) {
+                    metric.className = 'performance-metric warning';
+                } else {
+                    metric.className = 'performance-metric bad';
+                }
+            },
+
+            updateDroppedFrames(count) {
+                const element = document.getElementById('droppedFrames');
+                const metric = document.getElementById('droppedFramesMetric');
+                element.textContent = count;
+
+                // Color code based on dropped frame count
+                if (count < 10) {
+                    metric.className = 'performance-metric good';
+                } else if (count < 50) {
+                    metric.className = 'performance-metric warning';
+                } else {
+                    metric.className = 'performance-metric bad';
+                }
+            },
+
+            updateWSHealth(status) {
+                const indicator = document.getElementById('wsHealthIndicator');
+
+                switch(status) {
+                    case 'healthy':
+                        indicator.className = 'ws-health-indicator healthy';
+                        break;
+                    case 'degraded':
+                        indicator.className = 'ws-health-indicator degraded';
+                        break;
+                    case 'disconnected':
+                    case 'error':
+                        indicator.className = 'ws-health-indicator';
+                        break;
+                }
+            },
+
+            updateWSHealthStatus(variancePercent) {
+                const queue = DashboardState.performanceMonitor.messageQueue.length;
+                const latency = DashboardState.performanceMonitor.wsLatency;
+
+                // Determine overall health
+                if (variancePercent > 20 || queue > 7 || latency > 150) {
+                    this.updateWSHealth('degraded');
+                } else if (DashboardState.visionSystemActive) {
+                    this.updateWSHealth('healthy');
+                }
+            },
+
+            // Reset performance metrics
+            reset() {
+                DashboardState.performanceMonitor.frameTimestamps = [];
+                DashboardState.performanceMonitor.droppedFrames = 0;
+                DashboardState.performanceMonitor.messageQueue = [];
+                DashboardState.performanceMonitor.wsLatency = 0;
             }
         };
 
