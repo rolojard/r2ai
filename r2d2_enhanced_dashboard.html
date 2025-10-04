@@ -2045,7 +2045,8 @@
         function handleVisionData(data) {
             console.log('Received vision data:', data.type);
 
-            if (data.type === 'video_frame') {
+            // Handle ALL vision message types: vision_data, video_frame, character_vision_data
+            if (data.type === 'video_frame' || data.type === 'vision_data') {
                 // Update vision frame with flicker-free webcam feed
                 if (data.frame) {
                     updateVideoFeedWithFlickerFree(data.frame);
@@ -2054,6 +2055,18 @@
                 // Update frame stats
                 if (data.frame_number) {
                     document.getElementById('charactersDetected').textContent = data.frame_number;
+                }
+
+                // Update detections if present
+                if (data.detections && Array.isArray(data.detections)) {
+                    document.getElementById('charactersDetected').textContent = data.detections.length;
+                }
+
+                // Update stats if present
+                if (data.stats) {
+                    if (data.stats.fps !== undefined) {
+                        document.getElementById('systemFPS').textContent = data.stats.fps.toFixed(1);
+                    }
                 }
             } else if (data.type === 'status') {
                 // Update system status
