@@ -1109,7 +1109,7 @@
                 }
 
                 try {
-                    DashboardState.visionWs = new WebSocket('ws://localhost:8766');
+                    DashboardState.visionWs = new WebSocket('ws://localhost:8767');
 
                     DashboardState.visionWs.onopen = () => {
                         UIManager.updateVisionConnectionStatus('Vision Connected', true);
