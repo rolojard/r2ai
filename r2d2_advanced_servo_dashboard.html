@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R2D2 Advanced Servo Control Dashboard</title>
+    <style>
+        :root {
+            --primary-bg: #0f172a;
+            --secondary-bg: #1e293b;
+            --tertiary-bg: #334155;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-areas:
+                "header header header"
+                "status controls sequences"
+                "servos servos servos"
+                "logs logs logs";
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto 1fr auto;
+            gap: 20px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            grid-area: header;
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-section {
+            grid-area: status;
+        }
+
+        .controls-section {
+            grid-area: controls;
+        }
+
+        .sequences-section {
+            grid-area: sequences;
+        }
+
+        .servos-section {
+            grid-area: servos;
+        }
+
+        .logs-section {
+            grid-area: logs;
+            max-height: 300px;
+        }
+
+        .card {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .status-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--tertiary-bg);
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-value {
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .status-value.error {
+            color: var(--error);
+        }
+
+        .status-value.warning {
+            color: var(--warning);
+        }
+
+        .button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin: 5px;
+            font-size: 14px;
+        }
+
+        .button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .button.success {
+            background: var(--success);
+        }
+
+        .button.warning {
+            background: var(--warning);
+        }
+
+        .button.error {
+            background: var(--error);
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .emergency-stop {
+            background: var(--error);
+            font-size: 16px;
+            padding: 15px 30px;
+            font-weight: 700;
+            margin: 10px 0;
+            width: 100%;
+        }
+
+        .servo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .servo-card {
+            background: var(--tertiary-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .servo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .servo-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .servo-channel {
+            background: var(--accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .servo-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .position-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .position-slider {
+            flex: 1;
+            height: 6px;
+            background: var(--tertiary-bg);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .position-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .position-value {
+            min-width: 60px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .servo-status {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .sequence-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .sequence-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: var(--tertiary-bg);
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .sequence-info {
+            flex: 1;
+        }
+
+        .sequence-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .sequence-description {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .sequence-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .sequence-actions .button {
+            padding: 5px 10px;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .logs {
+            background: var(--tertiary-bg);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            overflow-y: auto;
+            max-height: 250px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .log-entry.info {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid var(--accent);
+        }
+
+        .log-entry.success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 3px solid var(--success);
+        }
+
+        .log-entry.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 3px solid var(--warning);
+        }
+
+        .log-entry.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid var(--error);
+        }
+
+        .log-timestamp {
+            color: var(--text-secondary);
+            font-size: 10px;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 1000;
+        }
+
+        .connection-status.connected {
+            background: var(--success);
+            color: white;
+        }
+
+        .connection-status.disconnected {
+            background: var(--error);
+            color: white;
+        }
+
+        .r2d2-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .dome-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .angle-input {
+            background: var(--tertiary-bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-primary);
+            padding: 5px 10px;
+            width: 80px;
+        }
+
+        .panel-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-container {
+                grid-template-areas:
+                    "header header"
+                    "status controls"
+                    "sequences sequences"
+                    "servos servos"
+                    "logs logs";
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                grid-template-areas:
+                    "header"
+                    "status"
+                    "controls"
+                    "sequences"
+                    "servos"
+                    "logs";
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .servo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connectionStatus">Disconnected</div>
+
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>🤖 R2D2 Advanced Servo Control</h1>
+            <p>Professional servo control system with Pololu Maestro integration</p>
+        </div>
+
+        <div class="status-section">
+            <div class="card">
+                <h3>🔌 System Status</h3>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <span>Controller:</span>
+                        <span class="status-value" id="controllerStatus">Disconnected</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Servo Board:</span>
+                        <span class="status-value" id="boardStatus">Not Detected</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Port:</span>
+                        <span class="status-value" id="portStatus">--</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Channels:</span>
+                        <span class="status-value" id="channelCount">--</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Active Servos:</span>
+                        <span class="status-value" id="activeServos">--</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Emergency Stop:</span>
+                        <span class="status-value" id="emergencyStatus">Normal</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Uptime:</span>
+                        <span class="status-value" id="uptime">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls-section">
+            <div class="card">
+                <h3>🎮 System Controls</h3>
+
+                <div class="r2d2-controls">
+                    <button class="button" onclick="homeAllServos()">🏠 Home All</button>
+                    <button class="button" onclick="refreshStatus()">🔄 Refresh</button>
+                </div>
+
+                <div class="dome-control">
+                    <label>Dome Angle:</label>
+                    <input type="number" class="angle-input" id="domeAngle" value="0" min="-180" max="180">
+                    <button class="button" onclick="rotateDome()">↻ Rotate</button>
+                </div>
+
+                <div class="panel-controls">
+                    <button class="button" onclick="togglePanel('front')" id="frontPanel">Front Panel</button>
+                    <button class="button" onclick="togglePanel('left')" id="leftPanel">Left Panel</button>
+                    <button class="button" onclick="togglePanel('right')" id="rightPanel">Right Panel</button>
+                    <button class="button" onclick="togglePanel('back')" id="backPanel">Back Panel</button>
+                </div>
+
+                <button class="button emergency-stop" onclick="emergencyStop()">🚨 EMERGENCY STOP</button>
+                <button class="button success" onclick="clearEmergencyStop()" id="clearEmergency" style="display: none;">✅ Clear Emergency</button>
+            </div>
+        </div>
+
+        <div class="sequences-section">
+            <div class="card">
+                <h3>🎬 Servo Sequences</h3>
+                <div class="sequence-list" id="sequenceList">
+                    <!-- Sequences will be populated dynamically -->
+                </div>
+                <button class="button" onclick="loadSequences()">📁 Load Sequences</button>
+                <button class="button warning" onclick="stopAllSequences()">⏹️ Stop All</button>
+            </div>
+        </div>
+
+        <div class="servos-section">
+            <div class="card">
+                <h3>🔧 Individual Servo Control</h3>
+                <div class="servo-grid" id="servoGrid">
+                    <!-- Servo controls will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <div class="logs-section">
+            <div class="card">
+                <h3>📊 System Logs</h3>
+                <div class="logs" id="systemLogs">
+                    <!-- Logs will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // WebSocket connection management
+        let ws = null;
+        let reconnectInterval = null;
+        let panelStates = { front: false, left: false, right: false, back: false };
+        let servoData = {};
+
+        function connect() {
+            try {
+                ws = new WebSocket('ws://localhost:8766');
+
+                ws.onopen = function() {
+                    document.getElementById('connectionStatus').textContent = 'Connected';
+                    document.getElementById('connectionStatus').className = 'connection-status connected';
+                    clearInterval(reconnectInterval);
+                    requestSystemData();
+                    addLog('Connected to servo control system', 'success');
+                };
+
+                ws.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    handleMessage(data);
+                };
+
+                ws.onclose = function() {
+                    document.getElementById('connectionStatus').textContent = 'Disconnected';
+                    document.getElementById('connectionStatus').className = 'connection-status disconnected';
+                    attemptReconnect();
+                };
+
+                ws.onerror = function(error) {
+                    console.error('WebSocket error:', error);
+                    addLog('WebSocket connection error', 'error');
+                };
+            } catch (error) {
+                console.error('Connection failed:', error);
+                attemptReconnect();
+            }
+        }
+
+        function attemptReconnect() {
+            if (!reconnectInterval) {
+                reconnectInterval = setInterval(() => {
+                    console.log('Attempting to reconnect...');
+                    connect();
+                }, 5000);
+            }
+        }
+
+        function handleMessage(data) {
+            switch(data.type) {
+                case 'servo_status':
+                    updateServoStatus(data.data);
+                    break;
+                case 'board_detected':
+                    updateBoardStatus(data);
+                    break;
+                case 'sequence_list':
+                    updateSequenceList(data.sequences);
+                    break;
+                case 'emergency_stop_alert':
+                    handleEmergencyAlert();
+                    break;
+                case 'alert':
+                    addLog(data.message, data.level);
+                    break;
+                case 'system_stats':
+                    updateSystemStats(data.stats);
+                    break;
+            }
+        }
+
+        function updateServoStatus(data) {
+            servoData = data;
+
+            if (data.controller) {
+                document.getElementById('controllerStatus').textContent =
+                    data.controller.connected ? 'Connected' : 'Disconnected';
+                document.getElementById('controllerStatus').className =
+                    data.controller.connected ? 'status-value' : 'status-value error';
+
+                document.getElementById('portStatus').textContent = data.controller.port || '--';
+                document.getElementById('channelCount').textContent = data.controller.servo_count || '--';
+                document.getElementById('emergencyStatus').textContent =
+                    data.controller.emergency_stop ? 'ACTIVE' : 'Normal';
+                document.getElementById('emergencyStatus').className =
+                    data.controller.emergency_stop ? 'status-value error' : 'status-value';
+
+                if (data.controller.uptime) {
+                    const uptime = Math.floor(data.controller.uptime);
+                    const hours = Math.floor(uptime / 3600);
+                    const minutes = Math.floor((uptime % 3600) / 60);
+                    const seconds = uptime % 60;
+                    document.getElementById('uptime').textContent =
+                        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+
+                // Show/hide emergency clear button
+                const clearButton = document.getElementById('clearEmergency');
+                if (data.controller.emergency_stop) {
+                    clearButton.style.display = 'block';
+                } else {
+                    clearButton.style.display = 'none';
+                }
+            }
+
+            if (data.servos) {
+                updateServoGrid(data.servos);
+                const activeCount = Object.values(data.servos).filter(s => s.enabled).length;
+                document.getElementById('activeServos').textContent = `${activeCount}/${Object.keys(data.servos).length}`;
+            }
+        }
+
+        function updateBoardStatus(data) {
+            document.getElementById('boardStatus').textContent = data.connected ?
+                `${data.boardType} (${data.firmware})` : 'Not Connected';
+            document.getElementById('boardStatus').className =
+                data.connected ? 'status-value' : 'status-value error';
+        }
+
+        function updateServoGrid(servos) {
+            const grid = document.getElementById('servoGrid');
+            grid.innerHTML = '';
+
+            Object.entries(servos).forEach(([channel, servo]) => {
+                const servoCard = createServoCard(channel, servo);
+                grid.appendChild(servoCard);
+            });
+        }
+
+        function createServoCard(channel, servo) {
+            const card = document.createElement('div');
+            card.className = 'servo-card';
+
+            const positionUs = servo.position_us || 1500;
+            const minUs = servo.range_us ? servo.range_us[0] : 1000;
+            const maxUs = servo.range_us ? servo.range_us[1] : 2000;
+
+            card.innerHTML = `
+                <div class="servo-header">
+                    <span class="servo-name">${servo.name}</span>
+                    <span class="servo-channel">CH${channel}</span>
+                </div>
+                <div class="servo-controls">
+                    <div class="position-control">
+                        <input type="range"
+                               class="position-slider"
+                               min="${minUs}"
+                               max="${maxUs}"
+                               value="${positionUs}"
+                               onchange="moveServo(${channel}, this.value)"
+                               ${!servo.enabled ? 'disabled' : ''}>
+                        <span class="position-value">${Math.round(positionUs)}µs</span>
+                    </div>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="button" onclick="homeServo(${channel})" ${!servo.enabled ? 'disabled' : ''}>Home</button>
+                        <button class="button ${servo.enabled ? 'success' : 'warning'}"
+                                onclick="toggleServo(${channel})">${servo.enabled ? 'Enabled' : 'Disabled'}</button>
+                    </div>
+                </div>
+                <div class="servo-status">
+                    <span>Target: ${Math.round(servo.target_us || positionUs)}µs</span>
+                    <span>${servo.moving ? 'Moving' : 'Stopped'}</span>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function updateSequenceList(sequences) {
+            const list = document.getElementById('sequenceList');
+            list.innerHTML = '';
+
+            sequences.forEach(sequence => {
+                const item = document.createElement('div');
+                item.className = 'sequence-item';
+
+                item.innerHTML = `
+                    <div class="sequence-info">
+                        <div class="sequence-name">${sequence.name}</div>
+                        <div class="sequence-description">${sequence.description}</div>
+                    </div>
+                    <div class="sequence-actions">
+                        <button class="button" onclick="executeSequence('${sequence.id}')">
+                            ${sequence.running ? '▶️ Running' : '▶️ Play'}
+                        </button>
+                        <button class="button warning" onclick="stopSequence('${sequence.id}')"
+                                ${!sequence.running ? 'disabled' : ''}>⏹️ Stop</button>
+                    </div>
+                `;
+
+                list.appendChild(item);
+            });
+        }
+
+        // Control functions
+        function requestSystemData() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({type: 'request_data'}));
+            }
+        }
+
+        function sendCommand(type, data) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({type: type, ...data}));
+            }
+        }
+
+        function moveServo(channel, position) {
+            sendCommand('servo_command', {
+                channel: parseInt(channel),
+                position: parseFloat(position)
+            });
+
+            // Update display immediately for responsiveness
+            const card = event.target.closest('.servo-card');
+            const valueSpan = card.querySelector('.position-value');
+            valueSpan.textContent = Math.round(position) + 'µs';
+        }
+
+        function homeServo(channel) {
+            sendCommand('servo_command', {
+                channel: parseInt(channel),
+                command: 'home'
+            });
+        }
+
+        function homeAllServos() {
+            Object.keys(servoData.servos || {}).forEach(channel => {
+                homeServo(parseInt(channel));
+            });
+            addLog('Homing all servos', 'info');
+        }
+
+        function rotateDome() {
+            const angle = document.getElementById('domeAngle').value;
+            sendCommand('r2d2_command', {
+                command: 'dome_rotation',
+                angle: parseFloat(angle)
+            });
+            addLog(`Rotating dome to ${angle}°`, 'info');
+        }
+
+        function togglePanel(panel) {
+            panelStates[panel] = !panelStates[panel];
+
+            sendCommand('r2d2_command', {
+                command: 'dome_panels',
+                [panel]: panelStates[panel]
+            });
+
+            const button = document.getElementById(panel + 'Panel');
+            button.textContent = `${panel.charAt(0).toUpperCase() + panel.slice(1)} Panel ${panelStates[panel] ? '(Open)' : '(Closed)'}`;
+            button.className = panelStates[panel] ? 'button success' : 'button';
+
+            addLog(`${panel} panel ${panelStates[panel] ? 'opened' : 'closed'}`, 'info');
+        }
+
+        function executeSequence(sequenceId) {
+            sendCommand('servo_sequence', {
+                action: 'execute',
+                sequence_id: sequenceId
+            });
+            addLog(`Executing sequence: ${sequenceId}`, 'info');
+        }
+
+        function stopSequence(sequenceId) {
+            sendCommand('servo_sequence', {
+                action: 'stop',
+                sequence_id: sequenceId
+            });
+            addLog(`Stopping sequence: ${sequenceId}`, 'warning');
+        }
+
+        function stopAllSequences() {
+            sendCommand('servo_sequence', {
+                action: 'stop_all'
+            });
+            addLog('Stopping all sequences', 'warning');
+        }
+
+        function loadSequences() {
+            sendCommand('servo_sequence', {
+                action: 'list'
+            });
+        }
+
+        function emergencyStop() {
+            sendCommand('emergency_stop', {
+                system: 'servos'
+            });
+            addLog('EMERGENCY STOP ACTIVATED', 'error');
+        }
+
+        function clearEmergencyStop() {
+            // Send API request to clear emergency stop
+            fetch('http://localhost:5000/api/emergency_stop/clear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addLog('Emergency stop cleared', 'success');
+                    requestSystemData();
+                } else {
+                    addLog('Failed to clear emergency stop', 'error');
+                }
+            })
+            .catch(error => {
+                addLog('Error clearing emergency stop', 'error');
+            });
+        }
+
+        function refreshStatus() {
+            requestSystemData();
+            loadSequences();
+            addLog('Status refreshed', 'info');
+        }
+
+        function handleEmergencyAlert() {
+            addLog('EMERGENCY STOP TRIGGERED', 'error');
+            document.getElementById('emergencyStatus').textContent = 'ACTIVE';
+            document.getElementById('emergencyStatus').className = 'status-value error';
+            document.getElementById('clearEmergency').style.display = 'block';
+        }
+
+        function addLog(message, level = 'info') {
+            const logs = document.getElementById('systemLogs');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${level}`;
+
+            const timestamp = new Date().toLocaleTimeString();
+            entry.innerHTML = `
+                <div class="log-timestamp">${timestamp}</div>
+                <div>${message}</div>
+            `;
+
+            logs.insertBefore(entry, logs.firstChild);
+
+            // Keep only last 50 log entries
+            while (logs.children.length > 50) {
+                logs.removeChild(logs.lastChild);
+            }
+        }
+
+        function updateSystemStats(stats) {
+            // Additional system stats can be displayed here
+        }
+
+        // Initialize dashboard
+        connect();
+        setInterval(requestSystemData, 5000); // Refresh every 5 seconds
+        setInterval(loadSequences, 10000); // Refresh sequences every 10 seconds
+
+        // Add startup log
+        addLog('R2D2 Servo Dashboard initialized', 'success');
+    </script>
+</body>
+</html>

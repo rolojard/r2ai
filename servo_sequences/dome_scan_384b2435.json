@@ -1,0 +1,6 @@
+{
+  "name": "dome_scan",
+  "commands": [
+    {
+      "channel": 0,
+      "command_type": 

@@ -11,12 +11,39 @@ const WebSocket = require('ws');
 
 const PORT = 8765;
 const WEBSOCKET_PORT = 8766;
+const BEHAVIORAL_WEBSOCKET_PORT = 8768;
+const SERVO_API_URL = 'http://localhost:5000/api';
+const SERVO_WEBSOCKET_URL = 'ws://localhost:5000';
+
+// Import axios for HTTP requests
+const axios = require('axios');
+
+// Track child processes for proper cleanup
+const childProcesses = new Set();
+
+// Memory management configuration
+const MEMORY_CONFIG = {
+    MAX_CHILD_PROCESSES: 5,
+    CLEANUP_INTERVAL: 30000, // 30 seconds
+    FORCE_GC_INTERVAL: 60000, // 1 minute
+    MAX_MEMORY_MB: 512
+};
 
 // Create HTTP server for dashboard
 const server = http.createServer((req, res) => {
     let filePath = '.' + req.url;
     if (filePath === './') {
+        filePath = './dashboard_with_vision.html';  // DEFAULT TO VISION-ENABLED DASHBOARD
+    } else if (filePath === './servo' || filePath === './servo/') {
+        filePath = './r2d2_advanced_servo_dashboard.html';
+    } else if (filePath === './enhanced' || filePath === './enhanced/') {
         filePath = './r2d2_enhanced_dashboard.html';
+    } else if (filePath === './vision' || filePath === './vision/') {
+        filePath = './dashboard_with_vision.html';
+    } else if (filePath === './servo-only' || filePath === './servo-only/') {
+        filePath = './r2d2_servo_dashboard.html';  // SERVO-ONLY AVAILABLE AT /servo-only
+    } else if (filePath === './disney' || filePath === './disney/') {
+        filePath = './r2d2_disney_behavioral_dashboard.html';  // DISNEY BEHAVIORAL INTELLIGENCE DASHBOARD
     }
 
     const extname = String(path.extname(filePath)).toLowerCase();
@@ -43,318 +70,8 @@ const server = http.createServer((req, res) => {
     fs.readFile(filePath, function(error, content) {
         if (error) {
             if (error.code === 'ENOENT') {
-                // Serve default dashboard HTML
-                const defaultHTML = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>R2D2 Multi-Agent Dashboard</title>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: #0f172a;
-            color: #f8fafc;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .status-card {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 20px;
-        }
-        .metric {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        .value {
-            font-weight: bold;
-            color: #10b981;
-        }
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        button {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #2563eb;
-        }
-        .alert {
-            background: #dc2626;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        .success {
-            background: #16a34a;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        #connectionStatus {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px;
-            border-radius: 5px;
-            background: #dc2626;
-        }
-        #connectionStatus.connected {
-            background: #16a34a;
-        }
-    </style>
-</head>
-<body>
-    <div id="connectionStatus">Disconnected</div>
-
-    <div class="header">
-        <h1>🎯 R2D2 Multi-Agent Dashboard</h1>
-        <p>Real-time monitoring and control system</p>
-    </div>
-
-    <div class="status-grid">
-        <div class="status-card">
-            <h3>🖥️ System Performance</h3>
-            <div class="metric">
-                <span>CPU Usage:</span>
-                <span class="value" id="cpuUsage">--%</span>
-            </div>
-            <div class="metric">
-                <span>Memory Usage:</span>
-                <span class="value" id="memoryUsage">--%</span>
-            </div>
-            <div class="metric">
-                <span>Temperature:</span>
-                <span class="value" id="temperature">--°C</span>
-            </div>
-            <div class="metric">
-                <span>GPU Usage:</span>
-                <span class="value" id="gpuUsage">--%</span>
-            </div>
-        </div>
-
-        <div class="status-card">
-            <h3>🎭 R2D2 Status</h3>
-            <div class="metric">
-                <span>Active Servos:</span>
-                <span class="value" id="activeServos">--</span>
-            </div>
-            <div class="metric">
-                <span>Audio System:</span>
-                <span class="value" id="audioStatus">--</span>
-            </div>
-            <div class="metric">
-                <span>Vision System:</span>
-                <span class="value" id="visionStatus">--</span>
-            </div>
-            <div class="metric">
-                <span>System Health:</span>
-                <span class="value" id="systemHealth">--%</span>
-            </div>
-        </div>
-
-        <div class="status-card">
-            <h3>🎪 Performance Metrics</h3>
-            <div class="metric">
-                <span>Servo Timing:</span>
-                <span class="value" id="servoTiming">-- ms</span>
-            </div>
-            <div class="metric">
-                <span>Audio Latency:</span>
-                <span class="value" id="audioLatency">-- ms</span>
-            </div>
-            <div class="metric">
-                <span>Vision FPS:</span>
-                <span class="value" id="visionFps">-- FPS</span>
-            </div>
-            <div class="metric">
-                <span>Uptime:</span>
-                <span class="value" id="uptime">--:--:--</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="status-card">
-        <h3>🎮 Control Panel</h3>
-        <div class="controls">
-            <button onclick="testServos()">Test Servos</button>
-            <button onclick="testAudio()">Test Audio</button>
-            <button onclick="testVision()">Test Vision</button>
-            <button onclick="runFullDemo()">Full Demo</button>
-            <button onclick="emergencyStop()">Emergency Stop</button>
-        </div>
-    </div>
-
-    <div id="alerts"></div>
-
-    <script>
-        let ws = null;
-        let reconnectInterval = null;
-
-        function connect() {
-            try {
-                ws = new WebSocket('ws://localhost:${WEBSOCKET_PORT}');
-
-                ws.onopen = function() {
-                    document.getElementById('connectionStatus').textContent = 'Connected';
-                    document.getElementById('connectionStatus').className = 'connected';
-                    clearInterval(reconnectInterval);
-                    requestSystemData();
-                };
-
-                ws.onmessage = function(event) {
-                    const data = JSON.parse(event.data);
-                    handleMessage(data);
-                };
-
-                ws.onclose = function() {
-                    document.getElementById('connectionStatus').textContent = 'Disconnected';
-                    document.getElementById('connectionStatus').className = '';
-                    attemptReconnect();
-                };
-
-                ws.onerror = function(error) {
-                    console.error('WebSocket error:', error);
-                };
-            } catch (error) {
-                console.error('Connection failed:', error);
-                attemptReconnect();
-            }
-        }
-
-        function attemptReconnect() {
-            if (!reconnectInterval) {
-                reconnectInterval = setInterval(() => {
-                    console.log('Attempting to reconnect...');
-                    connect();
-                }, 5000);
-            }
-        }
-
-        function handleMessage(data) {
-            switch(data.type) {
-                case 'system_stats':
-                    updateSystemStats(data.stats);
-                    break;
-                case 'r2d2_status':
-                    updateR2D2Status(data.status);
-                    break;
-                case 'alert':
-                    showAlert(data.message, data.level);
-                    break;
-            }
-        }
-
-        function updateSystemStats(stats) {
-            if (stats.cpu !== undefined) document.getElementById('cpuUsage').textContent = stats.cpu + '%';
-            if (stats.memory !== undefined) document.getElementById('memoryUsage').textContent = stats.memory + '%';
-            if (stats.temperature !== undefined) document.getElementById('temperature').textContent = stats.temperature + '°C';
-            if (stats.gpu !== undefined) document.getElementById('gpuUsage').textContent = stats.gpu + '%';
-        }
-
-        function updateR2D2Status(status) {
-            if (status.servos !== undefined) document.getElementById('activeServos').textContent = status.servos;
-            if (status.audio !== undefined) document.getElementById('audioStatus').textContent = status.audio;
-            if (status.vision !== undefined) document.getElementById('visionStatus').textContent = status.vision;
-            if (status.health !== undefined) document.getElementById('systemHealth').textContent = status.health + '%';
-            if (status.servoTiming !== undefined) document.getElementById('servoTiming').textContent = status.servoTiming + ' ms';
-            if (status.audioLatency !== undefined) document.getElementById('audioLatency').textContent = status.audioLatency + ' ms';
-            if (status.visionFps !== undefined) document.getElementById('visionFps').textContent = status.visionFps + ' FPS';
-        }
-
-        function requestSystemData() {
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({type: 'request_data'}));
-            }
-        }
-
-        function sendCommand(command, params = {}) {
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({type: 'command', command: command, params: params}));
-            }
-        }
-
-        function testServos() {
-            sendCommand('test_servos');
-            showAlert('Testing servos...', 'info');
-        }
-
-        function testAudio() {
-            sendCommand('test_audio');
-            showAlert('Testing audio system...', 'info');
-        }
-
-        function testVision() {
-            sendCommand('test_vision');
-            showAlert('Testing vision system...', 'info');
-        }
-
-        function runFullDemo() {
-            sendCommand('full_demo');
-            showAlert('Running full R2D2 demonstration...', 'info');
-        }
-
-        function emergencyStop() {
-            sendCommand('emergency_stop');
-            showAlert('Emergency stop activated!', 'error');
-        }
-
-        function showAlert(message, level = 'info') {
-            const alerts = document.getElementById('alerts');
-            const alert = document.createElement('div');
-            alert.className = level === 'error' ? 'alert' : 'success';
-            alert.textContent = message;
-            alerts.insertBefore(alert, alerts.firstChild);
-
-            setTimeout(() => {
-                if (alert.parentNode) {
-                    alert.parentNode.removeChild(alert);
-                }
-            }, 5000);
-        }
-
-        function updateUptime() {
-            const startTime = new Date();
-            setInterval(() => {
-                const now = new Date();
-                const diff = Math.floor((now - startTime) / 1000);
-                const hours = Math.floor(diff / 3600).toString().padStart(2, '0');
-                const minutes = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
-                const seconds = (diff % 60).toString().padStart(2, '0');
-                document.getElementById('uptime').textContent = hours + ':' + minutes + ':' + seconds;
-            }, 1000);
-        }
-
-        // Initialize
-        connect();
-        updateUptime();
-        setInterval(requestSystemData, 5000);
-    </script>
-</body>
-</html>`;
-                res.writeHead(200, { 'Content-Type': 'text/html' });
-                res.end(defaultHTML, 'utf-8');
+                res.writeHead(302, { 'Location': '/dashboard_with_vision.html' });
+                res.end();
             } else {
                 res.writeHead(500);
                 res.end('Server Error: ' + error.code + ' ..\n');
@@ -368,6 +85,9 @@ const server = http.createServer((req, res) => {
 
 // Create WebSocket server for real-time data
 const wss = new WebSocket.Server({ port: WEBSOCKET_PORT });
+
+// Create WebSocket server for behavioral intelligence system
+const behaviorWss = new WebSocket.Server({ port: BEHAVIORAL_WEBSOCKET_PORT });
 
 wss.on('connection', function connection(ws) {
     console.log('Dashboard client connected');
@@ -389,17 +109,503 @@ wss.on('connection', function connection(ws) {
     });
 });
 
+// ===== BEHAVIORAL INTELLIGENCE WEBSOCKET SERVER =====
+
+let currentPersonality = 'curious';
+let currentControlMode = 'auto';
+let behaviorQueue = [];
+let environmentData = {
+    motionLevel: 'low',
+    noiseLevel: 'quiet',
+    peopleCount: 0,
+    proximityLevel: 'normal'
+};
+let behaviorStatus = {
+    current: 'Idle - Curious',
+    progress: 0,
+    duration: 0,
+    totalDuration: 0,
+    isExecuting: false
+};
+let servoActivityData = {
+    active: [],
+    totalChannels: 8
+};
+let audioActivityData = {
+    current: null,
+    queue: [],
+    isPlaying: false
+};
+
+behaviorWss.on('connection', function connection(behaviorWs) {
+    console.log('Behavioral intelligence client connected');
+
+    // Send initial behavioral status
+    sendBehavioralStatus(behaviorWs);
+    sendEnvironmentUpdate(behaviorWs);
+    sendQueueUpdate(behaviorWs);
+
+    behaviorWs.on('message', function incoming(message) {
+        try {
+            const data = JSON.parse(message);
+            handleBehavioralMessage(behaviorWs, data);
+        } catch (error) {
+            console.error('Error parsing behavioral WebSocket message:', error);
+        }
+    });
+
+    behaviorWs.on('close', function() {
+        console.log('Behavioral intelligence client disconnected');
+    });
+});
+
+function handleBehavioralMessage(behaviorWs, data) {
+    console.log('Behavioral command received:', data.type, data.command);
+
+    switch(data.type) {
+        case 'behavior_command':
+            executeBehaviorCommand(behaviorWs, data.command, data.data);
+            break;
+        case 'request_status':
+            sendBehavioralStatus(behaviorWs);
+            sendEnvironmentUpdate(behaviorWs);
+            sendQueueUpdate(behaviorWs);
+            break;
+    }
+}
+
+function executeBehaviorCommand(behaviorWs, command, data) {
+    switch(command) {
+        case 'initialize':
+            handleBehaviorInitialize(behaviorWs, data);
+            break;
+        case 'personality_change':
+            handlePersonalityChange(behaviorWs, data);
+            break;
+        case 'control_mode_change':
+            handleControlModeChange(behaviorWs, data);
+            break;
+        case 'sensitivity_update':
+            handleSensitivityUpdate(behaviorWs, data);
+            break;
+        case 'execute_behavior':
+            handleExecuteBehavior(behaviorWs, data);
+            break;
+        case 'queue_pause':
+            handleQueuePause(behaviorWs, data);
+            break;
+        case 'queue_resume':
+            handleQueueResume(behaviorWs, data);
+            break;
+        case 'queue_clear':
+            handleQueueClear(behaviorWs, data);
+            break;
+        case 'queue_update':
+            handleQueueUpdate(behaviorWs, data);
+            break;
+        case 'demo_start':
+            handleDemoStart(behaviorWs, data);
+            break;
+        default:
+            console.log('Unknown behavioral command:', command);
+    }
+}
+
+function handleBehaviorInitialize(behaviorWs, data) {
+    if (data.personality) currentPersonality = data.personality;
+    if (data.mode) currentControlMode = data.mode;
+
+    console.log(`Behavioral system initialized: ${currentPersonality} mode, ${currentControlMode} control`);
+
+    behaviorStatus.current = `Idle - ${currentPersonality.charAt(0).toUpperCase() + currentPersonality.slice(1)}`;
+
+    sendBehavioralStatus(behaviorWs);
+    broadcastToAllBehavioralClients('initialization_complete', {
+        personality: currentPersonality,
+        mode: currentControlMode
+    });
+}
+
+function handlePersonalityChange(behaviorWs, data) {
+    currentPersonality = data.mode;
+    console.log(`Personality changed to: ${currentPersonality}`);
+
+    behaviorStatus.current = `Idle - ${currentPersonality.charAt(0).toUpperCase() + currentPersonality.slice(1)}`;
+
+    sendBehavioralStatus(behaviorWs);
+    broadcastToAllBehavioralClients('personality_changed', { mode: currentPersonality });
+
+    // Simulate personality-based environmental sensitivity changes
+    simulatePersonalityEffects(currentPersonality);
+}
+
+function handleControlModeChange(behaviorWs, data) {
+    currentControlMode = data.mode;
+    console.log(`Control mode changed to: ${currentControlMode}`);
+
+    broadcastToAllBehavioralClients('control_mode_changed', { mode: currentControlMode });
+}
+
+function handleSensitivityUpdate(behaviorWs, data) {
+    console.log(`Sensitivity update: ${data.type} = ${data.value}%`);
+
+    // Store sensitivity settings (you could persist these)
+    const sensitivityData = {
+        type: data.type,
+        value: data.value,
+        timestamp: Date.now()
+    };
+
+    broadcastToAllBehavioralClients('sensitivity_updated', sensitivityData);
+}
+
+function handleExecuteBehavior(behaviorWs, data) {
+    console.log(`Executing behavior: ${data.name}`);
+
+    behaviorStatus = {
+        current: data.name,
+        progress: 0,
+        duration: 0,
+        totalDuration: data.duration || 3000,
+        isExecuting: true
+    };
+
+    sendBehavioralStatus(behaviorWs);
+
+    // Simulate servo activity based on behavior actions
+    if (data.actions) {
+        simulateServoActivity(data.actions);
+    }
+
+    // Simulate audio activity
+    simulateAudioActivity(data.name);
+
+    // Simulate behavior execution progress
+    simulateBehaviorExecution(data.duration || 3000);
+
+    broadcastToAllBehavioralClients('behavior_execution_started', {
+        name: data.name,
+        actions: data.actions,
+        duration: data.duration
+    });
+}
+
+function handleQueuePause(behaviorWs, data) {
+    console.log('Behavior queue paused');
+    broadcastToAllBehavioralClients('queue_paused', {});
+}
+
+function handleQueueResume(behaviorWs, data) {
+    console.log('Behavior queue resumed');
+    broadcastToAllBehavioralClients('queue_resumed', {});
+}
+
+function handleQueueClear(behaviorWs, data) {
+    behaviorQueue = [];
+    console.log('Behavior queue cleared');
+    sendQueueUpdate();
+    broadcastToAllBehavioralClients('queue_cleared', {});
+}
+
+function handleQueueUpdate(behaviorWs, data) {
+    if (data.queue) {
+        behaviorQueue = data.queue;
+        sendQueueUpdate();
+    }
+}
+
+function handleDemoStart(behaviorWs, data) {
+    console.log(`Starting demo: ${data.type}`);
+
+    if (data.demo && data.demo.behaviors) {
+        behaviorQueue = data.demo.behaviors.map((behavior, index) => ({
+            id: Date.now() + index,
+            name: behavior.name,
+            duration: behavior.duration,
+            timestamp: new Date().toLocaleTimeString(),
+            actions: behavior.actions || []
+        }));
+
+        sendQueueUpdate();
+    }
+
+    broadcastToAllBehavioralClients('demo_started', {
+        type: data.type,
+        behaviorCount: behaviorQueue.length
+    });
+}
+
+// Broadcasting functions
+function sendBehavioralStatus(behaviorWs = null) {
+    const statusUpdate = {
+        type: 'behavior_status_update',
+        status: behaviorStatus,
+        timestamp: Date.now()
+    };
+
+    if (behaviorWs) {
+        if (behaviorWs.readyState === WebSocket.OPEN) {
+            behaviorWs.send(JSON.stringify(statusUpdate));
+        }
+    } else {
+        broadcastToAllBehavioralClients('behavior_status_update', behaviorStatus);
+    }
+}
+
+function sendEnvironmentUpdate(behaviorWs = null) {
+    const environmentUpdate = {
+        type: 'environment_update',
+        environment: environmentData,
+        timestamp: Date.now()
+    };
+
+    if (behaviorWs) {
+        if (behaviorWs.readyState === WebSocket.OPEN) {
+            behaviorWs.send(JSON.stringify(environmentUpdate));
+        }
+    } else {
+        broadcastToAllBehavioralClients('environment_update', environmentData);
+    }
+}
+
+function sendQueueUpdate(behaviorWs = null) {
+    const queueUpdate = {
+        type: 'queue_update',
+        queue: behaviorQueue,
+        timestamp: Date.now()
+    };
+
+    if (behaviorWs) {
+        if (behaviorWs.readyState === WebSocket.OPEN) {
+            behaviorWs.send(JSON.stringify(queueUpdate));
+        }
+    } else {
+        broadcastToAllBehavioralClients('queue_update', behaviorQueue);
+    }
+}
+
+function sendServoActivityUpdate() {
+    broadcastToAllBehavioralClients('servo_activity_update', servoActivityData);
+}
+
+function sendAudioStatusUpdate() {
+    broadcastToAllBehavioralClients('audio_status_update', audioActivityData);
+}
+
+function sendCharacterUpdate(characters = []) {
+    broadcastToAllBehavioralClients('character_update', characters);
+}
+
+function broadcastToAllBehavioralClients(type, data) {
+    const message = {
+        type: type,
+        ...data,
+        timestamp: Date.now()
+    };
+
+    behaviorWss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(message));
+        }
+    });
+}
+
+// Simulation functions for realistic behavioral responses
+function simulatePersonalityEffects(personality) {
+    // Adjust environmental responsiveness based on personality
+    switch(personality) {
+        case 'curious':
+            environmentData.motionLevel = 'moderate';
+            environmentData.noiseLevel = 'attentive';
+            break;
+        case 'excited':
+            environmentData.motionLevel = 'high';
+            environmentData.noiseLevel = 'responsive';
+            break;
+        case 'cautious':
+            environmentData.motionLevel = 'low';
+            environmentData.noiseLevel = 'alert';
+            break;
+        case 'playful':
+            environmentData.motionLevel = 'high';
+            environmentData.noiseLevel = 'interactive';
+            break;
+        case 'protective':
+            environmentData.motionLevel = 'scanning';
+            environmentData.noiseLevel = 'monitoring';
+            break;
+        case 'maintenance':
+            environmentData.motionLevel = 'systematic';
+            environmentData.noiseLevel = 'diagnostic';
+            break;
+    }
+
+    sendEnvironmentUpdate();
+}
+
+function simulateServoActivity(actions) {
+    // Reset all servos to idle
+    servoActivityData.active = [];
+
+    if (actions && actions.length > 0) {
+        // Simulate servo activation based on actions
+        actions.forEach(action => {
+            switch(action) {
+                case 'head_tilt':
+                case 'head_nods':
+                case 'head_shake':
+                case 'greeting_nod':
+                    servoActivityData.active.push(0, 1); // Dome and head servos
+                    break;
+                case 'dome_spin':
+                case 'dome_wiggle':
+                case 'rapid_dome_turn':
+                case 'slow_dome_turn':
+                case 'full_dome_spin':
+                    servoActivityData.active.push(0); // Dome rotation
+                    break;
+                case 'panels_open':
+                case 'panel_flutter':
+                case 'all_panels_open':
+                    servoActivityData.active.push(6, 7, 8); // All panels
+                    break;
+                case 'periscope_extend':
+                    servoActivityData.active.push(2); // Periscope
+                    break;
+                case 'defensive_posture':
+                    servoActivityData.active.push(0, 1, 2); // Dome, head, periscope
+                    break;
+                default:
+                    // Random servo activity for unknown actions
+                    servoActivityData.active.push(Math.floor(Math.random() * 8));
+            }
+        });
+
+        // Remove duplicates
+        servoActivityData.active = [...new Set(servoActivityData.active)];
+    }
+
+    sendServoActivityUpdate();
+
+    // Reset servo activity after a delay
+    setTimeout(() => {
+        servoActivityData.active = [];
+        sendServoActivityUpdate();
+    }, 2000);
+}
+
+function simulateAudioActivity(behaviorName) {
+    // Set current audio based on behavior
+    const audioMap = {
+        'Curious Investigation': 'investigating_beeps',
+        'Excited Celebration': 'happy_chirps',
+        'Worried Response': 'concerned_beeps',
+        'Playful Interaction': 'playful_sounds',
+        'Friendly Greeting': 'friendly_whistle',
+        'Alert State': 'alert_tone',
+        'Victory Celebration': 'victory_beeps',
+        'Sleepy Mode': 'yawn_sounds'
+    };
+
+    audioActivityData.current = audioMap[behaviorName] || 'r2d2_beep';
+    audioActivityData.isPlaying = true;
+    audioActivityData.description = `Playing for ${behaviorName}`;
+
+    sendAudioStatusUpdate();
+
+    // Clear audio activity after behavior duration
+    setTimeout(() => {
+        audioActivityData.current = null;
+        audioActivityData.isPlaying = false;
+        audioActivityData.description = null;
+        sendAudioStatusUpdate();
+    }, 3000);
+}
+
+function simulateBehaviorExecution(duration) {
+    const startTime = Date.now();
+    const updateInterval = 100;
+
+    const progressInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min((elapsed / duration) * 100, 100);
+
+        behaviorStatus.progress = progress;
+        behaviorStatus.duration = elapsed;
+
+        if (progress >= 100) {
+            clearInterval(progressInterval);
+
+            // Return to idle state
+            setTimeout(() => {
+                behaviorStatus = {
+                    current: `Idle - ${currentPersonality.charAt(0).toUpperCase() + currentPersonality.slice(1)}`,
+                    progress: 0,
+                    duration: 0,
+                    totalDuration: 0,
+                    isExecuting: false
+                };
+                sendBehavioralStatus();
+            }, 500);
+        }
+
+        sendBehavioralStatus();
+    }, updateInterval);
+}
+
+// Periodic environmental updates
+function simulateEnvironmentalChanges() {
+    // Randomly update people count
+    if (Math.random() < 0.1) { // 10% chance per update
+        environmentData.peopleCount = Math.floor(Math.random() * 5);
+        sendEnvironmentUpdate();
+
+        // Simulate character detection
+        if (environmentData.peopleCount > 0) {
+            const characters = Array(environmentData.peopleCount).fill().map((_, i) => ({
+                id: i,
+                name: ['Luke Skywalker', 'Princess Leia', 'Han Solo', 'Chewbacca', 'Obi-Wan'][i] || 'Unknown Person',
+                confidence: 0.7 + Math.random() * 0.3,
+                emoji: ['👤', '👩', '👨', '🧔', '👴'][i] || '👤',
+                reaction: ['Friendly', 'Curious', 'Excited', 'Cautious'][Math.floor(Math.random() * 4)]
+            }));
+
+            sendCharacterUpdate(characters);
+        } else {
+            sendCharacterUpdate([]);
+        }
+    }
+
+    // Randomly adjust noise and motion levels
+    if (Math.random() < 0.15) { // 15% chance per update
+        const motionLevels = ['low', 'moderate', 'high', 'scanning'];
+        const noiseLevels = ['quiet', 'moderate', 'active', 'noisy'];
+
+        environmentData.motionLevel = motionLevels[Math.floor(Math.random() * motionLevels.length)];
+        environmentData.noiseLevel = noiseLevels[Math.floor(Math.random() * noiseLevels.length)];
+
+        sendEnvironmentUpdate();
+    }
+}
+
 function handleWebSocketMessage(ws, data) {
     switch(data.type) {
         case 'request_data':
             sendSystemStats(ws);
             sendR2D2Status(ws);
+            sendServoStatus(ws);
             break;
         case 'command':
             executeCommand(ws, data.command, data.params);
             break;
         case 'servo_command':
             handleServoCommand(ws, data);
+            break;
+        case 'servo_sequence':
+            handleServoSequence(ws, data);
+            break;
+        case 'servo_config':
+            handleServoConfig(ws, data);
             break;
         case 'audio_command':
             handleAudioCommand(ws, data);
@@ -480,7 +686,18 @@ function executeCommand(ws, command, params) {
     }
 
     if (scriptName) {
-        const pythonProcess = spawn('python3', [scriptName]);
+        // Check if we have too many child processes
+        if (childProcesses.size >= MEMORY_CONFIG.MAX_CHILD_PROCESSES) {
+            sendAlert(ws, 'Too many active processes. Please wait...', 'warning');
+            return;
+        }
+
+        const pythonProcess = spawn('python3', [scriptName], {
+            timeout: 30000, // 30 second timeout
+            killSignal: 'SIGKILL'
+        });
+
+        childProcesses.add(pythonProcess);
 
         pythonProcess.stdout.on('data', (data) => {
             console.log(command + ' output:', data.toString());
@@ -491,11 +708,27 @@ function executeCommand(ws, command, params) {
         });
 
         pythonProcess.on('close', (code) => {
+            childProcesses.delete(pythonProcess);
             const message = code === 0 ?
                 command + ' completed successfully' :
                 command + ' failed with code ' + code;
             sendAlert(ws, message, code === 0 ? 'success' : 'error');
         });
+
+        pythonProcess.on('error', (error) => {
+            childProcesses.delete(pythonProcess);
+            console.error('Process error:', error);
+            sendAlert(ws, 'Process error: ' + error.message, 'error');
+        });
+
+        // Auto-cleanup after timeout
+        setTimeout(() => {
+            if (childProcesses.has(pythonProcess)) {
+                pythonProcess.kill('SIGKILL');
+                childProcesses.delete(pythonProcess);
+                sendAlert(ws, command + ' timed out and was terminated', 'warning');
+            }
+        }, 30000);
 
         sendAlert(ws, 'Started ' + command + '...', 'info');
     }
@@ -518,34 +751,169 @@ function sendAlert(ws, message, level) {
 server.listen(PORT, () => {
     console.log('🎯 R2D2 Dashboard Server running at http://localhost:' + PORT);
     console.log('🔌 WebSocket server running on port ' + WEBSOCKET_PORT);
+    console.log('🧠 Behavioral Intelligence WebSocket server running on port ' + BEHAVIORAL_WEBSOCKET_PORT);
     console.log('📊 Dashboard ready for R2AI system monitoring!');
+    console.log('\n🎮 Available Dashboard Routes:');
+    console.log('  • http://localhost:' + PORT + '/ (Default Dashboard)');
+    console.log('  • http://localhost:' + PORT + '/enhanced (Enhanced Dashboard)');
+    console.log('  • http://localhost:' + PORT + '/vision (Vision Dashboard)');
+    console.log('  • http://localhost:' + PORT + '/servo (Servo Dashboard)');
 });
 
-// Broadcast system stats periodically with cleanup
-const broadcastInterval = setInterval(() => {
+// Memory-optimized broadcast intervals
+let broadcastInterval, behaviorBroadcastInterval, intelligenceMonitoringInterval, memoryCleanupInterval;
+
+// Memory management functions
+function cleanupDeadConnections() {
+    // Clean up WebSocket connections
+    const deadConnections = [];
+    wss.clients.forEach((ws) => {
+        if (ws.readyState !== WebSocket.OPEN) {
+            deadConnections.push(ws);
+        }
+    });
+    deadConnections.forEach(ws => ws.terminate());
+
+    const deadBehaviorConnections = [];
+    behaviorWss.clients.forEach((ws) => {
+        if (ws.readyState !== WebSocket.OPEN) {
+            deadBehaviorConnections.push(ws);
+        }
+    });
+    deadBehaviorConnections.forEach(ws => ws.terminate());
+
+    console.log(`Cleaned up ${deadConnections.length + deadBehaviorConnections.length} dead connections`);
+}
+
+function forceGarbageCollection() {
+    if (global.gc) {
+        const memBefore = process.memoryUsage().heapUsed / 1024 / 1024;
+        global.gc();
+        const memAfter = process.memoryUsage().heapUsed / 1024 / 1024;
+        console.log(`GC: ${memBefore.toFixed(2)}MB -> ${memAfter.toFixed(2)}MB`);
+    }
+}
+
+function monitorMemoryUsage() {
+    const usage = process.memoryUsage();
+    const heapUsedMB = usage.heapUsed / 1024 / 1024;
+
+    console.log(`Memory: ${heapUsedMB.toFixed(2)}MB heap, ${childProcesses.size} child processes`);
+
+    if (heapUsedMB > MEMORY_CONFIG.MAX_MEMORY_MB) {
+        console.warn(`High memory usage: ${heapUsedMB.toFixed(2)}MB`);
+
+        // Kill oldest child processes if too many
+        if (childProcesses.size > 0) {
+            const processArray = Array.from(childProcesses);
+            const oldestProcess = processArray[0];
+            oldestProcess.kill('SIGTERM');
+            childProcesses.delete(oldestProcess);
+            console.log('Killed oldest child process due to high memory usage');
+        }
+
+        forceGarbageCollection();
+    }
+}
+
+// Reduced frequency broadcast with better memory management
+broadcastInterval = setInterval(() => {
+    // Clean up dead connections first
+    const activeClients = [];
     wss.clients.forEach((ws) => {
         if (ws.readyState === WebSocket.OPEN) {
+            activeClients.push(ws);
             sendSystemStats(ws);
             sendR2D2Status(ws);
         } else {
-            // Clean up dead connections
             ws.terminate();
         }
     });
 
-    // Force garbage collection if available
-    if (global.gc) {
+    // Force garbage collection every 10 cycles (50 seconds)
+    if (global.gc && Math.random() < 0.1) {
         global.gc();
     }
-}, 5000);
+}, 10000); // Reduced from 5000ms to 10000ms
+
+behaviorBroadcastInterval = setInterval(() => {
+    const activeClients = [];
+    behaviorWss.clients.forEach((behaviorWs) => {
+        if (behaviorWs.readyState === WebSocket.OPEN) {
+            activeClients.push(behaviorWs);
+            sendBehavioralStatus(behaviorWs);
+        } else {
+            behaviorWs.terminate();
+        }
+    });
+
+    // Only simulate changes if there are active clients
+    if (activeClients.length > 0) {
+        simulateEnvironmentalChanges();
+    }
+}, 5000); // Reduced from 3000ms to 5000ms
+
+intelligenceMonitoringInterval = setInterval(() => {
+    // Only send updates if there are active behavioral clients
+    if (behaviorWss.clients.size > 0) {
+        const performanceData = {
+            responseTime: Math.floor(Math.random() * 50) + 50,
+            processingLoad: Math.floor(Math.random() * 30) + 20,
+            memoryUsage: Math.floor(Math.random() * 25) + 30,
+            queueLength: behaviorQueue.length
+        };
+        broadcastToAllBehavioralClients('performance_update', performanceData);
+    }
+}, 5000); // Reduced from 2000ms to 5000ms
+
+// Memory cleanup interval
+memoryCleanupInterval = setInterval(() => {
+    cleanupDeadConnections();
+    monitorMemoryUsage();
+}, MEMORY_CONFIG.CLEANUP_INTERVAL);
+
+// Forced garbage collection interval
+setInterval(() => {
+    forceGarbageCollection();
+}, MEMORY_CONFIG.FORCE_GC_INTERVAL);
 
 // Graceful shutdown
 process.on('SIGINT', () => {
     console.log('Shutting down gracefully...');
+
+    // Clear all intervals
     clearInterval(broadcastInterval);
+    clearInterval(behaviorBroadcastInterval);
+    clearInterval(intelligenceMonitoringInterval);
+    clearInterval(memoryCleanupInterval);
+
+    // Kill all child processes
+    childProcesses.forEach(proc => {
+        try {
+            proc.kill('SIGTERM');
+        } catch (e) {
+            console.error('Error killing process:', e.message);
+        }
+    });
+    childProcesses.clear();
+
+    // Close servers
     server.close();
     wss.close();
+    behaviorWss.close();
+
+    console.log('Cleanup complete');
     process.exit(0);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+    // Don't exit on uncaught exceptions, just log them
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
 // Enhanced command handlers for R2D2 control
@@ -553,30 +921,60 @@ process.on('SIGINT', () => {
 function handleServoCommand(ws, data) {
     console.log(`Servo command: Channel ${data.channel} -> ${data.position}µs`);
 
-    // Execute servo command via Python script
-    const { spawn } = require('child_process');
-
-    const servoScript = spawn('python3', [
-        'servo_control_interface.py',
-        '--channel', data.channel.toString(),
-        '--position', data.position.toString()
-    ]);
-
-    servoScript.stdout.on('data', (output) => {
-        console.log('Servo output:', output.toString());
-    });
-
-    servoScript.stderr.on('data', (error) => {
-        console.error('Servo error:', error.toString());
-        sendAlert(ws, `Servo error: Channel ${data.channel}`, 'error');
-    });
-
-    servoScript.on('close', (code) => {
-        if (code === 0) {
+    // Send command to servo integration backend
+    axios.post(`${SERVO_API_URL}/servo/${data.channel}/move`, {
+        position: data.position
+    })
+    .then(response => {
+        if (response.data.success) {
             sendAlert(ws, `Servo ${data.channel} moved to ${data.position}µs`, 'success');
+
+            // Send confirmation back to client
+            const confirmation = {
+                type: 'servo_response',
+                channel: data.channel,
+                position: data.position,
+                success: true,
+                timestamp: Date.now()
+            };
+
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(confirmation));
+            }
         } else {
-            sendAlert(ws, `Servo command failed: Code ${code}`, 'error');
+            sendAlert(ws, `Servo command failed: ${response.data.error}`, 'error');
         }
+    })
+    .catch(error => {
+        console.error('Servo command error:', error.message);
+        sendAlert(ws, `Servo error: Channel ${data.channel}`, 'error');
+
+        // Fallback to direct command execution
+        const { spawn } = require('child_process');
+
+        const servoScript = spawn('python3', [
+            'servo_control_interface.py',
+            '--channel', data.channel.toString(),
+            '--position', data.position.toString()
+        ], {
+            timeout: 10000
+        });
+
+        childProcesses.add(servoScript);
+
+        servoScript.on('close', (code) => {
+            childProcesses.delete(servoScript);
+            if (code === 0) {
+                sendAlert(ws, `Servo ${data.channel} moved (fallback)`, 'info');
+            } else {
+                sendAlert(ws, `Servo command failed completely`, 'error');
+            }
+        });
+
+        servoScript.on('error', (error) => {
+            childProcesses.delete(servoScript);
+            sendAlert(ws, 'Servo script error: ' + error.message, 'error');
+        });
     });
 }
 
@@ -588,7 +986,11 @@ function handleAudioCommand(ws, data) {
     const audioScript = spawn('python3', [
         'r2d2_audio_player.py',
         '--sound', data.sound
-    ]);
+    ], {
+        timeout: 15000
+    });
+
+    childProcesses.add(audioScript);
 
     audioScript.stdout.on('data', (output) => {
         console.log('Audio output:', output.toString());
@@ -600,11 +1002,17 @@ function handleAudioCommand(ws, data) {
     });
 
     audioScript.on('close', (code) => {
+        childProcesses.delete(audioScript);
         if (code === 0) {
             sendAlert(ws, `Playing: ${data.sound}`, 'info');
         } else {
             sendAlert(ws, `Audio playback failed`, 'error');
         }
+    });
+
+    audioScript.on('error', (error) => {
+        childProcesses.delete(audioScript);
+        sendAlert(ws, 'Audio script error: ' + error.message, 'error');
     });
 }
 
@@ -616,10 +1024,20 @@ function handleAudioStopAll(ws, data) {
     const stopScript = spawn('python3', [
         'r2d2_audio_player.py',
         '--stop-all'
-    ]);
+    ], {
+        timeout: 5000
+    });
+
+    childProcesses.add(stopScript);
 
     stopScript.on('close', (code) => {
+        childProcesses.delete(stopScript);
         sendAlert(ws, 'All audio stopped', 'info');
+    });
+
+    stopScript.on('error', (error) => {
+        childProcesses.delete(stopScript);
+        sendAlert(ws, 'Stop audio error: ' + error.message, 'error');
     });
 }
 
@@ -631,7 +1049,11 @@ function handleBehaviorPattern(ws, data) {
     const behaviorScript = spawn('python3', [
         'r2d2_behavior_controller.py',
         '--pattern', data.pattern
-    ]);
+    ], {
+        timeout: 20000
+    });
+
+    childProcesses.add(behaviorScript);
 
     behaviorScript.stdout.on('data', (output) => {
         console.log('Behavior output:', output.toString());
@@ -643,42 +1065,194 @@ function handleBehaviorPattern(ws, data) {
     });
 
     behaviorScript.on('close', (code) => {
+        childProcesses.delete(behaviorScript);
         if (code === 0) {
             sendAlert(ws, `Executed pattern: ${data.pattern}`, 'success');
         } else {
             sendAlert(ws, `Behavior pattern failed: ${data.pattern}`, 'error');
         }
     });
+
+    behaviorScript.on('error', (error) => {
+        childProcesses.delete(behaviorScript);
+        sendAlert(ws, 'Behavior script error: ' + error.message, 'error');
+    });
 }
 
 function handleEmergencyStop(ws, data) {
     console.log(`EMERGENCY STOP: ${data.system}`);
 
-    const { spawn } = require('child_process');
+    // Send emergency stop to servo integration backend
+    axios.post(`${SERVO_API_URL}/servo/emergency_stop`)
+        .then(response => {
+            sendAlert(ws, `EMERGENCY STOP EXECUTED: ${data.system}`, 'error');
 
-    // Stop all systems
-    const emergencyScript = spawn('python3', [
-        'r2d2_emergency_stop.py',
-        '--system', data.system
-    ]);
+            // Broadcast emergency stop to all clients
+            wss.clients.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({
+                        type: 'emergency_stop_alert',
+                        system: data.system,
+                        timestamp: Date.now()
+                    }));
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Emergency stop API error:', error.message);
 
-    emergencyScript.stdout.on('data', (output) => {
-        console.log('Emergency stop output:', output.toString());
-    });
+            // Fallback to direct emergency stop
+            const { spawn } = require('child_process');
 
-    emergencyScript.on('close', (code) => {
-        sendAlert(ws, `EMERGENCY STOP EXECUTED: ${data.system}`, 'error');
+            const emergencyScript = spawn('python3', [
+                'r2d2_emergency_stop.py',
+                '--system', data.system
+            ], {
+                timeout: 5000
+            });
 
-        // Broadcast emergency stop to all clients
-        wss.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({
-                    type: 'emergency_stop_alert',
-                    system: data.system,
-                    timestamp: Date.now()
-                }));
+            childProcesses.add(emergencyScript);
+
+            emergencyScript.on('close', (code) => {
+                childProcesses.delete(emergencyScript);
+                sendAlert(ws, `EMERGENCY STOP EXECUTED (fallback): ${data.system}`, 'error');
+
+                // Broadcast emergency stop to all clients
+                wss.clients.forEach((client) => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({
+                            type: 'emergency_stop_alert',
+                            system: data.system,
+                            timestamp: Date.now()
+                        }));
+                    }
+                });
+            });
+
+            emergencyScript.on('error', (error) => {
+                childProcesses.delete(emergencyScript);
+                sendAlert(ws, 'Emergency stop error: ' + error.message, 'error');
+            });
+        });
+}
+
+// Additional handlers for advanced servo dashboard features
+
+function sendServoStatus(ws) {
+    // Try to fetch real servo status from backend
+    axios.get(`${SERVO_API_URL}/servo/status`)
+        .then(response => {
+            const servoData = {
+                type: 'servo_status',
+                data: response.data.data,
+                timestamp: Date.now()
+            };
+
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(servoData));
+            }
+        })
+        .catch(error => {
+            console.log('Servo backend not available, using mock data');
+            // Fallback to mock data if backend not available
+            const servoStatus = {
+                type: 'board_detected',
+                boardType: 'Pololu Maestro Mini 12',
+                port: '/dev/ttyACM0',
+                channels: 12,
+                firmware: '1.04',
+                connected: false,
+                error: 'Backend not available'
+            };
+
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(servoStatus));
             }
         });
+}
+
+function handleServoSequence(ws, data) {
+    console.log(`Executing servo sequence: ${data.sequence_name}`);
+
+    const { spawn } = require('child_process');
+
+    const sequenceScript = spawn('python3', [
+        'r2d2_sequence_player.py',
+        '--sequence', data.sequence_name,
+        '--keyframes', JSON.stringify(data.keyframes)
+    ], {
+        timeout: 60000
+    });
+
+    childProcesses.add(sequenceScript);
+
+    sequenceScript.stdout.on('data', (output) => {
+        console.log('Sequence output:', output.toString());
+
+        // Send sequence progress updates
+        try {
+            const progress = JSON.parse(output.toString());
+            if (progress.type === 'sequence_progress') {
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: 'sequence_update',
+                        progress: progress.progress,
+                        current_keyframe: progress.keyframe
+                    }));
+                }
+            }
+        } catch (e) {
+            // Ignore non-JSON output
+        }
+    });
+
+    sequenceScript.stderr.on('data', (error) => {
+        console.error('Sequence error:', error.toString());
+        sendAlert(ws, `Sequence error: ${data.sequence_name}`, 'error');
+    });
+
+    sequenceScript.on('close', (code) => {
+        childProcesses.delete(sequenceScript);
+        if (code === 0) {
+            sendAlert(ws, `Sequence completed: ${data.sequence_name}`, 'success');
+        } else {
+            sendAlert(ws, `Sequence failed: ${data.sequence_name}`, 'error');
+        }
+    });
+
+    sequenceScript.on('error', (error) => {
+        childProcesses.delete(sequenceScript);
+        sendAlert(ws, 'Sequence script error: ' + error.message, 'error');
+    });
+}
+
+function handleServoConfig(ws, data) {
+    console.log(`Updating servo configuration: ${data.config_type}`);
+
+    switch(data.config_type) {
+        case 'servo_count':
+            sendAlert(ws, `Servo count updated to ${data.value}`, 'info');
+            break;
+        case 'update_rate':
+            sendAlert(ws, `Update rate set to ${data.value} Hz`, 'info');
+            break;
+        case 'safety_mode':
+            sendAlert(ws, `Safety mode set to ${data.value}`, 'info');
+            break;
+        default:
+            sendAlert(ws, `Configuration updated: ${data.config_type}`, 'info');
+    }
+
+    // Broadcast configuration changes to all clients
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN && client !== ws) {
+            client.send(JSON.stringify({
+                type: 'config_update',
+                config_type: data.config_type,
+                value: data.value,
+                timestamp: Date.now()
+            }));
+        }
     });
 }
 

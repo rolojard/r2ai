@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>R2D2 Multi-Agent Dashboard with Real-time Vision</title>
     <style>
+        /* ========== Base Styles ========== */
         body {
             font-family: 'Inter', sans-serif;
             margin: 0;
@@ -12,6 +13,8 @@
             background: #0f172a;
             color: #f8fafc;
         }
+
+        /* ========== Layout ========== */
         .header {
             text-align: center;
             margin-bottom: 30px;
@@ -22,38 +25,44 @@
             gap: 20px;
             margin-bottom: 30px;
         }
-        .vision-section {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 20px;
-        }
         .system-section {
             display: grid;
             grid-template-rows: auto auto auto;
             gap: 20px;
         }
-        .status-card {
+        .control-sections {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* ========== Cards & Containers ========== */
+        .status-card, .vision-section {
             background: #1e293b;
             border: 1px solid #334155;
             border-radius: 8px;
             padding: 20px;
         }
+
+        /* ========== Common Components ========== */
         .metric {
             display: flex;
             justify-content: space-between;
             margin-bottom: 10px;
         }
-        .value {
+        .value, .stat-value {
             font-weight: bold;
             color: #10b981;
         }
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
+        .stat-value {
+            font-size: 24px;
         }
+        .stat-label {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* ========== Buttons ========== */
         button {
             background: #3b82f6;
             color: white;
@@ -62,6 +71,7 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
+            transition: background 0.2s;
         }
         button:hover {
             background: #2563eb;
@@ -70,23 +80,27 @@
             background: #64748b;
             cursor: not-allowed;
         }
-        .alert {
-            background: #dc2626;
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* ========== Alerts & Status ========== */
+        .alert, .success, .info {
             padding: 10px;
             border-radius: 5px;
             margin: 10px 0;
+        }
+        .alert {
+            background: #dc2626;
         }
         .success {
             background: #16a34a;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
         }
         .info {
             background: #0ea5e9;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
         }
         #connectionStatus {
             position: fixed;
@@ -101,7 +115,7 @@
             background: #16a34a;
         }
 
-        /* Vision-specific styles */
+        /* ========== Vision System ========== */
         .video-container {
             position: relative;
             width: 100%;
@@ -115,17 +129,56 @@
             width: 100%;
             height: auto;
             display: block;
+            transform: translateZ(0);
+            will-change: transform;
+            image-rendering: optimizeQuality;
+            object-fit: contain;
+            transition: opacity 0.1s ease-in-out;
         }
-        .video-overlay {
+        .no-video {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            background: #000;
+            color: #64748b;
+            border-radius: 8px;
+            font-size: 18px;
+        }
+        #visionConnectionStatus {
             position: absolute;
             top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
+            right: 10px;
             padding: 5px 10px;
             border-radius: 5px;
+            background: #dc2626;
+            color: white;
             font-size: 12px;
         }
+        #visionConnectionStatus.connected {
+            background: #16a34a;
+        }
+        .vision-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .vision-stat {
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .confidence-control {
+            margin-top: 15px;
+        }
+        .confidence-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        /* ========== Detection Display ========== */
         .detection-info {
             margin-top: 15px;
         }
@@ -157,56 +210,244 @@
             color: #94a3b8;
             margin-top: 4px;
         }
-        .vision-stats {
+
+        /* ========== Servo Control ========== */
+        .servo-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
         }
-        .vision-stat {
+        .servo-channel {
             background: #0f172a;
-            padding: 10px;
+            padding: 15px;
             border-radius: 5px;
-            text-align: center;
         }
-        .stat-value {
-            font-size: 24px;
+        .servo-channel label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: bold;
-            color: #10b981;
-        }
-        .stat-label {
-            font-size: 12px;
             color: #94a3b8;
         }
-        .confidence-control {
-            margin-top: 15px;
-        }
-        .confidence-slider {
+        .servo-slider {
             width: 100%;
             margin: 10px 0;
         }
-        .no-video {
+        .servo-value {
+            color: #10b981;
+            font-weight: bold;
+            display: block;
+            text-align: right;
+        }
+        .servo-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ========== Audio Control ========== */
+        .audio-grid {
+            display: grid;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .audio-category h4 {
+            margin: 0 0 10px 0;
+            color: #94a3b8;
+        }
+        .audio-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .audio-controls {
             display: flex;
             align-items: center;
-            justify-content: center;
-            min-height: 300px;
-            background: #000;
-            color: #64748b;
-            border-radius: 8px;
-            font-size: 18px;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
         }
-        #visionConnectionStatus {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 5px 10px;
+        .audio-controls label {
+            flex: 1;
+            min-width: 200px;
+        }
+        .audio-queue, .queue-list {
+            margin-top: 15px;
+        }
+        .queue-list {
+            background: #0f172a;
+            padding: 10px;
             border-radius: 5px;
-            background: #dc2626;
-            color: white;
-            font-size: 12px;
+            max-height: 150px;
+            overflow-y: auto;
         }
-        #visionConnectionStatus.connected {
+
+        /* ========== Character Recognition ========== */
+        .character-grid {
+            display: grid;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .character-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .character-stat {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .character-list h4, .character-history h4 {
+            margin: 10px 0;
+            color: #94a3b8;
+        }
+        .character-detections, .character-history-list {
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        .character-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        /* ========== Behavior Sequences ========== */
+        .sequence-grid {
+            display: grid;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .sequence-category h4 {
+            margin: 0 0 10px 0;
+            color: #94a3b8;
+        }
+        .sequence-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .sequence-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            background: #0f172a;
+        }
+        .sequence-btn:hover {
+            background: #1e293b;
+        }
+        .sequence-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .sequence-duration {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .create-btn {
+            border: 2px dashed #334155;
+        }
+        .sequence-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .sequence-status {
+            margin-top: 20px;
+        }
+        .current-sequence {
+            margin-bottom: 10px;
+        }
+        .sequence-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #0f172a;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* ========== Safety Dashboard ========== */
+        .safety-grid {
+            display: grid;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .safety-status h4, .safety-controls h4, .safety-diagnostics h4 {
+            margin: 0 0 15px 0;
+            color: #94a3b8;
+        }
+        .safety-indicators {
+            display: grid;
+            gap: 10px;
+        }
+        .safety-indicator {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 10px;
+            align-items: center;
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 5px;
+        }
+        .indicator-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
             background: #16a34a;
+        }
+        .status-text {
+            color: #94a3b8;
+        }
+        .emergency-btn {
+            width: 100%;
+            background: #dc2626 !important;
+            font-weight: bold;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+        }
+        .emergency-btn:hover {
+            background: #b91c1c !important;
+        }
+        .emergency-btn-small {
+            background: #dc2626 !important;
+        }
+        .emergency-btn-small:hover {
+            background: #b91c1c !important;
+        }
+        .diagnostic-tests {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .diagnostic-results {
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .diagnostic-results h5 {
+            margin: 0 0 10px 0;
+            color: #94a3b8;
         }
     </style>
 </head>
@@ -683,354 +924,602 @@
     <div id="alerts"></div>
 
     <script>
-        // Dashboard WebSocket connection
-        let dashboardWs = null;
-        let dashboardReconnectInterval = null;
-
-        // Vision WebSocket connection
-        let visionWs = null;
-        let visionReconnectInterval = null;
-        let visionSystemActive = false;
-        let showDetections = true;
-
-        // Performance tracking
-        let detectionStats = {
-            totalFrames: 0,
-            totalDetections: 0,
-            avgFPS: 0
+        // ========== State Management ==========
+        const DashboardState = {
+            dashboardWs: null,
+            dashboardReconnectInterval: null,
+            visionWs: null,
+            visionReconnectInterval: null,
+            visionSystemActive: false,
+            showDetections: true,
+            lastFrameTime: 0,
+            frameThrottleInterval: 1000 / 15, // Max 15 FPS display
+            pendingFrameUpdate: false,
+            detectionStats: {
+                totalFrames: 0,
+                totalDetections: 0,
+                avgFPS: 0
+            }
         };
 
-        function connectToDashboard() {
-            try {
-                dashboardWs = new WebSocket('ws://localhost:8766');
+        // ========== WebSocket Management ==========
+        const WebSocketManager = {
+            connectToDashboard() {
+                try {
+                    DashboardState.dashboardWs = new WebSocket('ws://localhost:8766');
 
-                dashboardWs.onopen = function() {
-                    document.getElementById('connectionStatus').textContent = 'Dashboard Connected';
-                    document.getElementById('connectionStatus').className = 'connected';
-                    clearInterval(dashboardReconnectInterval);
-                    requestSystemData();
+                    DashboardState.dashboardWs.onopen = () => {
+                        UIManager.updateConnectionStatus('Dashboard Connected', true);
+                        clearInterval(DashboardState.dashboardReconnectInterval);
+                        this.requestSystemData();
+                    };
+
+                    DashboardState.dashboardWs.onmessage = (event) => {
+                        const data = JSON.parse(event.data);
+                        MessageHandler.handleDashboardMessage(data);
+                    };
+
+                    DashboardState.dashboardWs.onclose = () => {
+                        UIManager.updateConnectionStatus('Dashboard Disconnected', false);
+                        this.attemptDashboardReconnect();
+                    };
+
+                    DashboardState.dashboardWs.onerror = (error) => {
+                        console.error('Dashboard WebSocket error:', error);
+                    };
+                } catch (error) {
+                    console.error('Dashboard connection failed:', error);
+                    this.attemptDashboardReconnect();
+                }
+            },
+
+            connectToVision() {
+                if (DashboardState.visionWs && DashboardState.visionWs.readyState === WebSocket.OPEN) {
+                    console.log('Vision WebSocket already connected');
+                    return;
+                }
+
+                try {
+                    DashboardState.visionWs = new WebSocket('ws://localhost:8766');
+
+                    DashboardState.visionWs.onopen = () => {
+                        UIManager.updateVisionConnectionStatus('Vision Connected', true);
+                        clearInterval(DashboardState.visionReconnectInterval);
+                        DashboardState.visionSystemActive = true;
+                        UIManager.showAlert('Vision system connected', 'success');
+                    };
+
+                    DashboardState.visionWs.onmessage = (event) => {
+                        const data = JSON.parse(event.data);
+                        MessageHandler.handleVisionMessage(data);
+                    };
+
+                    DashboardState.visionWs.onclose = () => {
+                        UIManager.updateVisionConnectionStatus('Vision Disconnected', false);
+                        DashboardState.visionSystemActive = false;
+                        VisionManager.hideVideo();
+                        this.attemptVisionReconnect();
+                    };
+
+                    DashboardState.visionWs.onerror = (error) => {
+                        console.error('Vision WebSocket error:', error);
+                    };
+                } catch (error) {
+                    console.error('Vision connection failed:', error);
+                    this.attemptVisionReconnect();
+                }
+            },
+
+            attemptDashboardReconnect() {
+                if (!DashboardState.dashboardReconnectInterval) {
+                    DashboardState.dashboardReconnectInterval = setInterval(() => {
+                        console.log('Attempting to reconnect to dashboard...');
+                        this.connectToDashboard();
+                    }, 5000);
+                }
+            },
+
+            attemptVisionReconnect() {
+                if (!DashboardState.visionReconnectInterval) {
+                    DashboardState.visionReconnectInterval = setInterval(() => {
+                        console.log('Attempting to reconnect to vision system...');
+                        this.connectToVision();
+                    }, 5000);
+                }
+            },
+
+            requestSystemData() {
+                if (DashboardState.dashboardWs && DashboardState.dashboardWs.readyState === WebSocket.OPEN) {
+                    DashboardState.dashboardWs.send(JSON.stringify({type: 'request_data'}));
+                }
+            },
+
+            sendCommand(command, params = {}) {
+                if (DashboardState.dashboardWs && DashboardState.dashboardWs.readyState === WebSocket.OPEN) {
+                    DashboardState.dashboardWs.send(JSON.stringify({type: 'command', command, params}));
+                }
+            }
+        };
+
+        // ========== Message Handlers ==========
+        const MessageHandler = {
+            handleDashboardMessage(data) {
+                switch(data.type) {
+                    case 'system_stats':
+                        UIManager.updateSystemStats(data.stats);
+                        break;
+                    case 'r2d2_status':
+                        UIManager.updateR2D2Status(data.status);
+                        break;
+                    case 'alert':
+                        UIManager.showAlert(data.message, data.level);
+                        break;
+                }
+            },
+
+            handleVisionMessage(data) {
+                switch(data.type) {
+                    case 'connection_status':
+                        UIManager.showAlert(data.message, 'info');
+                        break;
+                    case 'vision_data':
+                        VisionManager.updateVisionDisplay(data);
+                        break;
+                    case 'character_vision_data':
+                        VisionManager.updateVisionDisplay(data);
+                        CharacterManager.updateCharacterDisplay(data);
+                        break;
+                    case 'heartbeat':
+                        // Keep connection alive
+                        break;
+                }
+            }
+        };
+
+        // ========== Vision Management ==========
+        const VisionManager = {
+            updateVisionDisplay(data) {
+                const currentTime = Date.now();
+                if (currentTime - DashboardState.lastFrameTime < DashboardState.frameThrottleInterval ||
+                    DashboardState.pendingFrameUpdate) {
+                    return; // Skip frame to maintain smooth display
+                }
+
+                // Update video feed
+                if (data.frame) {
+                    this.updateVideoFrame(data.frame, currentTime);
+                }
+
+                // Update stats
+                if (data.stats) {
+                    this.updateVisionStats(data.stats);
+                }
+
+                // Update detections
+                if (data.detections && DashboardState.showDetections) {
+                    this.updateDetectionsList(data.detections);
+                    document.getElementById('detectionCount').textContent = data.detections.length;
+                }
+
+                // Update detection stats
+                DashboardState.detectionStats.totalFrames++;
+                DashboardState.detectionStats.totalDetections += data.detections ? data.detections.length : 0;
+            },
+
+            updateVideoFrame(frameData, currentTime) {
+                DashboardState.pendingFrameUpdate = true;
+                const videoFeed = document.getElementById('videoFeed');
+                const noVideo = document.getElementById('noVideo');
+
+                const newImg = new Image();
+                newImg.onload = function() {
+                    requestAnimationFrame(() => {
+                        videoFeed.src = this.src;
+                        videoFeed.style.display = 'block';
+                        noVideo.style.display = 'none';
+                        DashboardState.lastFrameTime = currentTime;
+                        DashboardState.pendingFrameUpdate = false;
+                    });
                 };
-
-                dashboardWs.onmessage = function(event) {
-                    const data = JSON.parse(event.data);
-                    handleDashboardMessage(data);
+                newImg.onerror = () => {
+                    DashboardState.pendingFrameUpdate = false;
                 };
+                newImg.src = 'data:image/jpeg;base64,' + frameData;
+            },
 
-                dashboardWs.onclose = function() {
-                    document.getElementById('connectionStatus').textContent = 'Dashboard Disconnected';
-                    document.getElementById('connectionStatus').className = '';
-                    attemptDashboardReconnect();
-                };
+            updateVisionStats(stats) {
+                document.getElementById('visionFPS').textContent = stats.fps.toFixed(1);
+                document.getElementById('detectionTime').textContent = (stats.detection_time * 1000).toFixed(1);
+                document.getElementById('totalDetections').textContent = stats.total_detections;
+                document.getElementById('visionInference').textContent = (stats.detection_time * 1000).toFixed(1) + ' ms';
+            },
 
-                dashboardWs.onerror = function(error) {
-                    console.error('Dashboard WebSocket error:', error);
-                };
-            } catch (error) {
-                console.error('Dashboard connection failed:', error);
-                attemptDashboardReconnect();
-            }
-        }
+            updateDetectionsList(detections) {
+                const detectionList = document.getElementById('detectionList');
 
-        function connectToVision() {
-            try {
-                visionWs = new WebSocket('ws://localhost:8767');
+                if (detections.length === 0) {
+                    detectionList.innerHTML = '<div style="text-align: center; color: #64748b;">No detections in current frame</div>';
+                    return;
+                }
 
-                visionWs.onopen = function() {
-                    document.getElementById('visionConnectionStatus').textContent = 'Vision Connected';
-                    document.getElementById('visionConnectionStatus').className = 'connected';
-                    clearInterval(visionReconnectInterval);
-                    visionSystemActive = true;
-                    showAlert('Vision system connected', 'success');
-                };
-
-                visionWs.onmessage = function(event) {
-                    const data = JSON.parse(event.data);
-                    handleVisionMessage(data);
-                };
-
-                visionWs.onclose = function() {
-                    document.getElementById('visionConnectionStatus').textContent = 'Vision Disconnected';
-                    document.getElementById('visionConnectionStatus').className = '';
-                    visionSystemActive = false;
-                    hideVideo();
-                    attemptVisionReconnect();
-                };
-
-                visionWs.onerror = function(error) {
-                    console.error('Vision WebSocket error:', error);
-                };
-            } catch (error) {
-                console.error('Vision connection failed:', error);
-                attemptVisionReconnect();
-            }
-        }
-
-        function attemptDashboardReconnect() {
-            if (!dashboardReconnectInterval) {
-                dashboardReconnectInterval = setInterval(() => {
-                    console.log('Attempting to reconnect to dashboard...');
-                    connectToDashboard();
-                }, 5000);
-            }
-        }
-
-        function attemptVisionReconnect() {
-            if (!visionReconnectInterval) {
-                visionReconnectInterval = setInterval(() => {
-                    console.log('Attempting to reconnect to vision system...');
-                    connectToVision();
-                }, 5000);
-            }
-        }
-
-        function handleDashboardMessage(data) {
-            switch(data.type) {
-                case 'system_stats':
-                    updateSystemStats(data.stats);
-                    break;
-                case 'r2d2_status':
-                    updateR2D2Status(data.status);
-                    break;
-                case 'alert':
-                    showAlert(data.message, data.level);
-                    break;
-            }
-        }
-
-        function handleVisionMessage(data) {
-            switch(data.type) {
-                case 'connection_status':
-                    showAlert(data.message, 'info');
-                    break;
-                case 'vision_data':
-                    updateVisionDisplay(data);
-                    break;
-                case 'heartbeat':
-                    // Keep connection alive
-                    break;
-            }
-        }
-
-        function updateVisionDisplay(data) {
-            // Update video feed
-            const videoFeed = document.getElementById('videoFeed');
-            const noVideo = document.getElementById('noVideo');
-
-            if (data.frame) {
-                videoFeed.src = 'data:image/jpeg;base64,' + data.frame;
-                videoFeed.style.display = 'block';
-                noVideo.style.display = 'none';
-            }
-
-            // Update stats
-            if (data.stats) {
-                document.getElementById('visionFPS').textContent = data.stats.fps.toFixed(1);
-                document.getElementById('detectionTime').textContent = (data.stats.detection_time * 1000).toFixed(1);
-                document.getElementById('totalDetections').textContent = data.stats.total_detections;
-
-                // Update inference time in R2D2 status
-                document.getElementById('visionInference').textContent = (data.stats.detection_time * 1000).toFixed(1) + ' ms';
-            }
-
-            // Update detections display
-            if (data.detections && showDetections) {
-                updateDetectionsList(data.detections);
-                document.getElementById('detectionCount').textContent = data.detections.length;
-            }
-
-            // Update detection stats
-            detectionStats.totalFrames++;
-            detectionStats.totalDetections += data.detections ? data.detections.length : 0;
-        }
-
-        function updateDetectionsList(detections) {
-            const detectionList = document.getElementById('detectionList');
-
-            if (detections.length === 0) {
-                detectionList.innerHTML = '<div style="text-align: center; color: #64748b;">No detections in current frame</div>';
-                return;
-            }
-
-            let html = '';
-            detections.forEach((detection, index) => {
-                const [x1, y1, x2, y2] = detection.bbox;
-                html += `
-                    <div class="detection-item">
-                        <div class="detection-header">
-                            <span>${detection.class}</span>
-                            <span class="detection-confidence">${(detection.confidence * 100).toFixed(1)}%</span>
+                let html = '';
+                detections.forEach((detection) => {
+                    const [x1, y1, x2, y2] = detection.bbox;
+                    html += `
+                        <div class="detection-item">
+                            <div class="detection-header">
+                                <span>${detection.class}</span>
+                                <span class="detection-confidence">${(detection.confidence * 100).toFixed(1)}%</span>
+                            </div>
+                            <div class="detection-coords">
+                                Box: (${Math.round(x1)}, ${Math.round(y1)}) to (${Math.round(x2)}, ${Math.round(y2)})
+                            </div>
                         </div>
-                        <div class="detection-coords">
-                            Box: (${Math.round(x1)}, ${Math.round(y1)}) to (${Math.round(x2)}, ${Math.round(y2)})
-                        </div>
+                    `;
+                });
+
+                detectionList.innerHTML = html;
+            },
+
+            hideVideo() {
+                document.getElementById('videoFeed').style.display = 'none';
+                document.getElementById('noVideo').style.display = 'flex';
+                document.getElementById('noVideo').innerHTML = `
+                    <div>
+                        <div>📷 Vision system disconnected</div>
+                        <div style="font-size: 14px; margin-top: 10px;">Attempting to reconnect...</div>
                     </div>
                 `;
-            });
-
-            detectionList.innerHTML = html;
-        }
-
-        function hideVideo() {
-            document.getElementById('videoFeed').style.display = 'none';
-            document.getElementById('noVideo').style.display = 'flex';
-            document.getElementById('noVideo').innerHTML = `
-                <div>
-                    <div>📷 Vision system disconnected</div>
-                    <div style="font-size: 14px; margin-top: 10px;">Attempting to reconnect...</div>
-                </div>
-            `;
-        }
-
-        function updateSystemStats(stats) {
-            if (stats.cpu !== undefined) document.getElementById('cpuUsage').textContent = stats.cpu + '%';
-            if (stats.memory !== undefined) document.getElementById('memoryUsage').textContent = stats.memory + '%';
-            if (stats.temperature !== undefined) document.getElementById('temperature').textContent = stats.temperature + '°C';
-            if (stats.gpu !== undefined) document.getElementById('gpuUsage').textContent = stats.gpu + '%';
-        }
-
-        function updateR2D2Status(status) {
-            if (status.servos !== undefined) document.getElementById('activeServos').textContent = status.servos;
-            if (status.audio !== undefined) document.getElementById('audioStatus').textContent = status.audio;
-            if (status.vision !== undefined) document.getElementById('visionStatus').textContent = status.vision;
-            if (status.health !== undefined) document.getElementById('systemHealth').textContent = status.health + '%';
-            if (status.servoTiming !== undefined) document.getElementById('servoTiming').textContent = status.servoTiming + ' ms';
-            if (status.audioLatency !== undefined) document.getElementById('audioLatency').textContent = status.audioLatency + ' ms';
-        }
-
-        function requestSystemData() {
-            if (dashboardWs && dashboardWs.readyState === WebSocket.OPEN) {
-                dashboardWs.send(JSON.stringify({type: 'request_data'}));
             }
-        }
+        };
 
-        function sendCommand(command, params = {}) {
-            if (dashboardWs && dashboardWs.readyState === WebSocket.OPEN) {
-                dashboardWs.send(JSON.stringify({type: 'command', command: command, params: params}));
+        // ========== Character Management ==========
+        const CharacterManager = {
+            emotionIcons: {
+                'excited': '🎉', 'happy': '😊', 'curious': '🤔', 'concerned': '😟',
+                'protective': '🛡️', 'loyal': '💙', 'sad': '😢', 'angry': '😠',
+                'frustrated': '😤', 'playful': '😄', 'affectionate': '💕',
+                'respectful': '🙏', 'alert': '⚠️', 'determined': '💪'
+            },
+
+            updateCharacterDisplay(data) {
+                if (data.character_detections && data.character_detections.length > 0) {
+                    this.displayCharacters(data.character_detections, data.stats);
+                    this.updateCharacterHistory(data.character_detections);
+                } else {
+                    this.clearCharacterDisplay();
+                }
+            },
+
+            displayCharacters(characters, stats) {
+                const characterList = document.getElementById('characterList');
+                let html = '';
+                let totalConfidence = 0;
+
+                characters.forEach((character) => {
+                    totalConfidence += character.confidence;
+                    const emotionIcon = this.emotionIcons[character.r2d2_reaction.primary_emotion] || '🤖';
+
+                    html += `
+                        <div class="character-detection-item" style="border-left: 4px solid #10b981; margin: 5px 0; padding: 8px; background: #1e293b; border-radius: 4px;">
+                            <div class="character-header" style="display: flex; justify-content: space-between; font-weight: bold;">
+                                <span>${emotionIcon} ${character.name}</span>
+                                <span style="color: #10b981;">${(character.confidence * 100).toFixed(1)}%</span>
+                            </div>
+                            <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
+                                Costume: ${character.costume_match} | R2D2: ${character.r2d2_reaction.primary_emotion}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                if (characterList) characterList.innerHTML = html;
+
+                // Update stats
+                document.getElementById('recognizedCharacters').textContent = characters.length;
+                document.getElementById('confidenceLevel').textContent =
+                    (totalConfidence / characters.length * 100).toFixed(0) + '%';
+                document.getElementById('recognitionTime').textContent =
+                    (stats.character_time * 1000 || 0).toFixed(1);
+            },
+
+            updateCharacterHistory(characters) {
+                const characterHistory = document.getElementById('characterHistory');
+                if (!characterHistory) return;
+
+                const timestamp = new Date().toLocaleTimeString();
+                const historyItem = `
+                    <div style="padding: 4px; font-size: 12px; color: #94a3b8;">
+                        ${timestamp}: ${characters.map(c => c.name).join(', ')}
+                    </div>
+                `;
+
+                characterHistory.insertAdjacentHTML('afterbegin', historyItem);
+
+                // Keep only last 10 history items
+                while (characterHistory.children.length > 10) {
+                    characterHistory.removeChild(characterHistory.lastChild);
+                }
+            },
+
+            clearCharacterDisplay() {
+                const characterList = document.getElementById('characterList');
+                if (characterList) {
+                    characterList.innerHTML = '<div style="text-align: center; color: #64748b;">No characters detected</div>';
+                }
+                document.getElementById('recognizedCharacters').textContent = '0';
+                document.getElementById('confidenceLevel').textContent = '0%';
             }
-        }
+        };
 
-        // Control functions
+        // ========== UI Manager ==========
+        const UIManager = {
+            updateConnectionStatus(message, connected) {
+                const status = document.getElementById('connectionStatus');
+                status.textContent = message;
+                status.className = connected ? 'connected' : '';
+            },
+
+            updateVisionConnectionStatus(message, connected) {
+                const status = document.getElementById('visionConnectionStatus');
+                status.textContent = message;
+                status.className = connected ? 'connected' : '';
+            },
+
+            updateSystemStats(stats) {
+                if (stats.cpu !== undefined) document.getElementById('cpuUsage').textContent = stats.cpu + '%';
+                if (stats.memory !== undefined) document.getElementById('memoryUsage').textContent = stats.memory + '%';
+                if (stats.temperature !== undefined) document.getElementById('temperature').textContent = stats.temperature + '°C';
+                if (stats.gpu !== undefined) document.getElementById('gpuUsage').textContent = stats.gpu + '%';
+            },
+
+            updateR2D2Status(status) {
+                if (status.servos !== undefined) document.getElementById('activeServos').textContent = status.servos;
+                if (status.audio !== undefined) document.getElementById('audioStatus').textContent = status.audio;
+                if (status.vision !== undefined) document.getElementById('visionStatus').textContent = status.vision;
+                if (status.health !== undefined) document.getElementById('systemHealth').textContent = status.health + '%';
+                if (status.servoTiming !== undefined) document.getElementById('servoTiming').textContent = status.servoTiming + ' ms';
+                if (status.audioLatency !== undefined) document.getElementById('audioLatency').textContent = status.audioLatency + ' ms';
+            },
+
+            showAlert(message, level = 'info') {
+                const alerts = document.getElementById('alerts');
+                const alert = document.createElement('div');
+                alert.className = level === 'error' ? 'alert' : level === 'success' ? 'success' : 'info';
+                alert.textContent = message;
+                alerts.insertBefore(alert, alerts.firstChild);
+
+                setTimeout(() => {
+                    if (alert.parentNode) alert.parentNode.removeChild(alert);
+                }, 5000);
+            },
+
+            updateUptime() {
+                const startTime = new Date();
+                setInterval(() => {
+                    const now = new Date();
+                    const diff = Math.floor((now - startTime) / 1000);
+                    const hours = Math.floor(diff / 3600).toString().padStart(2, '0');
+                    const minutes = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
+                    const seconds = (diff % 60).toString().padStart(2, '0');
+                    document.getElementById('uptime').textContent = `${hours}:${minutes}:${seconds}`;
+                }, 1000);
+            }
+        };
+
+        // ========== Control Functions (Global for onclick) ==========
+        // Main control functions
         function testServos() {
-            sendCommand('test_servos');
-            showAlert('Testing servos...', 'info');
+            WebSocketManager.sendCommand('test_servos');
+            UIManager.showAlert('Testing servos...', 'info');
         }
 
         function testAudio() {
-            sendCommand('test_audio');
-            showAlert('Testing audio system...', 'info');
+            WebSocketManager.sendCommand('test_audio');
+            UIManager.showAlert('Testing audio system...', 'info');
         }
 
         function testVision() {
-            sendCommand('test_vision');
-            showAlert('Testing vision system...', 'info');
+            WebSocketManager.sendCommand('test_vision');
+            UIManager.showAlert('Testing vision system...', 'info');
         }
 
         function runFullDemo() {
-            sendCommand('full_demo');
-            showAlert('Running full R2D2 demonstration...', 'info');
+            WebSocketManager.sendCommand('full_demo');
+            UIManager.showAlert('Running full R2D2 demonstration...', 'info');
         }
 
         function emergencyStop() {
-            sendCommand('emergency_stop');
-            showAlert('Emergency stop activated!', 'error');
+            WebSocketManager.sendCommand('emergency_stop');
+            UIManager.showAlert('Emergency stop activated!', 'error');
         }
 
         // Vision control functions
         function toggleVisionSystem() {
-            if (visionSystemActive) {
-                // Vision system is running, button should stop it
-                showAlert('Vision system stop not implemented via WebSocket', 'info');
+            if (DashboardState.visionSystemActive) {
+                UIManager.showAlert('Vision system stop not implemented via WebSocket', 'info');
             } else {
-                // Attempt to connect to vision system
-                connectToVision();
+                WebSocketManager.connectToVision();
             }
         }
 
         function captureFrame() {
-            if (visionSystemActive) {
-                showAlert('Frame capture functionality would be implemented here', 'info');
+            if (DashboardState.visionSystemActive) {
+                UIManager.showAlert('Frame capture functionality would be implemented here', 'info');
             } else {
-                showAlert('Vision system not connected', 'error');
+                UIManager.showAlert('Vision system not connected', 'error');
             }
         }
 
         function toggleDetectionDisplay() {
-            showDetections = !showDetections;
+            DashboardState.showDetections = !DashboardState.showDetections;
             const detectionList = document.getElementById('detectionList');
 
-            if (!showDetections) {
+            if (!DashboardState.showDetections) {
                 detectionList.innerHTML = '<div style="text-align: center; color: #64748b;">Detection display disabled</div>';
-                showAlert('Detection display disabled', 'info');
+                UIManager.showAlert('Detection display disabled', 'info');
             } else {
-                showAlert('Detection display enabled', 'info');
+                UIManager.showAlert('Detection display enabled', 'info');
             }
         }
 
-        // Confidence threshold control
-        document.getElementById('confidenceSlider').addEventListener('input', function(e) {
-            const value = parseFloat(e.target.value);
-            document.getElementById('confidenceValue').textContent = value.toFixed(2);
+        // Servo control functions
+        function updateServo(channel, value) {
+            WebSocketManager.sendCommand('update_servo', {channel, value});
+            const servoChannel = document.querySelector(`[data-channel="${channel}"] .servo-value`);
+            if (servoChannel) servoChannel.textContent = value + '°';
+        }
 
-            // Send confidence update to vision system if connected
-            if (visionWs && visionWs.readyState === WebSocket.OPEN) {
-                visionWs.send(JSON.stringify({
-                    type: 'update_confidence',
-                    threshold: value
-                }));
-            }
+        function homeAllServos() {
+            WebSocketManager.sendCommand('home_all_servos');
+            UIManager.showAlert('Homing all servos...', 'info');
+        }
+
+        function enableAllServos() {
+            WebSocketManager.sendCommand('enable_all_servos');
+            UIManager.showAlert('Enabling all servos...', 'info');
+        }
+
+        function disableAllServos() {
+            WebSocketManager.sendCommand('disable_all_servos');
+            UIManager.showAlert('Disabling all servos...', 'info');
+        }
+
+        function saveServoPreset() {
+            WebSocketManager.sendCommand('save_servo_preset');
+            UIManager.showAlert('Saving servo preset...', 'info');
+        }
+
+        function loadServoPreset() {
+            WebSocketManager.sendCommand('load_servo_preset');
+            UIManager.showAlert('Loading servo preset...', 'info');
+        }
+
+        // Audio control functions
+        function playSound(soundType) {
+            WebSocketManager.sendCommand('play_sound', {soundType});
+            UIManager.showAlert(`Playing ${soundType} sound...`, 'info');
+        }
+
+        function updateVolume(value) {
+            WebSocketManager.sendCommand('update_volume', {volume: value});
+            document.getElementById('volumeValue').textContent = value;
+        }
+
+        function stopAllAudio() {
+            WebSocketManager.sendCommand('stop_all_audio');
+            UIManager.showAlert('Stopping all audio...', 'info');
+        }
+
+        function muteAudio() {
+            WebSocketManager.sendCommand('mute_audio');
+            UIManager.showAlert('Muting audio...', 'info');
+        }
+
+        // Character recognition functions
+        function enableCharacterRecognition() {
+            WebSocketManager.sendCommand('enable_character_recognition');
+            UIManager.showAlert('Enabling character recognition...', 'info');
+        }
+
+        function disableCharacterRecognition() {
+            WebSocketManager.sendCommand('disable_character_recognition');
+            UIManager.showAlert('Disabling character recognition...', 'info');
+        }
+
+        function clearCharacterHistory() {
+            const characterHistory = document.getElementById('characterHistory');
+            if (characterHistory) characterHistory.innerHTML = '<div style="text-align: center; color: #64748b;">No history available</div>';
+            UIManager.showAlert('Character history cleared', 'info');
+        }
+
+        function exportCharacterData() {
+            UIManager.showAlert('Character data export not yet implemented', 'info');
+        }
+
+        // Behavior sequence functions
+        function playSequence(sequenceName) {
+            WebSocketManager.sendCommand('play_sequence', {sequence: sequenceName});
+            UIManager.showAlert(`Playing ${sequenceName} sequence...`, 'info');
+        }
+
+        function stopCurrentSequence() {
+            WebSocketManager.sendCommand('stop_sequence');
+            UIManager.showAlert('Stopping current sequence...', 'info');
+        }
+
+        function pauseCurrentSequence() {
+            WebSocketManager.sendCommand('pause_sequence');
+            UIManager.showAlert('Pausing sequence...', 'info');
+        }
+
+        function resumeCurrentSequence() {
+            WebSocketManager.sendCommand('resume_sequence');
+            UIManager.showAlert('Resuming sequence...', 'info');
+        }
+
+        function updateSequenceSpeed(speed) {
+            WebSocketManager.sendCommand('update_sequence_speed', {speed: parseFloat(speed)});
+            UIManager.showAlert(`Sequence speed set to ${speed}x`, 'info');
+        }
+
+        function createCustomSequence() {
+            UIManager.showAlert('Custom sequence creation not yet implemented', 'info');
+        }
+
+        // Safety functions
+        function emergencyStopAll() {
+            WebSocketManager.sendCommand('emergency_stop_all');
+            UIManager.showAlert('🚨 EMERGENCY STOP ALL SYSTEMS!', 'error');
+        }
+
+        function emergencyStopServos() {
+            WebSocketManager.sendCommand('emergency_stop_servos');
+            UIManager.showAlert('Emergency stopping servos...', 'error');
+        }
+
+        function emergencyStopAudio() {
+            WebSocketManager.sendCommand('emergency_stop_audio');
+            UIManager.showAlert('Emergency stopping audio...', 'error');
+        }
+
+        function softShutdown() {
+            WebSocketManager.sendCommand('soft_shutdown');
+            UIManager.showAlert('Initiating soft shutdown...', 'info');
+        }
+
+        function runDiagnostic(type) {
+            WebSocketManager.sendCommand('run_diagnostic', {type});
+            UIManager.showAlert(`Running ${type} diagnostic...`, 'info');
+        }
+
+        // ========== Event Listeners ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            // Confidence slider
+            document.getElementById('confidenceSlider').addEventListener('input', function(e) {
+                const value = parseFloat(e.target.value);
+                document.getElementById('confidenceValue').textContent = value.toFixed(2);
+
+                if (DashboardState.visionWs && DashboardState.visionWs.readyState === WebSocket.OPEN) {
+                    DashboardState.visionWs.send(JSON.stringify({
+                        type: 'update_confidence',
+                        threshold: value
+                    }));
+                }
+            });
         });
 
-        function showAlert(message, level = 'info') {
-            const alerts = document.getElementById('alerts');
-            const alert = document.createElement('div');
-
-            if (level === 'error') {
-                alert.className = 'alert';
-            } else if (level === 'success') {
-                alert.className = 'success';
-            } else {
-                alert.className = 'info';
-            }
-
-            alert.textContent = message;
-            alerts.insertBefore(alert, alerts.firstChild);
+        // ========== Initialization ==========
+        window.addEventListener('load', () => {
+            UIManager.updateUptime();
+            WebSocketManager.connectToDashboard();
 
             setTimeout(() => {
-                if (alert.parentNode) {
-                    alert.parentNode.removeChild(alert);
-                }
-            }, 5000);
-        }
-
-        function updateUptime() {
-            const startTime = new Date();
-            setInterval(() => {
-                const now = new Date();
-                const diff = Math.floor((now - startTime) / 1000);
-                const hours = Math.floor(diff / 3600).toString().padStart(2, '0');
-                const minutes = Math.floor((diff % 3600) / 60).toString().padStart(2, '0');
-                const seconds = (diff % 60).toString().padStart(2, '0');
-                document.getElementById('uptime').textContent = hours + ':' + minutes + ':' + seconds;
-            }, 1000);
-        }
-
-        // Initialize connections
-        function initializeConnections() {
-            connectToDashboard();
-
-            // Attempt vision connection after a short delay
-            setTimeout(() => {
-                connectToVision();
+                WebSocketManager.connectToVision();
             }, 2000);
-        }
 
-        // Initialize everything when page loads
-        window.addEventListener('load', function() {
-            updateUptime();
-            initializeConnections();
-            setInterval(requestSystemData, 5000);
-
-            showAlert('R2D2 Dashboard with Vision System loaded', 'success');
+            setInterval(() => WebSocketManager.requestSystemData(), 5000);
+            UIManager.showAlert('R2D2 Dashboard with Vision System loaded', 'success');
         });
     </script>
 </body>

@@ -1,0 +1,18 @@
+{
+  "critical_thresholds": {
+    "dashboard_response_time": 1000,
+    "websocket_connection_time": 2000,
+    "memory_usage_limit": 1024,
+    "success_rate_minimum": 85
+  },
+  "monitoring_intervals": {
+    "continuous_check": 30000,
+    "full_validation": 300000,
+    "baseline_update": 3600000
+  },
+  "auto_actions": {
+    "alert_on_degradation": true,
+    "block_on_critical_failure": true,
+    "auto_rollback_enabled": false
+  }
+}

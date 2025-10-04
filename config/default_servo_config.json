@@ -1,0 +1,40 @@
+{
+  "servo_count": 6,
+  "default_servos": [
+    {
+      "channel": 0,
+      "name": "dome_rotation",
+      "display_name": "Dome Rotation"
+    },
+    {
+      "channel": 1,
+      "name": "head_tilt",
+      "display_name": "Head Tilt"
+    },
+    {
+      "channel": 2,
+      "name": "periscope",
+      "display_name": "Periscope"
+    },
+    {
+      "channel": 3,
+      "name": "radar_eye",
+      "display_name": "Radar Eye"
+    },
+    {
+      "channel": 4,
+      "name": "utility_arm_left",
+      "display_name": "Left Utility Arm"
+    },
+    {
+      "channel": 5,
+      "name": "utility_arm_right",
+      "display_name": "Right Utility Arm"
+    }
+  ],
+  "safety_settings": {
+    "emergency_stop_enabled": true,
+    "position_limits_enforced": true,
+    "movement_timeout_ms": 10000
+  }
+}

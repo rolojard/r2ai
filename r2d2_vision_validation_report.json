@@ -1,48 +1,78 @@
 {
   "vision_validation_session": {
-    "timestamp": "2025-09-20T16:04:57.846211",
+    "timestamp": "2025-09-21T18:48:12.896068",
     "platform": "NVIDIA Orin Nano",
     "validator": "R2D2VisionValidator v1.0",
-    "pytorch_version": null,
-    "cuda_version": null,
+    "pytorch_version": "2.5.0a0+872d972e41.nv24.08",
+    "cuda_version": "12.6",
     "system_status": "OPTIMIZATION_NEEDED"
   },
   "validation_summary": {
-    "total_checks": 7,
-    "optimal_checks": 3,
+    "total_checks": 13,
+    "optimal_checks": 9,
     "good_checks": 0,
-    "critical_issues": 3,
-    "optimal_rate": "42.9%",
-    "success_rate": "42.9%"
+    "critical_issues": 0,
+    "optimal_rate": "69.2%",
+    "success_rate": "69.2%"
   },
   "validation_results": [
     {
       "component": "PyTorch CUDA Validation",
-      "timestamp": "2025-09-20T16:04:56.087497",
+      "timestamp": "2025-09-21T18:48:06.595227",
       "validations": [
         {
-          "check": "PyTorch Import",
-          "status": "CRITICAL",
-          "details": "PyTorch not available: libcusparseLt.so.0: cannot open shared object file: No such file or directory",
+          "check": "PyTorch Version",
+          "status": "OPTIMAL",
+          "details": "PyTorch 2.5.0a0+872d972e41.nv24.08 - NVIDIA optimized version detected",
           "confidence": "HIGH"
+        },
+        {
+          "check": "CUDA Availability",
+          "status": "OPTIMAL",
+          "details": "CUDA 12.6 available on Orin",
+          "confidence": "HIGH"
+        },
+        {
+          "check": "GPU Memory",
+          "status": "WARNING",
+          "details": "7.4GB GPU memory - may limit model size",
+          "confidence": "MEDIUM"
         }
       ]
     },
     {
       "component": "YOLO Integration Validation",
-      "timestamp": "2025-09-20T16:04:56.118605",
+      "timestamp": "2025-09-21T18:48:08.786755",
       "validations": [
         {
-          "check": "Ultralytics Import",
-          "status": "CRITICAL",
-          "details": "Ultralytics not available: libcusparseLt.so.0: cannot open shared object file: No such file or directory",
+          "check": "Ultralytics Version",
+          "status": "OPTIMAL",
+          "details": "Ultralytics 8.3.201 available",
+          "confidence": "HIGH"
+        },
+        {
+          "check": "YOLO Model Loading",
+          "status": "OPTIMAL",
+          "details": "YOLOv8n loaded in 0.08s",
+          "confidence": "HIGH"
+        },
+        {
+          "check": "YOLO CUDA Assignment",
+          "status": "OPTIMAL",
+          "details": "YOLO model successfully moved to cuda:0",
+          "confidence": "HIGH"
+        },
+        {
+          "check": "YOLO Inference Performance",
+          "status": "WARNING",
+          "details": "Inference: 0.795s (May need optimization)",
           "confidence": "HIGH"
         }
       ]
     },
     {
       "component": "OpenCV Integration Validation",
-      "timestamp": "2025-09-20T16:04:56.209333",
+      "timestamp": "2025-09-21T18:48:10.044706",
       "validations": [
         {
           "check": "OpenCV Version",
@@ -52,14 +82,8 @@
         },
         {
           "check": "Camera Access",
-          "status": "OPTIMAL",
-          "details": "Camera accessible: 640x480 @ 30.0 FPS",
-          "confidence": "HIGH"
-        },
-        {
-          "check": "Frame Capture",
-          "status": "OPTIMAL",
-          "details": "Frame captured: (480, 640, 3)",
+          "status": "WARNING",
+          "details": "Camera device not accessible",
           "confidence": "HIGH"
         },
         {
@@ -72,12 +96,24 @@
     },
     {
       "component": "R2D2 Vision Pipeline Validation",
-      "timestamp": "2025-09-20T16:04:57.846179",
+      "timestamp": "2025-09-21T18:48:10.046255",
       "validations": [
         {
-          "check": "Pipeline Prerequisites",
-          "status": "CRITICAL",
-          "details": "YOLO model not loaded - cannot test pipeline",
+          "check": "Vision Pipeline Performance",
+          "status": "OPTIMAL",
+          "details": "0.026s avg, 38.7 FPS theoretical (Excellent real-time performance)",
+          "confidence": "HIGH"
+        },
+        {
+          "check": "Detection Success Rate",
+          "status": "OPTIMAL",
+          "details": "100.0% successful detections over 100 frames",
+          "confidence": "HIGH"
+        },
+        {
+          "check": "GPU Memory Efficiency",
+          "status": "OPTIMAL",
+          "details": "Efficient GPU memory usage: 0.04GB used, 0.09GB cached",
           "confidence": "HIGH"
         }
       ]
@@ -89,8 +125,7 @@
     "recommendations": [
       "Address all critical vision system issues",
       "Optimize CUDA/GPU performance configuration",
-      "Validate PyTorch and YOLO model compatibility",
-      "Critical: Fix CUDA or model loading issues before deployment"
+      "Validate PyTorch and YOLO model compatibility"
     ]
   }
 }

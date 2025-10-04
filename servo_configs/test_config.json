@@ -1,0 +1,347 @@
+{
+  "metadata": {
+    "name": "test_config",
+    "created": 1758998448.4783084,
+    "version": "2.0",
+    "profile": "default",
+    "total_servos": 16
+  },
+  "servos": {
+    "0": {
+      "channel": 0,
+      "name": "Dome Rotation",
+      "servo_type": "primary",
+      "servo_range": "full",
+      "limits": {
+        "min_position": 600,
+        "max_position": 2400,
+        "max_speed": 80,
+        "max_acceleration": 40,
+        "safe_min": 800,
+        "safe_max": 2200,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1500,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": false,
+      "inverted": false,
+      "safety_level": "production"
+    },
+    "1": {
+      "channel": 1,
+      "name": "Head Tilt",
+      "servo_type": "primary",
+      "servo_range": "limited",
+      "limits": {
+        "min_position": 1200,
+        "max_position": 1800,
+        "max_speed": 60,
+        "max_acceleration": 30,
+        "safe_min": 1300,
+        "safe_max": 1700,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1500,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": true,
+      "inverted": false,
+      "safety_level": "production"
+    },
+    "2": {
+      "channel": 2,
+      "name": "Periscope",
+      "servo_type": "utility",
+      "servo_range": "binary",
+      "limits": {
+        "min_position": 1000,
+        "max_position": 2000,
+        "max_speed": 100,
+        "max_acceleration": 50,
+        "safe_min": 1100,
+        "safe_max": 1900,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1000,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": true,
+      "inverted": false,
+      "safety_level": "production"
+    },
+    "3": {
+      "channel": 3,
+      "name": "Radar Eye",
+      "servo_type": "display",
+      "servo_range": "full",
+      "limits": {
+        "min_position": 600,
+        "max_position": 2400,
+        "max_speed": 120,
+        "max_acceleration": 60,
+        "safe_min": 800,
+        "safe_max": 2200,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1500,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": true,
+      "inverted": false,
+      "safety_level": "production"
+    },
+    "4": {
+      "channel": 4,
+      "name": "Front Utility Arm",
+      "servo_type": "utility",
+      "servo_range": "limited",
+      "limits": {
+        "min_position": 992,
+        "max_position": 2000,
+        "max_speed": 100,
+        "max_acceleration": 50,
+        "safe_min": 1200,
+        "safe_max": 1800,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1200,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": true,
+      "inverted": false,
+      "safety_level": "production"
+    },
+    "5": {
+      "channel": 5,
+      "name": "Rear Utility Arm",
+      "servo_type": "utility",
+      "servo_range": "limited",
+      "limits": {
+        "min_position": 992,
+        "max_position": 2000,
+        "max_speed": 100,
+        "max_acceleration": 50,
+        "safe_min": 1200,
+        "safe_max": 1800,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1200,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": true,
+      "inverted": false,
+      "safety_level": "production"
+    },
+    "6": {
+      "channel": 6,
+      "name": "Utility Arm 1",
+      "servo_type": "utility",
+      "servo_range": "limited",
+      "limits": {
+        "min_position": 992,
+        "max_position": 2000,
+        "max_speed": 100,
+        "max_acceleration": 50,
+        "safe_min": 1200,
+        "safe_max": 1800,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1500,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": true,
+      "inverted": false,
+      "safety_level": "production"
+    },
+    "7": {
+      "channel": 7,
+      "name": "Utility Arm 2",
+      "servo_type": "utility",
+      "servo_range": "limited",
+      "limits": {
+        "min_position": 992,
+        "max_position": 2000,
+        "max_speed": 100,
+        "max_acceleration": 50,
+        "safe_min": 1200,
+        "safe_max": 1800,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1500,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": true,
+      "inverted": false,
+      "safety_level": "production"
+    },
+    "8": {
+      "channel": 8,
+      "name": "Door Panel 1",
+      "servo_type": "panel",
+      "servo_range": "binary",
+      "limits": {
+        "min_position": 992,
+        "max_position": 2000,
+        "max_speed": 100,
+        "max_acceleration": 50,
+        "safe_min": 1200,
+        "safe_max": 1800,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1000,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": true,
+      "inverted": false,
+      "safety_level": "production"
+    },
+    "9": {
+      "channel": 9,
+      "name": "Door Panel 2",
+      "servo_type": "panel",
+      "servo_range": "binary",
+      "limits": {
+        "min_position": 992,
+        "max_position": 2000,
+        "max_speed": 100,
+        "max_acceleration": 50,
+        "safe_min": 1200,
+        "safe_max": 1800,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1000,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": true,
+      "inverted": false,
+      "safety_level": "production"
+    },
+    "10": {
+      "channel": 10,
+      "name": "Door Panel 3",
+      "servo_type": "panel",
+      "servo_range": "binary",
+      "limits": {
+        "min_position": 992,
+        "max_position": 2000,
+        "max_speed": 100,
+        "max_acceleration": 50,
+        "safe_min": 1200,
+        "safe_max": 1800,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1000,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": true,
+      "inverted": false,
+      "safety_level": "production"
+    },
+    "11": {
+      "channel": 11,
+      "name": "Holoprojector",
+      "servo_type": "special",
+      "servo_range": "binary",
+      "limits": {
+        "min_position": 992,
+        "max_position": 2000,
+        "max_speed": 100,
+        "max_acceleration": 50,
+        "safe_min": 1200,
+        "safe_max": 1800,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1000,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": true,
+      "inverted": false,
+      "safety_level": "production"
+    },
+    "12": {
+      "channel": 12,
+      "name": "Logic Display 1",
+      "servo_type": "display",
+      "servo_range": "limited",
+      "limits": {
+        "min_position": 992,
+        "max_position": 2000,
+        "max_speed": 100,
+        "max_acceleration": 50,
+        "safe_min": 1200,
+        "safe_max": 1800,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1500,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": true,
+      "inverted": false,
+      "safety_level": "production"
+    },
+    "13": {
+      "channel": 13,
+      "name": "Logic Display 2",
+      "servo_type": "display",
+      "servo_range": "limited",
+      "limits": {
+        "min_position": 992,
+        "max_position": 2000,
+        "max_speed": 100,
+        "max_acceleration": 50,
+        "safe_min": 1200,
+        "safe_max": 1800,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1500,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": true,
+      "inverted": false,
+      "safety_level": "production"
+    },
+    "14": {
+      "channel": 14,
+      "name": "Auxiliary 1",
+      "servo_type": "expansion",
+      "servo_range": "limited",
+      "limits": {
+        "min_position": 992,
+        "max_position": 2000,
+        "max_speed": 100,
+        "max_acceleration": 50,
+        "safe_min": 1200,
+        "safe_max": 1800,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1500,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": true,
+      "inverted": false,
+      "safety_level": "production"
+    },
+    "15": {
+      "channel": 15,
+      "name": "Auxiliary 2",
+      "servo_type": "expansion",
+      "servo_range": "limited",
+      "limits": {
+        "min_position": 992,
+        "max_position": 2000,
+        "max_speed": 100,
+        "max_acceleration": 50,
+        "safe_min": 1200,
+        "safe_max": 1800,
+        "emergency_stop_speed": 255
+      },
+      "home_position": 1500,
+      "default_speed": 50,
+      "default_acceleration": 20,
+      "enabled": true,
+      "inverted": false,
+      "safety_level": "production"
+    }
+  }
+}

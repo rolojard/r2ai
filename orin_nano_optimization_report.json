@@ -1,256 +1,34 @@
 {
-  "optimization_session": {
-    "timestamp": "2025-09-18T20:38:28.880228",
-    "platform": "NVIDIA Orin Nano",
-    "optimizer": "OrinNanoR2D2Optimizer v1.0",
-    "target": "R2D2 Real-time Performance"
+  "timestamp": "2025-09-22 18:56:40",
+  "system_info": {
+    "power_model": "NV Power Mode: MAXN_SUPER\n2",
+    "gpu_info": "Orin (nvgpu), [N/A], 540.4.0",
+    "memory": "Mem:           7.4Gi       4.5Gi       567Mi        49Mi       2.4Gi       2.8Gi",
+    "jetpack": "36.4.4-20250616085344"
   },
-  "system_status": {
-    "cpu_cores": 6,
-    "total_memory": "7.4 GB",
-    "available_memory": "3.9 GB",
-    "cpu_usage": "0.0%",
-    "thermal_zones": 9,
-    "i2c_buses": 7
+  "camera_status": {
+    "usb_cameras": [
+      "Bus 001 Device 006: ID 046d:08e7 Logitech, Inc. Logi Webcam C920e"
+    ],
+    "video_devices": [
+      "/dev/video0",
+      "/dev/video1"
+    ],
+    "uvc_driver": true
   },
-  "optimization_results": [
-    {
-      "component": "Performance Mode Optimization",
-      "timestamp": "2025-09-18T20:38:22.547720",
-      "optimizations": [
-        {
-          "setting": "CPU0 Governor",
-          "status": "FAILED",
-          "details": "/bin/sh: 1: cannot create /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor: Permission denied\n"
-        },
-        {
-          "setting": "CPU1 Governor",
-          "status": "FAILED",
-          "details": "/bin/sh: 1: cannot create /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor: Permission denied\n"
-        },
-        {
-          "setting": "CPU2 Governor",
-          "status": "FAILED",
-          "details": "/bin/sh: 1: cannot create /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor: Permission denied\n"
-        },
-        {
-          "setting": "CPU3 Governor",
-          "status": "FAILED",
-          "details": "/bin/sh: 1: cannot create /sys/devices/system/cpu/cpu3/cpufreq/scaling_governor: Permission denied\n"
-        },
-        {
-          "setting": "CPU4 Governor",
-          "status": "FAILED",
-          "details": "/bin/sh: 1: cannot create /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor: Permission denied\n"
-        },
-        {
-          "setting": "CPU5 Governor",
-          "status": "FAILED",
-          "details": "/bin/sh: 1: cannot create /sys/devices/system/cpu/cpu5/cpufreq/scaling_governor: Permission denied\n"
-        }
-      ]
-    },
-    {
-      "component": "Real-Time System Configuration",
-      "timestamp": "2025-09-18T20:38:22.599054",
-      "optimizations": [
-        {
-          "setting": "RT Scheduling",
-          "status": "INFO",
-          "details": "Real-time scheduling configured. Set processes with chrt for RT priority"
-        },
-        {
-          "setting": "Interrupt Handling",
-          "status": "SUCCESS",
-          "details": "Interrupt handling optimized for responsive servo control"
-        },
-        {
-          "setting": "System Timers",
-          "status": "SUCCESS",
-          "details": "High-resolution timers configured for precise animation"
-        }
-      ]
-    },
-    {
-      "component": "I2C and Audio Optimization",
-      "timestamp": "2025-09-18T20:38:22.602418",
-      "optimizations": [
-        {
-          "setting": "I2C Bus 0",
-          "status": "SUCCESS",
-          "details": "I2C bus 0 available and responsive"
-        },
-        {
-          "setting": "I2C Bus 1",
-          "status": "SUCCESS",
-          "details": "I2C bus 1 available and responsive"
-        },
-        {
-          "setting": "I2C Bus 2",
-          "status": "SUCCESS",
-          "details": "I2C bus 2 available and responsive"
-        },
-        {
-          "setting": "I2C Bus 4",
-          "status": "SUCCESS",
-          "details": "I2C bus 4 available and responsive"
-        },
-        {
-          "setting": "I2C Bus 5",
-          "status": "SUCCESS",
-          "details": "I2C bus 5 available and responsive"
-        },
-        {
-          "setting": "I2C Bus 7",
-          "status": "SUCCESS",
-          "details": "I2C bus 7 available and responsive"
-        },
-        {
-          "setting": "I2C Bus 9",
-          "status": "SUCCESS",
-          "details": "I2C bus 9 available and responsive"
-        },
-        {
-          "setting": "Audio System",
-          "status": "SUCCESS",
-          "details": "ALSA audio system configured for low-latency playback"
-        },
-        {
-          "setting": "GPIO Priorities",
-          "status": "FAILED",
-          "details": "Could not determine Jetson model"
-        }
-      ]
-    },
-    {
-      "component": "Power and Thermal Management",
-      "timestamp": "2025-09-18T20:38:25.290855",
-      "optimizations": [
-        {
-          "setting": "Power Management",
-          "status": "SUCCESS",
-          "details": "Configured for consistent performance during extended operation"
-        },
-        {
-          "setting": "Thermal Management",
-          "status": "SUCCESS",
-          "details": "Thermal monitoring configured. Current avg temp: 47.6\u00b0C"
-        },
-        {
-          "setting": "Power Monitoring",
-          "status": "SUCCESS",
-          "details": "System monitoring configured. CPU: 9.0%, MEM: 47.9%"
-        }
-      ]
-    },
-    {
-      "component": "Development Environment Setup",
-      "timestamp": "2025-09-18T20:38:26.299069",
-      "optimizations": [
-        {
-          "setting": "Package python3-pip",
-          "status": "SUCCESS",
-          "details": "Already installed"
-        },
-        {
-          "setting": "Package i2c-tools",
-          "status": "SUCCESS",
-          "details": "Already installed"
-        },
-        {
-          "setting": "Package python3-smbus",
-          "status": "SUCCESS",
-          "details": "Already installed"
-        },
-        {
-          "setting": "Package python3-serial",
-          "status": "FAILED",
-          "details": "Installation failed: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"
-        },
-        {
-          "setting": "Package python3-pygame",
-          "status": "FAILED",
-          "details": "Installation failed: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"
-        },
-        {
-          "setting": "Package alsa-utils",
-          "status": "SUCCESS",
-          "details": "Already installed"
-        },
-        {
-          "setting": "Package stress-ng",
-          "status": "FAILED",
-          "details": "Installation failed: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"
-        },
-        {
-          "setting": "Python Package adafruit-circuitpython-servokit",
-          "status": "FAILED",
-          "details": "Could not determine Jetson model"
-        },
-        {
-          "setting": "Python Package adafruit-circuitpython-pca9685",
-          "status": "FAILED",
-          "details": "Could not determine Jetson model"
-        },
-        {
-          "setting": "Python Package pyserial",
-          "status": "SUCCESS",
-          "details": "Installed via pip"
-        },
-        {
-          "setting": "Python Package pygame",
-          "status": "SUCCESS",
-          "details": "Already available"
-        },
-        {
-          "setting": "Python Package psutil",
-          "status": "SUCCESS",
-          "details": "Already available"
-        },
-        {
-          "setting": "Development Tools",
-          "status": "SUCCESS",
-          "details": "Monitoring and debugging tools configured"
-        }
-      ]
-    },
-    {
-      "component": "Performance Benchmarks",
-      "timestamp": "2025-09-18T20:38:28.739680",
-      "benchmarks": [
-        {
-          "test": "CPU Performance",
-          "metric": "0.019 seconds",
-          "status": "PASS",
-          "details": "Servo calculation performance: 5225766 calculations/sec"
-        },
-        {
-          "test": "Memory Performance",
-          "metric": "0.013 seconds",
-          "status": "PASS",
-          "details": "Memory allocation rate: 746078 allocations/sec"
-        },
-        {
-          "test": "I2C Latency",
-          "metric": "0.000 seconds",
-          "status": "PASS",
-          "details": "I2C bus scan time for 7 buses"
-        },
-        {
-          "test": "System Responsiveness",
-          "metric": "0.103 seconds",
-          "status": "PASS",
-          "details": "System responsive under simulated R2D2 load. CPU: 11.5%, MEM: 48.2%"
-        }
-      ]
-    }
-  ],
-  "recommendations": [
-    "System requires additional optimization before R2D2 deployment",
-    "Review failed optimizations and system requirements",
-    "Configure R2D2 processes with real-time priority: chrt -f 50 python3 r2d2_controller.py",
-    "Monitor thermal performance during extended operation",
-    "Test servo response time under full load before convention",
-    "Implement watchdog monitoring for critical R2D2 processes"
-  ]
+  "optimization_status": {
+    "orin_nano_camera_optimizer.py": true,
+    "orin_nano_system_optimizer.py": true,
+    "r2d2_optimized_vision.py": true,
+    "r2d2_gstreamer_vision.py": true,
+    "r2d2_orin_nano_vision_integration.py": true,
+    "test_orin_nano_performance.py": true,
+    "quick_camera_test.py": true
+  },
+  "deployment_ready": {
+    "score": 10,
+    "max_score": 10,
+    "percentage": 100.0,
+    "status": "READY"
+  }
 }

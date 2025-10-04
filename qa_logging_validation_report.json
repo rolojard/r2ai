@@ -1,0 +1,127 @@
+{
+  "timestamp": 1758976113.5052207,
+  "tests": [
+    {
+      "test_name": "Log Directory Structure",
+      "passed": true,
+      "timestamp": 1758976113.5064542,
+      "details": {
+        "log_directory": "/home/rolo/r2ai/logs",
+        "services_found": [
+          "deployment_manager",
+          "vision_monitor",
+          "servo_monitor",
+          "r2d2_backend_monitor"
+        ],
+        "total_log_files": 12
+      }
+    },
+    {
+      "test_name": "Log Format Validation",
+      "passed": false,
+      "timestamp": 1758976113.5083551,
+      "details": {
+        "valid_entries": 49,
+        "invalid_entries": 2,
+        "error": "Found invalid JSON log entries"
+      }
+    },
+    {
+      "test_name": "Service Monitoring Active",
+      "passed": true,
+      "timestamp": 1758976113.5373394,
+      "details": {
+        "monitoring_processes": false,
+        "recent_activity": {
+          "servo_monitor": {
+            "last_entry": "2025-09-27T12:27:04.790190+00:00",
+            "total_entries": 6
+          },
+          "r2d2_backend_monitor": {
+            "last_entry": "2025-09-27T12:27:04.787241+00:00",
+            "total_entries": 4
+          },
+          "vision_monitor": {
+            "last_entry": "2025-09-27T12:27:04.788425+00:00",
+            "total_entries": 5
+          }
+        }
+      }
+    },
+    {
+      "test_name": "Performance Metrics Logging",
+      "passed": true,
+      "timestamp": 1758976113.5394876,
+      "details": {
+        "metrics_found": 4,
+        "sample_metrics": [
+          {
+            "service": "servo_monitor",
+            "timestamp": "2025-09-27T12:27:04.790190+00:00",
+            "cpu_percent": 35.7,
+            "memory_percent": 76.6,
+            "process_memory_mb": 32.24
+          },
+          {
+            "service": "deployment_manager",
+            "timestamp": "2025-09-27T12:27:04.583150+00:00",
+            "cpu_percent": 37.2,
+            "memory_percent": 76.6,
+            "process_memory_mb": 32.24
+          },
+          {
+            "service": "r2d2_backend_monitor",
+            "timestamp": "2025-09-27T12:27:04.787241+00:00",
+            "cpu_percent": 35.5,
+            "memory_percent": 76.6,
+            "process_memory_mb": 32.24
+          }
+        ]
+      }
+    },
+    {
+      "test_name": "Error Logging Functionality",
+      "passed": false,
+      "timestamp": 1758976114.5440788,
+      "details": {
+        "error": "Test error entry not found in proper format"
+      }
+    },
+    {
+      "test_name": "Log Rotation Setup",
+      "passed": true,
+      "timestamp": 1758976115.5499737,
+      "details": {
+        "log_file_size_mb": 0.01,
+        "backup_files_count": 0,
+        "rotation_configured": true
+      }
+    },
+    {
+      "test_name": "Log Analyzer Functionality",
+      "passed": true,
+      "timestamp": 1758976115.5516493,
+      "details": {
+        "total_services": 7,
+        "error_count": 7,
+        "log_files_analyzed": 7
+      }
+    },
+    {
+      "test_name": "Service Health Monitoring",
+      "passed": false,
+      "timestamp": 1758976115.5526035,
+      "details": {
+        "error": "Insufficient health checks found",
+        "found_count": 1
+      }
+    }
+  ],
+  "summary": {
+    "total_tests": 8,
+    "passed": 5,
+    "failed": 3,
+    "errors": 0,
+    "success_rate": 62.5
+  }
+}

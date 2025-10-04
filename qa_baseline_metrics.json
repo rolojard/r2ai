@@ -1,0 +1,99 @@
+{
+  "timestamp": "2025-09-27T12:26:10.617Z",
+  "version": "1.0.0",
+  "performance": {
+    "server_response_time": 41,
+    "memory_usage": {
+      "rss": 64,
+      "heapUsed": 11,
+      "heapTotal": 14,
+      "external": 4
+    },
+    "websocket_connection_time": 50,
+    "dashboard_load_times": {
+      "ROUTE_ROOT": 7,
+      "ROUTE_ROOTvision": 5,
+      "ROUTE_ROOTenhanced": 4,
+      "ROUTE_ROOTservo": 3,
+      "ROUTE_ROOTservo-only": 3,
+      "ROUTE_ROOTdisney": 3
+    }
+  },
+  "functionality": {
+    "success_rate": 79,
+    "passed_tests": 11,
+    "total_tests": 14,
+    "working_endpoints": [
+      {
+        "test_id": "SERVER_HEALTH",
+        "description": "SERVER_HEALTH",
+        "response_time": 41
+      },
+      {
+        "test_id": "ROUTE_ROOT",
+        "description": "Default Dashboard (Vision-enabled)",
+        "response_time": 7
+      },
+      {
+        "test_id": "ROUTE_ROOTvision",
+        "description": "Vision Dashboard",
+        "response_time": 5
+      },
+      {
+        "test_id": "ROUTE_ROOTenhanced",
+        "description": "Enhanced Dashboard",
+        "response_time": 4
+      },
+      {
+        "test_id": "ROUTE_ROOTservo",
+        "description": "Advanced Servo Dashboard",
+        "response_time": 3
+      },
+      {
+        "test_id": "ROUTE_ROOTservo-only",
+        "description": "Servo-only Dashboard",
+        "response_time": 3
+      },
+      {
+        "test_id": "ROUTE_ROOTdisney",
+        "description": "Disney Behavioral Dashboard",
+        "response_time": 3
+      },
+      {
+        "test_id": "MAIN_DASHBOARD_WS",
+        "description": "Main Dashboard WebSocket",
+        "response_time": 0
+      },
+      {
+        "test_id": "BEHAVIORAL_WS",
+        "description": "Behavioral Intelligence WebSocket",
+        "response_time": 0
+      },
+      {
+        "test_id": "PERFORMANCE_BASELINE",
+        "description": "PERFORMANCE_BASELINE",
+        "response_time": 0
+      },
+      {
+        "test_id": "REALTIME_DATA_FLOW",
+        "description": "REALTIME_DATA_FLOW",
+        "response_time": 0
+      }
+    ]
+  },
+  "integration": {
+    "websocket_channels": [
+      "main_dashboard",
+      "behavioral_intelligence"
+    ],
+    "dashboard_routes": [
+      "/",
+      "/vision",
+      "/enhanced",
+      "/servo",
+      "/servo-only",
+      "/disney"
+    ],
+    "real_time_data_flow": true
+  }
+}

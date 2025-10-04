@@ -1,0 +1,231 @@
+{
+  "test_execution": {
+    "timestamp": "2025-09-24T12:13:02.193998",
+    "duration_seconds": 23.17485523223877,
+    "total_tests": 20,
+    "passed_tests": 17,
+    "failed_tests": 3,
+    "error_tests": 0
+  },
+  "test_results": {
+    "_test_servo_controller": {
+      "status": "PASS",
+      "duration": 0.10723567008972168,
+      "details": {
+        "initialization": true,
+        "servo_count": true,
+        "sequences_available": true,
+        "status_report": true,
+        "servo_movement": true,
+        "sequence_execution": true,
+        "configuration": true
+      }
+    },
+    "_test_enhanced_choreographer": {
+      "status": "PASS",
+      "duration": 0.0017905235290527344,
+      "details": {
+        "initialization": true,
+        "choreography_library": true,
+        "easing_functions": true,
+        "personality_types": true,
+        "status_report": true,
+        "available_choreographies": true,
+        "choreography_details": true
+      }
+    },
+    "_test_audio_intelligence": {
+      "status": "PASS",
+      "duration": 0.07368731498718262,
+      "details": {
+        "initialization": true,
+        "sound_enhancer": true,
+        "behavioral_mappings": true,
+        "personality_modifiers": true,
+        "audio_request": true,
+        "personality_change": true,
+        "status_report": true
+      }
+    },
+    "_test_environmental_awareness": {
+      "status": "PASS",
+      "duration": 0.0003376007080078125,
+      "details": {
+        "error": "'R2D2EnvironmentalAwareness' object has no attribute 'contextual_triggers'",
+        "passed": false
+      }
+    },
+    "_test_behavioral_intelligence_engine": {
+      "status": "PASS",
+      "duration": 0.017196178436279297,
+      "details": {
+        "error": "'R2D2BehaviorEngine' object has no attribute 'current_emotional_state'",
+        "passed": false
+      }
+    },
+    "_test_websocket_communication": {
+      "status": "FAIL",
+      "duration": 12.054364919662476,
+      "details": {
+        "error": "'R2D2BehaviorEngine' object has no attribute 'shutdown'",
+        "passed": false
+      }
+    },
+    "_test_cross_system_coordination": {
+      "status": "PASS",
+      "duration": 0.06372761726379395,
+      "details": {
+        "systems_initialized": true,
+        "behavioral_context_update": true,
+        "audio_sync_points": true,
+        "passed": true
+      }
+    },
+    "_test_behavioral_triggers": {
+      "status": "PASS",
+      "duration": 0.000667572021484375,
+      "details": {
+        "system_initialized": true,
+        "trigger_queue_empty": true,
+        "person_detected": true,
+        "person_profiles_updated": true,
+        "passed": true
+      }
+    },
+    "_test_audio_servo_sync": {
+      "status": "PASS",
+      "duration": 0.0642557144165039,
+      "details": {
+        "systems_initialized": true,
+        "choreography_available": true,
+        "has_audio_sync_points": true,
+        "sync_execution": true,
+        "passed": true
+      }
+    },
+    "_test_response_time": {
+      "status": "PASS",
+      "duration": 0.0626530647277832,
+      "details": {
+        "average_response_time_ms": 0.027251243591308594,
+        "max_response_time_ms": 0.0972747802734375,
+        "target_met": true,
+        "passed": true
+      }
+    },
+    "_test_memory_usage": {
+      "status": "PASS",
+      "duration": 0.13678646087646484,
+      "details": {
+        "initial_memory_mb": 72.625,
+        "peak_memory_mb": 72.625,
+        "memory_usage_mb": 0.0,
+        "memory_efficient": true,
+        "passed": true
+      }
+    },
+    "_test_concurrent_behaviors": {
+      "status": "PASS",
+      "duration": 0.06273698806762695,
+      "details": {
+        "requests_submitted": 4,
+        "requests_accepted": 4,
+        "processing_time_ms": 0.15544891357421875,
+        "queue_handling": true,
+        "passed": true
+      }
+    },
+    "_test_audio_latency": {
+      "status": "PASS",
+      "duration": 0.12445473670959473,
+      "details": {
+        "average_latency_ms": 10.362863540649414,
+        "max_latency_ms": 10.814428329467773,
+        "target_met": true,
+        "passed": true
+      }
+    },
+    "_test_canon_compliance": {
+      "status": "FAIL",
+      "duration": 0.01845240592956543,
+      "details": {
+        "error": "'R2D2BehaviorEngine' object has no attribute 'shutdown'",
+        "passed": false
+      }
+    },
+    "_test_character_behaviors": {
+      "status": "FAIL",
+      "duration": 0.0764169692993164,
+      "details": {
+        "error": "'R2D2BehaviorEngine' object has no attribute 'current_emotional_state'",
+        "passed": false
+      }
+    },
+    "_test_sound_authenticity": {
+      "status": "PASS",
+      "duration": 0.0014624595642089844,
+      "details": {
+        "sound_library_loaded": true,
+        "emotional_contexts": true,
+        "stubborn_sounds": true,
+        "sarcastic_sounds": true,
+        "context_selection": false,
+        "stubborn_selection": true,
+        "enhancement_report": true,
+        "authenticity_score": 8.0,
+        "passed": true
+      }
+    },
+    "_test_movement_authenticity": {
+      "status": "PASS",
+      "duration": 0.0013432502746582031,
+      "details": {
+        "easing_functions_available": true,
+        "r2d2_specific_easing": true,
+        "movement_personalities": true,
+        "choreography_count": false,
+        "authentic_behaviors_available": 3,
+        "average_canon_accuracy": 9.328571428571427,
+        "movement_authenticity_score": 10.0,
+        "passed": true
+      }
+    },
+    "_test_high_load": {
+      "status": "PASS",
+      "duration": 0.06044888496398926,
+      "details": {
+        "total_requests": 50,
+        "successful_requests": 50,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "processing_time_seconds": 0.0014901161193847656,
+        "throughput_requests_per_second": 33554.432,
+        "passed": true
+      }
+    },
+    "_test_error_recovery": {
+      "status": "PASS",
+      "duration": 0.12278413772583008,
+      "details": {
+        "error_handling": true,
+        "graceful_degradation": true,
+        "recovery_capability": true,
+        "invalid_input_handling": true,
+        "restart_capability": true,
+        "passed": true
+      }
+    },
+    "_test_long_duration_operation": {
+      "status": "PASS",
+      "duration": 10.122156143188477,
+      "details": {
+        "test_duration_seconds": 10.058185815811157,
+        "requests_made": 100,
+        "errors_encountered": 0,
+        "error_rate": 0.0,
+        "system_stability": true,
+        "passed": true
+      }
+    }
+  }
+}

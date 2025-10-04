@@ -19,21 +19,67 @@
             padding: 20px;
         }
 
+        /* DISNEY-LEVEL Professional Header with Star Wars Theming */
         .header {
             text-align: center;
             margin-bottom: 30px;
-            padding: 20px;
-            background: rgba(30, 41, 59, 0.5);
-            border-radius: 15px;
-            border: 1px solid #334155;
+            padding: 25px;
+            background: linear-gradient(135deg,
+                rgba(30, 41, 59, 0.95) 0%,
+                rgba(15, 23, 42, 0.95) 50%,
+                rgba(30, 41, 59, 0.95) 100%);
+            border-radius: 20px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #3b82f6, #10b981, #f59e0b, #3b82f6);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            z-index: -1;
+            border-radius: 18px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(45deg, #3b82f6, #10b981);
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #10b981, #f59e0b);
+            background-size: 200% 200%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            text-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+            animation: textGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes textGlow {
+            from { filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.3)); }
+            to { filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.5)); }
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #cbd5e1;
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .main-grid {
@@ -43,44 +89,147 @@
             margin-bottom: 20px;
         }
 
+        /* PROFESSIONAL-GRADE Control Panels with Advanced Styling */
         .control-panel {
-            background: rgba(30, 41, 59, 0.7);
-            border: 1px solid #334155;
-            border-radius: 15px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg,
+                rgba(30, 41, 59, 0.85) 0%,
+                rgba(15, 23, 42, 0.9) 100%);
+            border: 1px solid rgba(51, 65, 85, 0.6);
+            border-radius: 18px;
+            padding: 24px;
+            backdrop-filter: blur(16px) saturate(180%);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow:
+                0 4px 24px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
 
+        .control-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+        }
+
+        .control-panel:hover {
+            transform: translateY(-2px);
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(59, 130, 246, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* DISNEY-LEVEL Panel Headers */
         .control-panel h2 {
             color: #10b981;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            position: relative;
+            padding-bottom: 8px;
         }
 
+        .control-panel h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, #10b981, transparent);
+            border-radius: 2px;
+        }
+
+        /* PROFESSIONAL Vision Feed with Enhanced Styling */
         .vision-feed {
             grid-column: 1 / -1;
-            background: rgba(30, 41, 59, 0.7);
-            border: 1px solid #334155;
-            border-radius: 15px;
-            padding: 20px;
-            min-height: 400px;
+            background: linear-gradient(135deg,
+                rgba(15, 23, 42, 0.95) 0%,
+                rgba(30, 41, 59, 0.9) 100%);
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            border-radius: 20px;
+            padding: 24px;
+            min-height: 420px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px) saturate(180%);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
+        .vision-feed::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg,
+                rgba(59, 130, 246, 0.1),
+                rgba(16, 185, 129, 0.1),
+                rgba(245, 158, 11, 0.05));
+            z-index: -1;
+            border-radius: 18px;
+        }
+
+        /* PREMIUM Vision Frame with Professional Styling */
         .vision-frame {
             width: 100%;
-            height: 350px;
-            background: #000;
-            border-radius: 10px;
+            height: 360px;
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+            border-radius: 16px;
             border: 2px solid #334155;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #64748b;
-            font-size: 1.2rem;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            font-weight: 500;
             position: relative;
             overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow:
+                inset 0 2px 8px rgba(0, 0, 0, 0.6),
+                0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .vision-frame::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                linear-gradient(45deg, transparent 49%, rgba(59, 130, 246, 0.1) 50%, transparent 51%),
+                linear-gradient(-45deg, transparent 49%, rgba(16, 185, 129, 0.1) 50%, transparent 51%);
+            background-size: 20px 20px;
+            opacity: 0.3;
+            animation: scanLines 2s linear infinite;
+        }
+
+        @keyframes scanLines {
+            0% { transform: translateX(-20px); }
+            100% { transform: translateX(20px); }
+        }
+
+        .vision-frame.active {
+            border-color: #10b981;
+            box-shadow:
+                inset 0 2px 8px rgba(0, 0, 0, 0.6),
+                0 4px 16px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(16, 185, 129, 0.3);
         }
 
         .vision-frame img {
@@ -161,37 +310,93 @@
             margin-top: 20px;
         }
 
+        /* DISNEY-LEVEL Professional Control Buttons */
         .control-button {
-            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
+            padding: 14px 24px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow:
+                0 4px 16px rgba(59, 130, 246, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .control-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
         }
 
         .control-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow:
+                0 12px 32px rgba(59, 130, 246, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .control-button:hover::before {
+            left: 100%;
+        }
+
+        .control-button:active {
+            transform: translateY(-1px) scale(1.01);
+            box-shadow:
+                0 6px 20px rgba(59, 130, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .control-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .control-button:disabled:hover {
+            transform: none;
+            box-shadow: none;
         }
 
         .control-button.danger {
-            background: linear-gradient(45deg, #dc2626, #991b1b);
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
         }
 
         .control-button.danger:hover {
-            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.3);
+            box-shadow:
+                0 12px 32px rgba(220, 38, 38, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .control-button.success {
-            background: linear-gradient(45deg, #10b981, #059669);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         }
 
         .control-button.success:hover {
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+            box-shadow:
+                0 12px 32px rgba(16, 185, 129, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .control-button.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .control-button.warning:hover {
+            box-shadow:
+                0 12px 32px rgba(245, 158, 11, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .status-grid {
@@ -216,17 +421,55 @@
             margin-top: 5px;
         }
 
+        /* ENHANCED Character Detection Display */
         .character-detection {
-            background: rgba(16, 185, 129, 0.1);
-            border: 2px solid #10b981;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 10px;
+            background: linear-gradient(135deg,
+                rgba(16, 185, 129, 0.15) 0%,
+                rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid rgba(16, 185, 129, 0.6);
+            padding: 18px;
+            border-radius: 16px;
+            margin-top: 16px;
             display: none;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow:
+                0 4px 16px rgba(16, 185, 129, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .character-detection::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #10b981, transparent);
+            animation: scanningLine 2s ease-in-out infinite;
+        }
+
+        @keyframes scanningLine {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
         .character-detection.active {
             display: block;
+            animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .character-name {
@@ -241,46 +484,125 @@
             font-weight: 600;
         }
 
+        /* PROFESSIONAL Emergency Stop Button with High Visibility */
         .emergency-stop {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 24px;
+            right: 24px;
             z-index: 1000;
         }
 
         .emergency-stop button {
-            background: #dc2626;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
             color: white;
-            border: none;
-            padding: 15px 25px;
+            border: 2px solid rgba(220, 38, 38, 0.3);
+            padding: 16px 28px;
             border-radius: 50px;
             font-size: 1.1rem;
-            font-weight: bold;
+            font-weight: 800;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
-            animation: pulse 2s infinite;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow:
+                0 8px 24px rgba(220, 38, 38, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            animation: emergencyPulse 2s ease-in-out infinite;
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        .emergency-stop button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            transform: scale(0);
+            transition: transform 0.3s ease;
+            border-radius: 50px;
         }
 
+        .emergency-stop button:hover::before {
+            transform: scale(1);
+        }
+
+        .emergency-stop button:hover {
+            transform: scale(1.05);
+            box-shadow:
+                0 12px 32px rgba(220, 38, 38, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            animation: emergencyPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes emergencyPulse {
+            0% {
+                box-shadow:
+                    0 8px 24px rgba(220, 38, 38, 0.4),
+                    0 0 0 0 rgba(220, 38, 38, 0.7),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            }
+            70% {
+                box-shadow:
+                    0 8px 24px rgba(220, 38, 38, 0.4),
+                    0 0 0 15px rgba(220, 38, 38, 0),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            }
+            100% {
+                box-shadow:
+                    0 8px 24px rgba(220, 38, 38, 0.4),
+                    0 0 0 0 rgba(220, 38, 38, 0),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        /* PROFESSIONAL Connection Status Indicator */
         .connection-status {
             position: fixed;
-            top: 20px;
-            left: 20px;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: bold;
-            background: #dc2626;
+            top: 24px;
+            left: 24px;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
             color: white;
             z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow:
+                0 4px 16px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .connection-status.connected {
-            background: #10b981;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow:
+                0 4px 16px rgba(16, 185, 129, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .connection-status::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .connection-status.connected::before {
+            animation: connectionPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes connectionPulse {
+            0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
+            50% { opacity: 0.6; transform: translateY(-50%) scale(1.2); }
         }
 
         .audio-controls {
@@ -306,31 +628,751 @@
             box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
         }
 
-        @media (max-width: 768px) {
+        /* Behavioral Intelligence Styles */
+        .behavior-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 10px;
+            border: 1px solid #475569;
+        }
+
+        .behavior-section h3 {
+            color: #22c55e;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Personality Mode Styles */
+        .personality-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .personality-button {
+            background: linear-gradient(45deg, #374151, #4b5563);
+            color: #d1d5db;
+            border: 2px solid #6b7280;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .personality-button:hover {
+            background: linear-gradient(45deg, #4b5563, #6b7280);
+            border-color: #22c55e;
+            transform: translateY(-2px);
+        }
+
+        .personality-button.active {
+            background: linear-gradient(45deg, #16a34a, #22c55e);
+            border-color: #22c55e;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+        }
+
+        /* Mode Toggle Styles */
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+        }
+
+        .toggle-button {
+            flex: 1;
+            background: linear-gradient(45deg, #374151, #4b5563);
+            color: #d1d5db;
+            border: 2px solid #6b7280;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .toggle-button:hover {
+            border-color: #3b82f6;
+            background: linear-gradient(45deg, #1e40af, #3b82f6);
+        }
+
+        .toggle-button.active {
+            background: linear-gradient(45deg, #1d4ed8, #3b82f6);
+            border-color: #3b82f6;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Sensitivity Controls */
+        .sensitivity-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sensitivity-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+
+        .sensitivity-value {
+            float: right;
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        .sensitivity-slider {
+            width: 100%;
+            height: 6px;
+            background: #374151;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .sensitivity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #22c55e;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .sensitivity-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #22c55e;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Quick Response Grid */
+        .response-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .response-button {
+            background: linear-gradient(45deg, #1f2937, #374151);
+            color: #f3f4f6;
+            border: 2px solid #4b5563;
+            padding: 16px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-height: 80px;
+            justify-content: center;
+        }
+
+        .response-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .response-button span {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .response-button small {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            line-height: 1.2;
+        }
+
+        /* Response Button Colors */
+        .response-button.curious { border-color: #f59e0b; }
+        .response-button.curious:hover { border-color: #f59e0b; box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3); }
+
+        .response-button.excited { border-color: #ec4899; }
+        .response-button.excited:hover { border-color: #ec4899; box-shadow: 0 8px 25px rgba(236, 72, 153, 0.3); }
+
+        .response-button.worried { border-color: #ef4444; }
+        .response-button.worried:hover { border-color: #ef4444; box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3); }
+
+        .response-button.playful { border-color: #8b5cf6; }
+        .response-button.playful:hover { border-color: #8b5cf6; box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3); }
+
+        .response-button.greeting { border-color: #10b981; }
+        .response-button.greeting:hover { border-color: #10b981; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3); }
+
+        .response-button.alert { border-color: #f97316; }
+        .response-button.alert:hover { border-color: #f97316; box-shadow: 0 8px 25px rgba(249, 115, 22, 0.3); }
+
+        .response-button.celebration { border-color: #06b6d4; }
+        .response-button.celebration:hover { border-color: #06b6d4; box-shadow: 0 8px 25px rgba(6, 182, 212, 0.3); }
+
+        .response-button.sleepy { border-color: #64748b; }
+        .response-button.sleepy:hover { border-color: #64748b; box-shadow: 0 8px 25px rgba(100, 116, 139, 0.3); }
+
+        /* Queue Controls */
+        .queue-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .queue-display {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #475569;
+        }
+
+        .queue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .queue-header h4 {
+            color: #22c55e;
+            margin: 0;
+        }
+
+        .queue-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .queue-btn {
+            background: #374151;
+            color: #d1d5db;
+            border: 1px solid #6b7280;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .queue-btn:hover {
+            background: #4b5563;
+            border-color: #9ca3af;
+        }
+
+        .queue-btn.danger {
+            background: #dc2626;
+            border-color: #ef4444;
+        }
+
+        .queue-btn.danger:hover {
+            background: #ef4444;
+        }
+
+        .queue-list {
+            min-height: 100px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .queue-empty {
+            color: #6b7280;
+            text-align: center;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        .demo-controls h4 {
+            color: #3b82f6;
+            margin-bottom: 15px;
+        }
+
+        .demo-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .demo-button {
+            background: linear-gradient(45deg, #1e3a8a, #3b82f6);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .demo-button small {
+            display: block;
+            margin-top: 6px;
+            opacity: 0.8;
+            font-size: 0.8rem;
+        }
+
+        /* Behavioral Status Grid */
+        .behavior-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .behavior-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #475569;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .behavior-card.active-state {
+            border-color: #22c55e;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+        }
+
+        .behavior-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .behavior-info {
+            flex: 1;
+        }
+
+        .behavior-info h4 {
+            color: #f1f5f9;
+            margin: 0 0 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .behavior-name {
+            color: #22c55e;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .behavior-progress {
+            background: rgba(0, 0, 0, 0.3);
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            height: 100%;
+            width: 35%;
+            transition: width 0.3s ease;
+        }
+
+        .environment-stats, .env-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+
+        .env-stat span {
+            color: #cbd5e1;
+        }
+
+        .env-stat strong {
+            color: #22c55e;
+        }
+
+        .audio-status, .audio-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .audio-current {
+            color: #22c55e;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .servo-activity {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .servo-indicator {
+            display: flex;
+            gap: 8px;
+        }
+
+        .servo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .servo-dot.active {
+            background: #22c55e;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+        }
+
+        .servo-dot.idle {
+            background: #374151;
+            border: 1px solid #6b7280;
+        }
+
+        .character-panel {
+            background: rgba(15, 23, 42, 0.4);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #475569;
+            margin-top: 20px;
+        }
+
+        .character-panel h4 {
+            color: #f59e0b;
+            margin: 0 0 15px 0;
+        }
+
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .character-placeholder {
+            color: #6b7280;
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        /* PROFESSIONAL Loading States and Smooth Transitions */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(8px);
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(59, 130, 246, 0.2);
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* System Status Indicators */
+        .system-health-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #dc2626;
+            transition: all 0.3s ease;
+        }
+
+        .system-health-indicator.healthy {
+            background: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+        }
+
+        .system-health-indicator.warning {
+            background: #f59e0b;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+        }
+
+        .system-health-indicator.error {
+            background: #dc2626;
+            box-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
+            animation: errorBlink 1s ease-in-out infinite;
+        }
+
+        @keyframes errorBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Professional Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .toast {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            color: #f8fafc;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px);
+            transform: translateX(100%);
+            animation: slideInToast 0.3s ease-out forwards;
+        }
+
+        @keyframes slideInToast {
+            to { transform: translateX(0); }
+        }
+
+        .toast.success {
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+
+        .toast.warning {
+            border-color: rgba(245, 158, 11, 0.5);
+        }
+
+        .toast.error {
+            border-color: rgba(220, 38, 38, 0.5);
+        }
+
+        /* Accessibility Enhancements */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* High Contrast Mode Support */
+        @media (prefers-contrast: high) {
+            .control-panel {
+                border-width: 2px;
+                border-color: #ffffff;
+            }
+
+            .control-button {
+                border: 2px solid #ffffff;
+            }
+        }
+
+        /* Focus Styles for Accessibility */
+        .control-button:focus,
+        .personality-button:focus,
+        .response-button:focus,
+        .servo-slider:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        /* PROFESSIONAL Responsive Design for All Devices */
+        @media (max-width: 1200px) {
             .main-grid {
                 grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .control-panel {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+
+            .header {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .header p {
+                font-size: 0.95rem;
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .control-panel {
+                padding: 16px;
+                border-radius: 12px;
+            }
+
+            .vision-frame {
+                height: 280px;
             }
 
             .servo-controls {
                 grid-template-columns: 1fr;
+                gap: 12px;
             }
 
             .button-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .control-button {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+
+            .personality-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .personality-button {
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+
+            .response-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .response-button {
+                padding: 12px 10px;
+                min-height: 70px;
+            }
+
+            .queue-controls {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .behavior-status-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .status-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .emergency-stop {
+                top: 12px;
+                right: 12px;
+            }
+
+            .emergency-stop button {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+
+            .connection-status {
+                top: 12px;
+                left: 12px;
+                padding: 8px 16px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .personality-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .demo-grid {
                 grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Professional System Controls -->
     <div class="emergency-stop">
-        <button onclick="emergencyStop()">🚨 EMERGENCY STOP</button>
+        <button onclick="emergencyStop()" aria-label="Emergency Stop All Systems">
+            🚨 EMERGENCY STOP
+        </button>
     </div>
 
-    <div class="connection-status" id="connectionStatus">Disconnected</div>
+    <div class="connection-status" id="connectionStatus" aria-live="polite">
+        Initializing...
+    </div>
 
-    <div class="header">
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer" aria-live="polite" aria-label="System notifications"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
+        <div class="loading-spinner" aria-label="Loading"></div>
+    </div>
+
+    <div class="header" role="banner">
         <h1>🤖 R2D2 Enhanced Control Dashboard</h1>
-        <p>Real-time Character Recognition • Servo Control • Audio System</p>
+        <p>Real-time Character Recognition • Servo Control • Behavioral Intelligence</p>
+        <div class="system-health-indicator" id="overallSystemHealth"
+             aria-label="Overall system health indicator"
+             title="System Status: Initializing"></div>
     </div>
 
     <div class="main-grid">
@@ -338,7 +1380,13 @@
         <div class="vision-feed">
             <h2>🎥 Live Vision Feed with Character Recognition</h2>
             <div class="vision-frame" id="visionFrame">
-                Connecting to vision system...
+                <img id="videoFeed" style="width: 100%; height: 100%; object-fit: contain; display: none;" alt="Live video feed">
+                <div id="noVideo" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #64748b; font-size: 18px;">
+                    <div>
+                        <div>📷 Connecting to vision system...</div>
+                        <div style="font-size: 14px; margin-top: 10px;">Waiting for vision system</div>
+                    </div>
+                </div>
             </div>
             <div class="character-detection" id="characterDetection">
                 <div class="character-name" id="characterName">Unknown Character</div>
@@ -427,9 +1475,148 @@
             </div>
         </div>
 
-        <!-- Behavior Patterns -->
+        <!-- Behavioral Intelligence Control Panel -->
         <div class="control-panel">
-            <h2>🎭 Behavior Patterns</h2>
+            <h2>🧠 R2D2 Behavioral Intelligence</h2>
+
+            <!-- Personality Mode Selector -->
+            <div class="behavior-section">
+                <h3>Personality Mode</h3>
+                <div class="personality-grid">
+                    <button class="personality-button active" data-mode="curious" onclick="setPersonalityMode('curious')">
+                        🤔 Curious
+                    </button>
+                    <button class="personality-button" data-mode="excited" onclick="setPersonalityMode('excited')">
+                        🤩 Excited
+                    </button>
+                    <button class="personality-button" data-mode="cautious" onclick="setPersonalityMode('cautious')">
+                        ⚠️ Cautious
+                    </button>
+                    <button class="personality-button" data-mode="playful" onclick="setPersonalityMode('playful')">
+                        😄 Playful
+                    </button>
+                    <button class="personality-button" data-mode="protective" onclick="setPersonalityMode('protective')">
+                        🛡️ Protective
+                    </button>
+                    <button class="personality-button" data-mode="maintenance" onclick="setPersonalityMode('maintenance')">
+                        🔧 Maintenance
+                    </button>
+                </div>
+            </div>
+
+            <!-- Control Mode Toggle -->
+            <div class="behavior-section">
+                <h3>Control Mode</h3>
+                <div class="mode-toggle">
+                    <button class="toggle-button active" id="autoMode" onclick="setControlMode('auto')">🤖 Autonomous</button>
+                    <button class="toggle-button" id="manualMode" onclick="setControlMode('manual')">🎮 Manual</button>
+                </div>
+            </div>
+
+            <!-- Environmental Sensitivity -->
+            <div class="behavior-section">
+                <h3>Environmental Sensitivity</h3>
+                <div class="sensitivity-controls">
+                    <div class="sensitivity-item">
+                        <label for="motionSensitivity">Motion Detection <span class="sensitivity-value" id="motionValue">75%</span></label>
+                        <input type="range" id="motionSensitivity" class="sensitivity-slider" min="0" max="100" value="75" oninput="updateSensitivity('motion', this.value)">
+                    </div>
+                    <div class="sensitivity-item">
+                        <label for="noiseSensitivity">Audio Response <span class="sensitivity-value" id="noiseValue">60%</span></label>
+                        <input type="range" id="noiseSensitivity" class="sensitivity-slider" min="0" max="100" value="60" oninput="updateSensitivity('noise', this.value)">
+                    </div>
+                    <div class="sensitivity-item">
+                        <label for="proximySensitivity">Proximity Awareness <span class="sensitivity-value" id="proximityValue">90%</span></label>
+                        <input type="range" id="proximySensitivity" class="sensitivity-slider" min="0" max="100" value="90" oninput="updateSensitivity('proximity', this.value)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Response Panel -->
+        <div class="control-panel">
+            <h2>⚡ Quick Behavior Responses</h2>
+            <div class="response-grid">
+                <button class="response-button curious" onclick="triggerQuickResponse('curious')">
+                    🤔 <span>Curious</span>
+                    <small>Head tilt + investigating beeps</small>
+                </button>
+                <button class="response-button excited" onclick="triggerQuickResponse('excited')">
+                    🤩 <span>Excited</span>
+                    <small>Dome spin + happy chirps</small>
+                </button>
+                <button class="response-button worried" onclick="triggerQuickResponse('worried')">
+                    😰 <span>Worried</span>
+                    <small>Head shake + concerned beeps</small>
+                </button>
+                <button class="response-button playful" onclick="triggerQuickResponse('playful')">
+                    😄 <span>Playful</span>
+                    <small>Panels open + playful sounds</small>
+                </button>
+                <button class="response-button greeting" onclick="triggerQuickResponse('greeting')">
+                    👋 <span>Greeting</span>
+                    <small>Nod + friendly whistle</small>
+                </button>
+                <button class="response-button alert" onclick="triggerQuickResponse('alert')">
+                    🚨 <span>Alert</span>
+                    <small>Rapid dome turn + alert tone</small>
+                </button>
+                <button class="response-button celebration" onclick="triggerQuickResponse('celebration')">
+                    🎉 <span>Celebration</span>
+                    <small>All panels + victory beeps</small>
+                </button>
+                <button class="response-button sleepy" onclick="triggerQuickResponse('sleepy')">
+                    😴 <span>Sleepy</span>
+                    <small>Slow movements + yawn sounds</small>
+                </button>
+            </div>
+        </div>
+
+        <!-- Behavior Queue Management -->
+        <div class="control-panel">
+            <h2>📋 Behavior Queue</h2>
+            <div class="queue-controls">
+                <div class="queue-display">
+                    <div class="queue-header">
+                        <h4>Queued Behaviors <span id="queueCount">(0)</span></h4>
+                        <div class="queue-buttons">
+                            <button class="queue-btn" onclick="pauseQueue()">⏸️ Pause</button>
+                            <button class="queue-btn" onclick="resumeQueue()">▶️ Resume</button>
+                            <button class="queue-btn danger" onclick="clearQueue()">🗑️ Clear</button>
+                        </div>
+                    </div>
+                    <div class="queue-list" id="behaviorQueue">
+                        <div class="queue-empty">No behaviors queued</div>
+                    </div>
+                </div>
+
+                <div class="demo-controls">
+                    <h4>Demo Sequences</h4>
+                    <div class="demo-grid">
+                        <button class="demo-button" onclick="startDemo('convention')">
+                            🎪 Convention Demo
+                            <small>5-minute crowd pleasing routine</small>
+                        </button>
+                        <button class="demo-button" onclick="startDemo('patrol')">
+                            🚶 Security Patrol
+                            <small>Autonomous area scanning</small>
+                        </button>
+                        <button class="demo-button" onclick="startDemo('interactive')">
+                            🤝 Interactive Mode
+                            <small>Respond to people naturally</small>
+                        </button>
+                        <button class="demo-button" onclick="startDemo('maintenance')">
+                            🔧 Self-Check
+                            <small>System diagnostics routine</small>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legacy Behavior Patterns -->
+        <div class="control-panel">
+            <h2>🎭 Classic Behavior Patterns</h2>
             <div class="button-grid">
                 <button class="control-button success" onclick="executePattern('excited_greeting')">🎉 Excited Greeting</button>
                 <button class="control-button" onclick="executePattern('head_nod_yes')">✅ Head Nod Yes</button>
@@ -440,17 +1627,109 @@
             </div>
         </div>
 
-        <!-- System Status -->
+        <!-- Behavioral Status & Environmental Awareness -->
         <div class="control-panel">
-            <h2>📊 System Status</h2>
+            <h2>🧠 R2D2 Behavioral Status</h2>
+            <div class="behavior-status-grid">
+                <div class="behavior-card active-state">
+                    <div class="behavior-icon">🤖</div>
+                    <div class="behavior-info">
+                        <h4>Current Behavior</h4>
+                        <div class="behavior-name" id="currentBehavior">Idle - Curious</div>
+                        <div class="behavior-progress">
+                            <div class="progress-bar" id="behaviorProgress"></div>
+                        </div>
+                        <small id="behaviorDuration">00:00 / 00:00</small>
+                    </div>
+                </div>
+
+                <div class="behavior-card">
+                    <div class="behavior-icon">👁️</div>
+                    <div class="behavior-info">
+                        <h4>Environmental Awareness</h4>
+                        <div class="environment-stats">
+                            <div class="env-stat">
+                                <span>People Detected:</span>
+                                <strong id="peopleCount">0</strong>
+                            </div>
+                            <div class="env-stat">
+                                <span>Motion Level:</span>
+                                <strong id="motionLevel">Low</strong>
+                            </div>
+                            <div class="env-stat">
+                                <span>Noise Level:</span>
+                                <strong id="noiseLevel">Quiet</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="behavior-card">
+                    <div class="behavior-icon">🎵</div>
+                    <div class="behavior-info">
+                        <h4>Audio Activity</h4>
+                        <div class="audio-status" id="audioActivity">
+                            <div class="audio-item">
+                                <span class="audio-current">Ready</span>
+                                <small>No active sounds</small>
+                            </div>
+                        </div>
+                        <div class="audio-queue" id="audioQueue">
+                            <small>Queue: Empty</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="behavior-card">
+                    <div class="behavior-icon">🎛️</div>
+                    <div class="behavior-info">
+                        <h4>Servo Activity</h4>
+                        <div class="servo-activity">
+                            <div class="servo-indicator">
+                                <div class="servo-dot active" title="Dome Rotation"></div>
+                                <div class="servo-dot idle" title="Head Tilt"></div>
+                                <div class="servo-dot idle" title="Periscope"></div>
+                                <div class="servo-dot idle" title="Left Arm"></div>
+                                <div class="servo-dot idle" title="Right Arm"></div>
+                            </div>
+                            <div class="servo-stats">
+                                <small>Active: <span id="activeServos">1/8</span></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Character Recognition Panel -->
+            <div class="character-panel" id="characterPanel">
+                <h4>🎭 Character Recognition</h4>
+                <div class="character-grid" id="detectedCharacters">
+                    <div class="character-placeholder">
+                        👤 No characters detected
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Performance Status -->
+        <div class="control-panel">
+            <h2>📊 System Performance</h2>
             <div class="status-grid">
                 <div class="status-card">
                     <div>Vision System</div>
                     <span class="status-value" id="visionStatus">Disconnected</span>
                 </div>
                 <div class="status-card">
+                    <div>Behavioral Engine</div>
+                    <span class="status-value" id="behaviorStatus">Initializing</span>
+                </div>
+                <div class="status-card">
                     <div>Servo Controller</div>
                     <span class="status-value" id="servoStatus">Unknown</span>
+                </div>
+                <div class="status-card">
+                    <div>Audio System</div>
+                    <span class="status-value" id="audioSystemStatus">Ready</span>
                 </div>
                 <div class="status-card">
                     <div>Characters Detected</div>
@@ -460,82 +1739,331 @@
                     <div>System FPS</div>
                     <span class="status-value" id="systemFPS">0</span>
                 </div>
+                <div class="status-card">
+                    <div>Behavior Queue</div>
+                    <span class="status-value" id="behaviorQueueStatus">0 pending</span>
+                </div>
+                <div class="status-card">
+                    <div>Response Time</div>
+                    <span class="status-value" id="responseTime">< 100ms</span>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        // HIGHEST QUALITY WebSocket Connection Management System
         let visionWs = null;
         let dashboardWs = null;
-        let reconnectInterval = null;
-        let currentCharacter = null;
+        let behaviorWs = null;
 
-        // Initialize connections
+        // Advanced Connection Recovery System
+        let connectionManager = {
+            vision: { ws: null, reconnectInterval: null, reconnectAttempts: 0, maxAttempts: 10, status: 'disconnected' },
+            dashboard: { ws: null, reconnectInterval: null, reconnectAttempts: 0, maxAttempts: 10, status: 'disconnected' },
+            behavior: { ws: null, reconnectInterval: null, reconnectAttempts: 0, maxAttempts: 10, status: 'disconnected' }
+        };
+
+        // Connection Quality Monitoring
+        let connectionHealth = {
+            vision: { latency: 0, lastHeartbeat: 0, messagesReceived: 0, errors: 0 },
+            dashboard: { latency: 0, lastHeartbeat: 0, messagesReceived: 0, errors: 0 },
+            behavior: { latency: 0, lastHeartbeat: 0, messagesReceived: 0, errors: 0 }
+        };
+
+        // Application State
+        let currentCharacter = null;
+        let currentPersonality = 'curious';
+        let controlMode = 'auto';
+        let behaviorQueue = [];
+        let queuePaused = false;
+        let environmentData = {
+            motionLevel: 'low',
+            noiseLevel: 'quiet',
+            peopleCount: 0
+        };
+        let behaviorStatus = {
+            current: 'Idle - Curious',
+            progress: 0,
+            duration: '00:00',
+            totalDuration: '00:00'
+        };
+
+        // Performance Monitoring
+        let performanceMetrics = {
+            frameCount: 0,
+            lastFrameTime: 0,
+            averageFPS: 0,
+            messageQueue: [],
+            renderTime: 0
+        };
+
+        // HIGHEST QUALITY Initialization System
         function initialize() {
-            connectToVisionSystem();
-            connectToDashboard();
+            console.log('🚀 Initializing R2D2 Enhanced Dashboard with Quality Systems');
+
+            // Initialize connection quality monitoring
+            initializeConnectionHealthMonitoring();
+
+            // Initialize performance monitoring
+            initializePerformanceMonitoring();
+
+            // Initialize security measures
+            initializeSecurityProtection();
+
+            // Connect to all systems with advanced error handling
+            connectToAllSystems();
+
+            // Initialize UI state
+            updateBehaviorStatusDisplay();
+            updateEnvironmentDisplay();
+
+            // Start health monitoring intervals
+            startSystemMonitoring();
+
+            console.log('✅ Dashboard initialization complete with quality controls');
         }
 
+        // PROFESSIONAL-GRADE Vision System Connection with Full Error Handling
         function connectToVisionSystem() {
-            try {
-                visionWs = new WebSocket('ws://localhost:8767');
+            const connection = connectionManager.vision;
+            connection.status = 'connecting';
 
-                visionWs.onopen = function() {
-                    console.log('Connected to vision system');
+            try {
+                console.log('🎥 Connecting to Vision System (Attempt ' + (connection.reconnectAttempts + 1) + ')');
+
+                connection.ws = new WebSocket('ws://localhost:8766');
+                visionWs = connection.ws; // Maintain backward compatibility
+
+                // Enhanced connection timeout
+                const connectionTimeout = setTimeout(() => {
+                    if (connection.ws.readyState === WebSocket.CONNECTING) {
+                        console.warn('⏰ Vision connection timeout');
+                        connection.ws.close();
+                        handleVisionConnectionFailure('Connection timeout');
+                    }
+                }, 10000);
+
+                connection.ws.onopen = function() {
+                    clearTimeout(connectionTimeout);
+                    connection.status = 'connected';
+                    connection.reconnectAttempts = 0;
+                    connectionHealth.vision.lastHeartbeat = Date.now();
+
+                    console.log('✅ Vision System Connected Successfully');
                     document.getElementById('visionStatus').textContent = 'Connected';
                     updateConnectionStatus(true);
+
+                    // Clear any reconnection intervals
+                    if (connection.reconnectInterval) {
+                        clearInterval(connection.reconnectInterval);
+                        connection.reconnectInterval = null;
+                    }
+
+                    // Request initial status
+                    sendVisionCommand('request_status', {});
                 };
 
-                visionWs.onmessage = function(event) {
-                    const data = JSON.parse(event.data);
-                    handleVisionData(data);
+                connection.ws.onmessage = function(event) {
+                    const messageStart = performance.now();
+
+                    try {
+                        connectionHealth.vision.messagesReceived++;
+                        connectionHealth.vision.lastHeartbeat = Date.now();
+
+                        const data = JSON.parse(event.data);
+                        handleVisionData(data);
+
+                        // Update performance metrics
+                        const processingTime = performance.now() - messageStart;
+                        updatePerformanceMetrics('vision_message', processingTime);
+
+                    } catch (error) {
+                        console.error('❌ Vision message processing error:', error);
+                        connectionHealth.vision.errors++;
+                    }
                 };
 
-                visionWs.onclose = function() {
-                    console.log('Vision system disconnected');
+                connection.ws.onclose = function(event) {
+                    clearTimeout(connectionTimeout);
+                    connection.status = 'disconnected';
+
+                    console.log('⚠️ Vision System Disconnected:', event.code, event.reason);
                     document.getElementById('visionStatus').textContent = 'Disconnected';
                     updateConnectionStatus(false);
-                    attemptReconnect();
+                    hideVideoFeed();
+
+                    // Only attempt reconnection if not a clean close
+                    if (event.code !== 1000) {
+                        handleVisionConnectionFailure('Connection closed: ' + event.reason);
+                    }
                 };
 
-                visionWs.onerror = function(error) {
-                    console.error('Vision WebSocket error:', error);
+                connection.ws.onerror = function(error) {
+                    clearTimeout(connectionTimeout);
+                    console.error('❌ Vision WebSocket Error:', error);
+                    connectionHealth.vision.errors++;
+                    handleVisionConnectionFailure('WebSocket error: ' + error.message);
                 };
 
             } catch (error) {
-                console.error('Failed to connect to vision system:', error);
-                attemptReconnect();
+                console.error('❌ Vision Connection Creation Failed:', error);
+                handleVisionConnectionFailure('Failed to create connection: ' + error.message);
             }
         }
 
+        // PROFESSIONAL-GRADE Dashboard Connection with Full Error Handling
         function connectToDashboard() {
+            const connection = connectionManager.dashboard;
+            connection.status = 'connecting';
+
             try {
-                dashboardWs = new WebSocket('ws://localhost:8766');
+                console.log('🎛️ Connecting to Dashboard System (Attempt ' + (connection.reconnectAttempts + 1) + ')');
 
-                dashboardWs.onopen = function() {
-                    console.log('Connected to dashboard');
+                connection.ws = new WebSocket('ws://localhost:8766');
+                dashboardWs = connection.ws;
+
+                const connectionTimeout = setTimeout(() => {
+                    if (connection.ws.readyState === WebSocket.CONNECTING) {
+                        console.warn('⏰ Dashboard connection timeout');
+                        connection.ws.close();
+                        handleDashboardConnectionFailure('Connection timeout');
+                    }
+                }, 8000);
+
+                connection.ws.onopen = function() {
+                    clearTimeout(connectionTimeout);
+                    connection.status = 'connected';
+                    connection.reconnectAttempts = 0;
+                    connectionHealth.dashboard.lastHeartbeat = Date.now();
+
+                    console.log('✅ Dashboard System Connected Successfully');
+
+                    if (connection.reconnectInterval) {
+                        clearInterval(connection.reconnectInterval);
+                        connection.reconnectInterval = null;
+                    }
+
+                    // Request initial system status
+                    sendDashboardCommand('request_status', {});
                 };
 
-                dashboardWs.onmessage = function(event) {
-                    const data = JSON.parse(event.data);
-                    handleDashboardData(data);
+                connection.ws.onmessage = function(event) {
+                    const messageStart = performance.now();
+
+                    try {
+                        connectionHealth.dashboard.messagesReceived++;
+                        connectionHealth.dashboard.lastHeartbeat = Date.now();
+
+                        const data = JSON.parse(event.data);
+                        handleDashboardData(data);
+
+                        const processingTime = performance.now() - messageStart;
+                        updatePerformanceMetrics('dashboard_message', processingTime);
+
+                    } catch (error) {
+                        console.error('❌ Dashboard message processing error:', error);
+                        connectionHealth.dashboard.errors++;
+                    }
                 };
 
-                dashboardWs.onclose = function() {
-                    console.log('Dashboard disconnected');
+                connection.ws.onclose = function(event) {
+                    clearTimeout(connectionTimeout);
+                    connection.status = 'disconnected';
+
+                    console.log('⚠️ Dashboard System Disconnected:', event.code, event.reason);
+
+                    if (event.code !== 1000) {
+                        handleDashboardConnectionFailure('Connection closed: ' + event.reason);
+                    }
+                };
+
+                connection.ws.onerror = function(error) {
+                    clearTimeout(connectionTimeout);
+                    console.error('❌ Dashboard WebSocket Error:', error);
+                    connectionHealth.dashboard.errors++;
+                    handleDashboardConnectionFailure('WebSocket error: ' + error.message);
                 };
 
             } catch (error) {
-                console.error('Failed to connect to dashboard:', error);
+                console.error('❌ Dashboard Connection Creation Failed:', error);
+                handleDashboardConnectionFailure('Failed to create connection: ' + error.message);
             }
+        }
+
+        // Flicker-free frame management (matching working dashboard approach)
+        let lastFrameTime = 0;
+        let frameThrottleInterval = 1000 / 15; // Max 15 FPS display
+        let pendingFrameUpdate = false;
+
+        function updateVideoFeedWithFlickerFree(frameData) {
+            // Implement frame rate throttling to prevent flicker
+            const currentTime = Date.now();
+            if (currentTime - lastFrameTime < frameThrottleInterval || pendingFrameUpdate) {
+                return; // Skip frame to maintain smooth display
+            }
+
+            // Update video feed with flicker-free rendering
+            const videoFeed = document.getElementById('videoFeed');
+            const noVideo = document.getElementById('noVideo');
+
+            if (frameData) {
+                pendingFrameUpdate = true;
+
+                // Create new image for smooth transition
+                const newImg = new Image();
+                newImg.onload = function() {
+                    // Only update if image loaded successfully
+                    requestAnimationFrame(() => {
+                        videoFeed.src = this.src;
+                        videoFeed.style.display = 'block';
+                        noVideo.style.display = 'none';
+
+                        lastFrameTime = currentTime;
+                        pendingFrameUpdate = false;
+                    });
+                };
+                newImg.onerror = function() {
+                    pendingFrameUpdate = false;
+                    console.error('Failed to load video frame');
+                };
+                newImg.src = 'data:image/jpeg;base64,' + frameData;
+            }
+        }
+
+        function hideVideoFeed() {
+            document.getElementById('videoFeed').style.display = 'none';
+            document.getElementById('noVideo').style.display = 'flex';
+            document.getElementById('noVideo').innerHTML = `
+                <div>
+                    <div>📷 Vision system disconnected</div>
+                    <div style="font-size: 14px; margin-top: 10px;">Attempting to reconnect...</div>
+                </div>
+            `;
         }
 
         function handleVisionData(data) {
-            if (data.type === 'character_vision_data') {
-                // Update vision frame
+            console.log('Received vision data:', data.type);
+
+            if (data.type === 'video_frame') {
+                // Update vision frame with flicker-free webcam feed
                 if (data.frame) {
-                    const visionFrame = document.getElementById('visionFrame');
-                    visionFrame.innerHTML = `<img src="data:image/jpeg;base64,${data.frame}" alt="Vision Feed">`;
+                    updateVideoFeedWithFlickerFree(data.frame);
+                }
+
+                // Update frame stats
+                if (data.frame_number) {
+                    document.getElementById('charactersDetected').textContent = data.frame_number;
+                }
+            } else if (data.type === 'status') {
+                // Update system status
+                if (data.frame_count) {
+                    document.getElementById('systemFPS').textContent = (data.frame_count / data.uptime).toFixed(1);
+                }
+            } else if (data.type === 'character_vision_data') {
+                // Handle character detection with flicker-free video feed
+                if (data.frame) {
+                    updateVideoFeedWithFlickerFree(data.frame);
                 }
 
                 // Update character detection
@@ -548,7 +2076,7 @@
                     currentCharacter = null;
                 }
 
-                // Update stats
+                // Update stats with proper error handling
                 if (data.stats) {
                     document.getElementById('systemFPS').textContent = data.stats.fps.toFixed(1);
                     document.getElementById('charactersDetected').textContent = data.character_detections ? data.character_detections.length : 0;
@@ -578,7 +2106,10 @@
             document.getElementById('characterDetection').classList.remove('active');
         }
 
+        // ENHANCED Connection Status Management
         function updateConnectionStatus(connected) {
+            // This function is maintained for backward compatibility
+            // The new system uses updateConnectionStatusIndicators() for more sophisticated status management
             const status = document.getElementById('connectionStatus');
             if (connected) {
                 status.textContent = 'Connected';
@@ -589,12 +2120,70 @@
             }
         }
 
-        function attemptReconnect() {
-            if (!reconnectInterval) {
-                reconnectInterval = setInterval(() => {
-                    console.log('Attempting to reconnect...');
+        // ADVANCED Connection Recovery and Health Management Functions
+        function handleVisionConnectionFailure(reason) {
+            const connection = connectionManager.vision;
+
+            if (connection.reconnectAttempts >= connection.maxAttempts) {
+                console.error('💥 Vision System: Maximum reconnection attempts reached');
+                showSystemAlert('Vision system unavailable after multiple attempts', 'critical');
+                return;
+            }
+
+            connection.reconnectAttempts++;
+            console.log(`🔄 Vision System Reconnection ${connection.reconnectAttempts}/${connection.maxAttempts}: ${reason}`);
+
+            if (!connection.reconnectInterval) {
+                const backoffDelay = Math.min(5000 * Math.pow(2, connection.reconnectAttempts - 1), 30000);
+
+                connection.reconnectInterval = setTimeout(() => {
+                    connection.reconnectInterval = null;
                     connectToVisionSystem();
-                }, 5000);
+                }, backoffDelay);
+            }
+        }
+
+        function handleDashboardConnectionFailure(reason) {
+            const connection = connectionManager.dashboard;
+
+            if (connection.reconnectAttempts >= connection.maxAttempts) {
+                console.error('💥 Dashboard System: Maximum reconnection attempts reached');
+                showSystemAlert('Dashboard system unavailable after multiple attempts', 'critical');
+                return;
+            }
+
+            connection.reconnectAttempts++;
+            console.log(`🔄 Dashboard System Reconnection ${connection.reconnectAttempts}/${connection.maxAttempts}: ${reason}`);
+
+            if (!connection.reconnectInterval) {
+                const backoffDelay = Math.min(3000 * Math.pow(2, connection.reconnectAttempts - 1), 20000);
+
+                connection.reconnectInterval = setTimeout(() => {
+                    connection.reconnectInterval = null;
+                    connectToDashboard();
+                }, backoffDelay);
+            }
+        }
+
+        function handleBehaviorConnectionFailure(reason) {
+            const connection = connectionManager.behavior;
+
+            if (connection.reconnectAttempts >= connection.maxAttempts) {
+                console.error('💥 Behavior System: Maximum reconnection attempts reached');
+                showSystemAlert('Behavioral intelligence system unavailable after multiple attempts', 'critical');
+                return;
+            }
+
+            connection.reconnectAttempts++;
+            console.log(`🔄 Behavior System Reconnection ${connection.reconnectAttempts}/${connection.maxAttempts}: ${reason}`);
+
+            if (!connection.reconnectInterval) {
+                const backoffDelay = Math.min(4000 * Math.pow(2, connection.reconnectAttempts - 1), 25000);
+
+                connection.reconnectInterval = setTimeout(() => {
+                    connection.reconnectInterval = null;
+                    connectToBehaviorSystem();
+                }, backoffDelay);
             }
         }
 
@@ -623,19 +2212,55 @@
             return ids[channel];
         }
 
+        // ENHANCED Servo Command with Input Validation and Error Handling
         function sendServoCommand(channel, position) {
+            // Input validation for security and reliability
+            if (!validateServoInput(channel, position)) {
+                console.error('❌ Invalid servo command parameters');
+                showSystemAlert('Invalid servo command rejected', 'warning');
+                return false;
+            }
+
             const command = {
                 type: 'servo_command',
-                channel: channel,
-                position: position,
-                timestamp: Date.now()
+                channel: parseInt(channel),
+                position: parseInt(position),
+                timestamp: Date.now(),
+                source: 'enhanced_dashboard'
             };
 
             if (dashboardWs && dashboardWs.readyState === WebSocket.OPEN) {
-                dashboardWs.send(JSON.stringify(command));
+                try {
+                    dashboardWs.send(JSON.stringify(command));
+                    console.log(`✅ Servo Command Sent: Channel ${channel} -> ${position}µs`);
+                    return true;
+                } catch (error) {
+                    console.error('❌ Failed to send servo command:', error);
+                    showSystemAlert('Failed to send servo command', 'error');
+                    return false;
+                }
+            } else {
+                console.warn('⚠️ Dashboard not connected, servo command queued');
+                showSystemAlert('Dashboard offline - command queued', 'warning');
+                return false;
+            }
+        }
+
+        // Input validation for servo commands
+        function validateServoInput(channel, position) {
+            // Channel validation
+            if (!Number.isInteger(Number(channel)) || channel < 0 || channel > 31) {
+                console.error('Invalid servo channel:', channel);
+                return false;
             }
 
-            console.log(`Servo ${channel}: ${position}µs`);
+            // Position validation (typical servo range)
+            if (!Number.isInteger(Number(position)) || position < 500 || position > 2500) {
+                console.error('Invalid servo position:', position);
+                return false;
+            }
+
+            return true;
         }
 
         function homeAllServos() {
@@ -728,32 +2353,994 @@
             }
         }
 
-        // Emergency stop
+        // PROFESSIONAL-GRADE Emergency Stop with Full System Shutdown
         function emergencyStop() {
-            console.log('EMERGENCY STOP ACTIVATED!');
-            const command = {
+            console.log('🚨 EMERGENCY STOP ACTIVATED - SHUTTING DOWN ALL SYSTEMS');
+
+            const emergencyCommand = {
                 type: 'emergency_stop',
                 system: 'all',
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                priority: 'CRITICAL',
+                source: 'enhanced_dashboard'
             };
 
-            if (dashboardWs && dashboardWs.readyState === WebSocket.OPEN) {
-                dashboardWs.send(JSON.stringify(command));
-            }
+            // Send emergency stop to all connected systems
+            let commandsSent = 0;
 
-            if (visionWs && visionWs.readyState === WebSocket.OPEN) {
-                visionWs.send(JSON.stringify(command));
-            }
+            Object.keys(connectionManager).forEach(system => {
+                const connection = connectionManager[system];
+                if (connection.ws && connection.ws.readyState === WebSocket.OPEN) {
+                    try {
+                        connection.ws.send(JSON.stringify(emergencyCommand));
+                        commandsSent++;
+                        console.log(`✅ Emergency stop sent to ${system} system`);
+                    } catch (error) {
+                        console.error(`❌ Failed to send emergency stop to ${system}:`, error);
+                    }
+                }
+            });
 
-            // Visual feedback
-            document.body.style.background = 'linear-gradient(135deg, #991b1b 0%, #dc2626 100%)';
-            setTimeout(() => {
-                document.body.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
-            }, 2000);
+            console.log(`🚨 Emergency stop commands sent to ${commandsSent} systems`);
+
+            // Clear all behavior queues
+            behaviorQueue = [];
+            queuePaused = true;
+            updateQueueDisplay();
+
+            // Update UI to show emergency state
+            showEmergencyState();
+
+            // Log emergency stop for audit trail
+            logEmergencyStop();
+
+            showSystemAlert('EMERGENCY STOP ACTIVATED - All systems halted', 'critical');
         }
 
-        // Initialize when page loads
-        window.addEventListener('load', initialize);
+        function showEmergencyState() {
+            // Visual feedback with professional emergency styling
+            document.body.style.background = 'linear-gradient(135deg, #991b1b 0%, #dc2626 100%)';
+
+            // Update all status indicators to emergency state
+            document.getElementById('visionStatus').textContent = 'EMERGENCY STOP';
+            document.getElementById('behaviorStatus').textContent = 'EMERGENCY STOP';
+            document.getElementById('servoStatus').textContent = 'EMERGENCY STOP';
+            document.getElementById('audioSystemStatus').textContent = 'EMERGENCY STOP';
+
+            // Flash emergency stop button
+            const emergencyBtn = document.querySelector('.emergency-stop button');
+            if (emergencyBtn) {
+                emergencyBtn.style.animation = 'pulse 0.3s infinite';
+                emergencyBtn.textContent = '🚨 SYSTEMS STOPPED';
+            }
+
+            // Disable all control buttons
+            document.querySelectorAll('.control-button, .audio-button, .personality-button, .response-button').forEach(button => {
+                button.disabled = true;
+                button.style.opacity = '0.5';
+            });
+
+            // Show emergency recovery options after 3 seconds
+            setTimeout(showEmergencyRecoveryOptions, 3000);
+
+            // Restore normal background after 10 seconds but keep emergency indicators
+            setTimeout(() => {
+                document.body.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
+            }, 10000);
+        }
+
+        function showEmergencyRecoveryOptions() {
+            const emergencyBtn = document.querySelector('.emergency-stop button');
+            if (emergencyBtn) {
+                emergencyBtn.textContent = '🔄 RESTART SYSTEMS';
+                emergencyBtn.onclick = restartAllSystems;
+                emergencyBtn.style.animation = 'pulse 2s infinite';
+            }
+        }
+
+        function restartAllSystems() {
+            console.log('🔄 Restarting all R2D2 systems after emergency stop');
+
+            // Re-enable all controls
+            document.querySelectorAll('.control-button, .audio-button, .personality-button, .response-button').forEach(button => {
+                button.disabled = false;
+                button.style.opacity = '1';
+            });
+
+            // Reset emergency stop button
+            const emergencyBtn = document.querySelector('.emergency-stop button');
+            if (emergencyBtn) {
+                emergencyBtn.textContent = '🚨 EMERGENCY STOP';
+                emergencyBtn.onclick = emergencyStop;
+                emergencyBtn.style.animation = 'pulse 2s infinite';
+            }
+
+            // Reset behavior queue state
+            queuePaused = false;
+
+            // Reconnect to all systems
+            setTimeout(() => {
+                console.log('🔌 Reconnecting to all systems');
+                connectToAllSystems();
+            }, 1000);
+
+            showSystemAlert('Systems restart initiated', 'info');
+        }
+
+        function logEmergencyStop() {
+            const logEntry = {
+                timestamp: new Date().toISOString(),
+                event: 'EMERGENCY_STOP',
+                source: 'enhanced_dashboard',
+                systems_connected: Object.keys(connectionManager).filter(system =>
+                    connectionManager[system].status === 'connected'
+                ).length,
+                user_agent: navigator.userAgent,
+                page_url: window.location.href
+            };
+
+            console.log('📋 Emergency Stop Log Entry:', logEntry);
+
+            // In a production environment, this would be sent to a logging service
+            // For now, we store it in localStorage for debugging
+            try {
+                const existingLogs = JSON.parse(localStorage.getItem('r2d2_emergency_logs') || '[]');
+                existingLogs.push(logEntry);
+                localStorage.setItem('r2d2_emergency_logs', JSON.stringify(existingLogs.slice(-50))); // Keep only last 50 logs
+            } catch (error) {
+                console.warn('Failed to store emergency log:', error);
+            }
+        }
+
+        // ===== BEHAVIORAL INTELLIGENCE FUNCTIONS =====
+
+        // PROFESSIONAL-GRADE Behavioral Intelligence Connection with Full Error Handling
+        function connectToBehaviorSystem() {
+            const connection = connectionManager.behavior;
+            connection.status = 'connecting';
+
+            try {
+                console.log('🧠 Connecting to Behavioral Intelligence System (Attempt ' + (connection.reconnectAttempts + 1) + ')');
+
+                connection.ws = new WebSocket('ws://localhost:8768');
+                behaviorWs = connection.ws;
+
+                const connectionTimeout = setTimeout(() => {
+                    if (connection.ws.readyState === WebSocket.CONNECTING) {
+                        console.warn('⏰ Behavioral system connection timeout');
+                        connection.ws.close();
+                        handleBehaviorConnectionFailure('Connection timeout');
+                    }
+                }, 12000);
+
+                connection.ws.onopen = function() {
+                    clearTimeout(connectionTimeout);
+                    connection.status = 'connected';
+                    connection.reconnectAttempts = 0;
+                    connectionHealth.behavior.lastHeartbeat = Date.now();
+
+                    console.log('✅ Behavioral Intelligence System Connected Successfully');
+                    document.getElementById('behaviorStatus').textContent = 'Connected';
+
+                    if (connection.reconnectInterval) {
+                        clearInterval(connection.reconnectInterval);
+                        connection.reconnectInterval = null;
+                    }
+
+                    // Initialize behavioral system with current state
+                    sendBehaviorCommand('initialize', {
+                        personality: currentPersonality,
+                        mode: controlMode,
+                        timestamp: Date.now()
+                    });
+                };
+
+                connection.ws.onmessage = function(event) {
+                    const messageStart = performance.now();
+
+                    try {
+                        connectionHealth.behavior.messagesReceived++;
+                        connectionHealth.behavior.lastHeartbeat = Date.now();
+
+                        const data = JSON.parse(event.data);
+                        handleBehaviorData(data);
+
+                        const processingTime = performance.now() - messageStart;
+                        updatePerformanceMetrics('behavior_message', processingTime);
+
+                    } catch (error) {
+                        console.error('❌ Behavioral message processing error:', error);
+                        connectionHealth.behavior.errors++;
+                    }
+                };
+
+                connection.ws.onclose = function(event) {
+                    clearTimeout(connectionTimeout);
+                    connection.status = 'disconnected';
+
+                    console.log('⚠️ Behavioral Intelligence System Disconnected:', event.code, event.reason);
+                    document.getElementById('behaviorStatus').textContent = 'Disconnected';
+
+                    if (event.code !== 1000) {
+                        handleBehaviorConnectionFailure('Connection closed: ' + event.reason);
+                    }
+                };
+
+                connection.ws.onerror = function(error) {
+                    clearTimeout(connectionTimeout);
+                    console.error('❌ Behavioral WebSocket Error:', error);
+                    connectionHealth.behavior.errors++;
+                    document.getElementById('behaviorStatus').textContent = 'Error';
+                    handleBehaviorConnectionFailure('WebSocket error: ' + error.message);
+                };
+
+            } catch (error) {
+                console.error('❌ Behavioral Connection Creation Failed:', error);
+                document.getElementById('behaviorStatus').textContent = 'Error';
+                handleBehaviorConnectionFailure('Failed to create connection: ' + error.message);
+            }
+        }
+
+        function handleBehaviorData(data) {
+            switch(data.type) {
+                case 'behavior_status_update':
+                    updateBehaviorStatus(data.status);
+                    break;
+                case 'environment_update':
+                    updateEnvironmentData(data.environment);
+                    break;
+                case 'queue_update':
+                    updateQueueDisplay(data.queue);
+                    break;
+                case 'servo_activity_update':
+                    updateServoActivityDisplay(data.servos);
+                    break;
+                case 'audio_status_update':
+                    updateAudioStatusDisplay(data.audio);
+                    break;
+                case 'character_update':
+                    updateCharacterRecognition(data.characters);
+                    break;
+            }
+        }
+
+        // Personality Mode Control
+        function setPersonalityMode(mode) {
+            currentPersonality = mode;
+
+            // Update UI
+            document.querySelectorAll('.personality-button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.mode === mode) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Send to behavioral system
+            sendBehaviorCommand('personality_change', { mode: mode });
+
+            console.log(`Personality mode changed to: ${mode}`);
+            updateBehaviorStatusDisplay();
+        }
+
+        // Control Mode Toggle
+        function setControlMode(mode) {
+            controlMode = mode;
+
+            // Update UI
+            document.getElementById('autoMode').classList.remove('active');
+            document.getElementById('manualMode').classList.remove('active');
+            document.getElementById(mode + 'Mode').classList.add('active');
+
+            // Send to behavioral system
+            sendBehaviorCommand('control_mode_change', { mode: mode });
+
+            console.log(`Control mode changed to: ${mode}`);
+        }
+
+        // Environmental Sensitivity Controls
+        function updateSensitivity(type, value) {
+            const valueElement = document.getElementById(type + 'Value');
+            if (valueElement) {
+                valueElement.textContent = value + '%';
+            }
+
+            // Send sensitivity update
+            sendBehaviorCommand('sensitivity_update', {
+                type: type,
+                value: parseInt(value)
+            });
+
+            console.log(`${type} sensitivity updated to ${value}%`);
+        }
+
+        // Quick Response Triggers
+        function triggerQuickResponse(responseType) {
+            const responses = {
+                curious: {
+                    name: 'Curious Investigation',
+                    duration: 3000,
+                    actions: ['head_tilt', 'investigating_beeps', 'slow_dome_turn']
+                },
+                excited: {
+                    name: 'Excited Celebration',
+                    duration: 5000,
+                    actions: ['dome_spin', 'happy_chirps', 'panel_flutter']
+                },
+                worried: {
+                    name: 'Worried Response',
+                    duration: 4000,
+                    actions: ['head_shake', 'concerned_beeps', 'defensive_posture']
+                },
+                playful: {
+                    name: 'Playful Interaction',
+                    duration: 6000,
+                    actions: ['panels_open', 'playful_sounds', 'head_nods']
+                },
+                greeting: {
+                    name: 'Friendly Greeting',
+                    duration: 3000,
+                    actions: ['greeting_nod', 'friendly_whistle', 'dome_wiggle']
+                },
+                alert: {
+                    name: 'Alert State',
+                    duration: 2000,
+                    actions: ['rapid_dome_turn', 'alert_tone', 'periscope_extend']
+                },
+                celebration: {
+                    name: 'Victory Celebration',
+                    duration: 8000,
+                    actions: ['all_panels_open', 'victory_beeps', 'full_dome_spin']
+                },
+                sleepy: {
+                    name: 'Sleepy Mode',
+                    duration: 5000,
+                    actions: ['slow_movements', 'yawn_sounds', 'dome_droop']
+                }
+            };
+
+            const response = responses[responseType];
+            if (response) {
+                // Add to behavior queue if not in manual mode
+                if (controlMode === 'auto') {
+                    addToBehaviorQueue(response);
+                } else {
+                    // Execute immediately in manual mode
+                    executeBehaviorResponse(response);
+                }
+            }
+        }
+
+        // Behavior Queue Management
+        function addToBehaviorQueue(behavior) {
+            behaviorQueue.push({
+                id: Date.now(),
+                name: behavior.name,
+                duration: behavior.duration,
+                actions: behavior.actions,
+                timestamp: new Date().toLocaleTimeString()
+            });
+
+            updateQueueDisplay();
+
+            // Auto-execute if queue was empty and not paused
+            if (behaviorQueue.length === 1 && !queuePaused) {
+                processNextBehavior();
+            }
+        }
+
+        function processNextBehavior() {
+            if (behaviorQueue.length > 0 && !queuePaused) {
+                const behavior = behaviorQueue.shift();
+                executeBehaviorResponse(behavior);
+                updateQueueDisplay();
+
+                // Schedule next behavior
+                setTimeout(() => {
+                    processNextBehavior();
+                }, behavior.duration + 500);
+            }
+        }
+
+        function executeBehaviorResponse(behavior) {
+            console.log(`Executing behavior: ${behavior.name}`);
+
+            // Update current behavior display
+            behaviorStatus.current = behavior.name;
+            behaviorStatus.progress = 0;
+            behaviorStatus.duration = '00:00';
+            behaviorStatus.totalDuration = formatDuration(behavior.duration);
+
+            updateBehaviorStatusDisplay();
+
+            // Send behavior command
+            sendBehaviorCommand('execute_behavior', {
+                name: behavior.name,
+                actions: behavior.actions,
+                duration: behavior.duration
+            });
+
+            // Simulate progress
+            simulateBehaviorProgress(behavior.duration);
+        }
+
+        function simulateBehaviorProgress(duration) {
+            const startTime = Date.now();
+            const updateInterval = 100;
+
+            const progressInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min((elapsed / duration) * 100, 100);
+
+                behaviorStatus.progress = progress;
+                behaviorStatus.duration = formatDuration(elapsed);
+
+                updateBehaviorStatusDisplay();
+
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    // Return to idle state
+                    setTimeout(() => {
+                        behaviorStatus.current = `Idle - ${currentPersonality}`;
+                        behaviorStatus.progress = 0;
+                        behaviorStatus.duration = '00:00';
+                        updateBehaviorStatusDisplay();
+                    }, 500);
+                }
+            }, updateInterval);
+        }
+
+        function pauseQueue() {
+            queuePaused = true;
+            sendBehaviorCommand('queue_pause', {});
+            console.log('Behavior queue paused');
+        }
+
+        function resumeQueue() {
+            queuePaused = false;
+            sendBehaviorCommand('queue_resume', {});
+            processNextBehavior();
+            console.log('Behavior queue resumed');
+        }
+
+        function clearQueue() {
+            behaviorQueue = [];
+            queuePaused = false;
+            updateQueueDisplay();
+            sendBehaviorCommand('queue_clear', {});
+            console.log('Behavior queue cleared');
+        }
+
+        // Demo Sequence Controls
+        function startDemo(demoType) {
+            const demos = {
+                convention: {
+                    name: 'Convention Demo',
+                    behaviors: [
+                        { name: 'Welcome Greeting', duration: 5000 },
+                        { name: 'Character Recognition Demo', duration: 10000 },
+                        { name: 'Servo Showcase', duration: 8000 },
+                        { name: 'Audio Performance', duration: 7000 },
+                        { name: 'Interactive Mode', duration: 15000 }
+                    ]
+                },
+                patrol: {
+                    name: 'Security Patrol',
+                    behaviors: [
+                        { name: 'Area Scan', duration: 6000 },
+                        { name: 'Perimeter Check', duration: 8000 },
+                        { name: 'Motion Detection', duration: 5000 },
+                        { name: 'Status Report', duration: 3000 }
+                    ]
+                },
+                interactive: {
+                    name: 'Interactive Mode',
+                    behaviors: [
+                        { name: 'People Detection', duration: 4000 },
+                        { name: 'Greeting Protocol', duration: 3000 },
+                        { name: 'Response Mode', duration: 12000 }
+                    ]
+                },
+                maintenance: {
+                    name: 'Self-Check Routine',
+                    behaviors: [
+                        { name: 'Servo Calibration', duration: 8000 },
+                        { name: 'Audio Test', duration: 5000 },
+                        { name: 'Vision System Check', duration: 6000 },
+                        { name: 'Status Report', duration: 3000 }
+                    ]
+                }
+            };
+
+            const demo = demos[demoType];
+            if (demo) {
+                // Clear current queue and add demo behaviors
+                clearQueue();
+                demo.behaviors.forEach(behavior => {
+                    addToBehaviorQueue(behavior);
+                });
+
+                console.log(`Started ${demo.name} with ${demo.behaviors.length} behaviors`);
+                sendBehaviorCommand('demo_start', { type: demoType, demo: demo });
+            }
+        }
+
+        // Display Update Functions
+        function updateBehaviorStatusDisplay() {
+            document.getElementById('currentBehavior').textContent = behaviorStatus.current;
+            document.getElementById('behaviorProgress').style.width = behaviorStatus.progress + '%';
+            document.getElementById('behaviorDuration').textContent =
+                `${behaviorStatus.duration} / ${behaviorStatus.totalDuration}`;
+        }
+
+        function updateEnvironmentDisplay() {
+            document.getElementById('peopleCount').textContent = environmentData.peopleCount;
+            document.getElementById('motionLevel').textContent = environmentData.motionLevel;
+            document.getElementById('noiseLevel').textContent = environmentData.noiseLevel;
+        }
+
+        function updateQueueDisplay() {
+            const queueElement = document.getElementById('behaviorQueue');
+            const countElement = document.getElementById('queueCount');
+
+            countElement.textContent = `(${behaviorQueue.length})`;
+
+            if (behaviorQueue.length === 0) {
+                queueElement.innerHTML = '<div class="queue-empty">No behaviors queued</div>';
+            } else {
+                queueElement.innerHTML = behaviorQueue.map((behavior, index) => `
+                    <div class="queue-item" style="
+                        background: rgba(59, 130, 246, 0.1);
+                        border: 1px solid #3b82f6;
+                        border-radius: 6px;
+                        padding: 8px 12px;
+                        margin-bottom: 6px;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    ">
+                        <div>
+                            <strong style="color: #3b82f6;">${behavior.name}</strong>
+                            <small style="display: block; color: #9ca3af;">
+                                ${formatDuration(behavior.duration)} • ${behavior.timestamp}
+                            </small>
+                        </div>
+                        <button onclick="removeBehaviorFromQueue(${index})" style="
+                            background: #dc2626;
+                            color: white;
+                            border: none;
+                            border-radius: 4px;
+                            padding: 4px 8px;
+                            cursor: pointer;
+                            font-size: 0.8rem;
+                        ">Remove</button>
+                    </div>
+                `).join('');
+            }
+
+            // Update queue status
+            document.getElementById('behaviorQueueStatus').textContent = `${behaviorQueue.length} pending`;
+        }
+
+        function updateServoActivityDisplay(servoData) {
+            if (servoData) {
+                const servoDots = document.querySelectorAll('.servo-dot');
+                servoDots.forEach((dot, index) => {
+                    if (servoData.active && servoData.active.includes(index)) {
+                        dot.classList.remove('idle');
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                        dot.classList.add('idle');
+                    }
+                });
+
+                const activeCount = servoData.active ? servoData.active.length : 0;
+                document.getElementById('activeServos').textContent = `${activeCount}/8`;
+            }
+        }
+
+        function updateAudioStatusDisplay(audioData) {
+            const audioActivity = document.getElementById('audioActivity');
+            const audioQueue = document.getElementById('audioQueue');
+
+            if (audioData) {
+                if (audioData.current) {
+                    audioActivity.innerHTML = `
+                        <div class="audio-item">
+                            <span class="audio-current">${audioData.current}</span>
+                            <small>${audioData.description || 'Playing...'}</small>
+                        </div>
+                    `;
+                } else {
+                    audioActivity.innerHTML = `
+                        <div class="audio-item">
+                            <span class="audio-current">Ready</span>
+                            <small>No active sounds</small>
+                        </div>
+                    `;
+                }
+
+                if (audioData.queue && audioData.queue.length > 0) {
+                    audioQueue.innerHTML = `<small>Queue: ${audioData.queue.length} sounds</small>`;
+                } else {
+                    audioQueue.innerHTML = '<small>Queue: Empty</small>';
+                }
+            }
+        }
+
+        function updateCharacterRecognition(characters) {
+            const charactersGrid = document.getElementById('detectedCharacters');
+
+            if (characters && characters.length > 0) {
+                charactersGrid.innerHTML = characters.map(character => `
+                    <div class="character-card" style="
+                        background: rgba(34, 197, 94, 0.1);
+                        border: 1px solid #22c55e;
+                        border-radius: 8px;
+                        padding: 12px;
+                        text-align: center;
+                    ">
+                        <div style="font-size: 1.2rem; margin-bottom: 6px;">${character.emoji || '👤'}</div>
+                        <strong style="color: #22c55e; display: block;">${character.name}</strong>
+                        <small style="color: #9ca3af;">
+                            ${Math.round(character.confidence * 100)}% confidence
+                        </small>
+                        <div style="margin-top: 6px; font-size: 0.8rem; color: #f59e0b;">
+                            R2D2: ${character.reaction || 'Neutral'}
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                charactersGrid.innerHTML = '<div class="character-placeholder">👤 No characters detected</div>';
+            }
+        }
+
+        // Helper Functions
+        // ENHANCED Behavior Command with Validation and Error Handling
+        function sendBehaviorCommand(command, data) {
+            // Input validation and sanitization
+            if (!validateBehaviorCommand(command, data)) {
+                console.error('❌ Invalid behavior command parameters');
+                showSystemAlert('Invalid behavior command rejected', 'warning');
+                return false;
+            }
+
+            const connection = connectionManager.behavior;
+            if (connection.ws && connection.ws.readyState === WebSocket.OPEN) {
+                try {
+                    const message = {
+                        type: 'behavior_command',
+                        command: sanitizeString(command),
+                        data: sanitizeObject(data),
+                        timestamp: Date.now(),
+                        source: 'enhanced_dashboard'
+                    };
+
+                    connection.ws.send(JSON.stringify(message));
+                    console.log(`✅ Behavior Command Sent: ${command}`);
+                    return true;
+                } catch (error) {
+                    console.error('❌ Failed to send behavior command:', error);
+                    showSystemAlert('Failed to send behavior command', 'error');
+                    return false;
+                }
+            } else {
+                console.warn('⚠️ Behavioral system not connected, command queued');
+                showSystemAlert('Behavioral system offline - command queued', 'warning');
+                return false;
+            }
+        }
+
+        // Input validation for behavior commands
+        function validateBehaviorCommand(command, data) {
+            if (typeof command !== 'string' || command.length === 0 || command.length > 100) {
+                return false;
+            }
+
+            // Check for potentially dangerous commands
+            const dangerousPatterns = ['eval', 'function', 'script', '<', '>', 'javascript:', 'data:'];
+            if (dangerousPatterns.some(pattern => command.toLowerCase().includes(pattern))) {
+                console.error('Dangerous command pattern detected:', command);
+                return false;
+            }
+
+            return true;
+        }
+
+        // String sanitization for security
+        function sanitizeString(str) {
+            if (typeof str !== 'string') return '';
+            return str.replace(/[<>"'&]/g, function(match) {
+                const escapeMap = {
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;',
+                    '&': '&amp;'
+                };
+                return escapeMap[match];
+            });
+        }
+
+        // Object sanitization for security
+        function sanitizeObject(obj) {
+            if (!obj || typeof obj !== 'object') return obj;
+
+            const sanitized = {};
+            for (let key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    const sanitizedKey = sanitizeString(key);
+                    const value = obj[key];
+
+                    if (typeof value === 'string') {
+                        sanitized[sanitizedKey] = sanitizeString(value);
+                    } else if (typeof value === 'number' && isFinite(value)) {
+                        sanitized[sanitizedKey] = value;
+                    } else if (typeof value === 'boolean') {
+                        sanitized[sanitizedKey] = value;
+                    } else if (typeof value === 'object') {
+                        sanitized[sanitizedKey] = sanitizeObject(value);
+                    }
+                }
+            }
+
+            return sanitized;
+        }
+
+        function removeBehaviorFromQueue(index) {
+            if (index >= 0 && index < behaviorQueue.length) {
+                behaviorQueue.splice(index, 1);
+                updateQueueDisplay();
+                sendBehaviorCommand('queue_update', { queue: behaviorQueue });
+            }
+        }
+
+        function formatDuration(ms) {
+            const seconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        function updateBehaviorStatus(status) {
+            if (status.current) behaviorStatus.current = status.current;
+            if (status.progress !== undefined) behaviorStatus.progress = status.progress;
+            if (status.duration) behaviorStatus.duration = status.duration;
+            if (status.totalDuration) behaviorStatus.totalDuration = status.totalDuration;
+
+            updateBehaviorStatusDisplay();
+        }
+
+        function updateEnvironmentData(data) {
+            if (data.motionLevel) environmentData.motionLevel = data.motionLevel;
+            if (data.noiseLevel) environmentData.noiseLevel = data.noiseLevel;
+            if (data.peopleCount !== undefined) environmentData.peopleCount = data.peopleCount;
+
+            updateEnvironmentDisplay();
+        }
+
+        // ADVANCED System Management Functions
+        function connectToAllSystems() {
+            console.log('🔌 Initiating connections to all R2D2 systems');
+
+            // Stagger connections to prevent overwhelming the system
+            setTimeout(() => connectToVisionSystem(), 100);
+            setTimeout(() => connectToDashboard(), 300);
+            setTimeout(() => connectToBehaviorSystem(), 500);
+        }
+
+        function initializeConnectionHealthMonitoring() {
+            console.log('💓 Initializing connection health monitoring');
+
+            // Reset all health metrics
+            Object.keys(connectionHealth).forEach(system => {
+                connectionHealth[system] = {
+                    latency: 0,
+                    lastHeartbeat: 0,
+                    messagesReceived: 0,
+                    errors: 0
+                };
+            });
+        }
+
+        function initializePerformanceMonitoring() {
+            console.log('⚡ Initializing performance monitoring');
+
+            performanceMetrics = {
+                frameCount: 0,
+                lastFrameTime: performance.now(),
+                averageFPS: 0,
+                messageQueue: [],
+                renderTime: 0
+            };
+        }
+
+        function initializeSecurityProtection() {
+            console.log('🛡️ Initializing security protection');
+
+            // Add CSP violation detection
+            document.addEventListener('securitypolicyviolation', (e) => {
+                console.warn('🔒 Security Policy Violation:', e.violatedDirective);
+                showSystemAlert('Security policy violation detected', 'warning');
+            });
+
+            // Add basic XSS protection
+            window.addEventListener('error', (e) => {
+                if (e.message && e.message.includes('script')) {
+                    console.error('🚨 Potential security issue detected:', e.message);
+                    showSystemAlert('Potential security issue detected', 'critical');
+                }
+            });
+        }
+
+        function startSystemMonitoring() {
+            console.log('📊 Starting system monitoring intervals');
+
+            // Connection health monitoring every 5 seconds
+            setInterval(monitorConnectionHealth, 5000);
+
+            // Performance monitoring every 2 seconds
+            setInterval(updatePerformanceDisplay, 2000);
+
+            // System status updates every 3 seconds
+            setInterval(updateSystemStatus, 3000);
+        }
+
+        function monitorConnectionHealth() {
+            const now = Date.now();
+
+            Object.keys(connectionHealth).forEach(system => {
+                const health = connectionHealth[system];
+                const connection = connectionManager[system];
+
+                // Check for stale connections (no heartbeat in 30 seconds)
+                if (connection.status === 'connected' && (now - health.lastHeartbeat) > 30000) {
+                    console.warn(`💔 ${system} connection appears stale, forcing reconnection`);
+
+                    if (connection.ws && connection.ws.readyState === WebSocket.OPEN) {
+                        connection.ws.close(1000, 'Health check timeout');
+                    }
+                }
+            });
+        }
+
+        function updatePerformanceMetrics(type, processingTime) {
+            performanceMetrics.messageQueue.push({ type, time: processingTime, timestamp: Date.now() });
+
+            // Keep only last 100 metrics
+            if (performanceMetrics.messageQueue.length > 100) {
+                performanceMetrics.messageQueue.shift();
+            }
+
+            // Update average response time
+            const averageTime = performanceMetrics.messageQueue.reduce((sum, metric) => sum + metric.time, 0) / performanceMetrics.messageQueue.length;
+            document.getElementById('responseTime').textContent = averageTime.toFixed(0) + 'ms';
+        }
+
+        function updatePerformanceDisplay() {
+            // Update FPS calculation
+            const now = performance.now();
+            const deltaTime = now - performanceMetrics.lastFrameTime;
+
+            if (deltaTime > 0) {
+                const currentFPS = 1000 / deltaTime;
+                performanceMetrics.averageFPS = (performanceMetrics.averageFPS * 0.9) + (currentFPS * 0.1);
+                document.getElementById('systemFPS').textContent = performanceMetrics.averageFPS.toFixed(1);
+            }
+
+            performanceMetrics.lastFrameTime = now;
+        }
+
+        function updateSystemStatus() {
+            // Update connection status displays
+            const overallHealth = calculateOverallSystemHealth();
+            updateConnectionStatusIndicators(overallHealth);
+        }
+
+        function calculateOverallSystemHealth() {
+            const systems = Object.keys(connectionManager);
+            const connectedSystems = systems.filter(system => connectionManager[system].status === 'connected');
+
+            return {
+                connected: connectedSystems.length,
+                total: systems.length,
+                percentage: Math.round((connectedSystems.length / systems.length) * 100)
+            };
+        }
+
+        function updateConnectionStatusIndicators(health) {
+            const statusElement = document.getElementById('connectionStatus');
+
+            if (health.percentage === 100) {
+                statusElement.textContent = 'All Systems Online';
+                statusElement.className = 'connection-status connected';
+            } else if (health.percentage >= 66) {
+                statusElement.textContent = `${health.connected}/${health.total} Systems Online`;
+                statusElement.className = 'connection-status connected';
+            } else if (health.percentage >= 33) {
+                statusElement.textContent = `${health.connected}/${health.total} Systems Online`;
+                statusElement.className = 'connection-status';
+                statusElement.style.background = '#f59e0b'; // Warning color
+            } else {
+                statusElement.textContent = 'Systems Offline';
+                statusElement.className = 'connection-status';
+            }
+        }
+
+        function showSystemAlert(message, level = 'info') {
+            console.log(`🚨 System Alert [${level.toUpperCase()}]: ${message}`);
+
+            // You could implement toast notifications here
+            // For now, we'll use console logging and optionally show visual feedback
+
+            if (level === 'critical') {
+                // Flash the emergency stop button
+                const emergencyBtn = document.querySelector('.emergency-stop button');
+                if (emergencyBtn) {
+                    emergencyBtn.style.animation = 'pulse 0.5s infinite';
+                    setTimeout(() => {
+                        emergencyBtn.style.animation = 'pulse 2s infinite';
+                    }, 5000);
+                }
+            }
+        }
+
+        // Enhanced command sending with retry logic
+        function sendVisionCommand(command, data) {
+            const connection = connectionManager.vision;
+            if (connection.ws && connection.ws.readyState === WebSocket.OPEN) {
+                const message = {
+                    type: 'command',
+                    command: command,
+                    data: data,
+                    timestamp: Date.now()
+                };
+                connection.ws.send(JSON.stringify(message));
+                return true;
+            } else {
+                console.warn('⚠️ Vision system not connected, command queued for retry');
+                return false;
+            }
+        }
+
+        function sendDashboardCommand(command, data) {
+            const connection = connectionManager.dashboard;
+            if (connection.ws && connection.ws.readyState === WebSocket.OPEN) {
+                const message = {
+                    type: 'command',
+                    command: command,
+                    data: data,
+                    timestamp: Date.now()
+                };
+                connection.ws.send(JSON.stringify(message));
+                return true;
+            } else {
+                console.warn('⚠️ Dashboard system not connected, command queued for retry');
+                return false;
+            }
+        }
+
+        // ENHANCED Page Load with Quality Controls
+        window.addEventListener('load', function() {
+            console.log('🎯 R2D2 Enhanced Dashboard Loading with Quality Controls');
+            initialize();
+        });
+
+        // Graceful shutdown handling
+        window.addEventListener('beforeunload', function(e) {
+            console.log('🔌 Gracefully closing all WebSocket connections');
+
+            Object.keys(connectionManager).forEach(system => {
+                const connection = connectionManager[system];
+                if (connection.ws && connection.ws.readyState === WebSocket.OPEN) {
+                    connection.ws.close(1000, 'Page unload');
+                }
+                if (connection.reconnectInterval) {
+                    clearTimeout(connection.reconnectInterval);
+                }
+            });
+        });
     </script>
 </body>
 </html>

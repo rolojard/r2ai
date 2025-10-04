@@ -1,0 +1,157 @@
+{
+  "deployment_timestamp": 1758976028.803675,
+  "deployment_status": {
+    "vision_system": {
+      "status": "pending",
+      "pid": 108139
+    },
+    "servo_api": {
+      "status": "pending",
+      "pid": 26015
+    },
+    "dashboard_server": {
+      "status": "pending",
+      "pid": 18338
+    },
+    "logging_monitor": {
+      "status": "active",
+      "pid": null
+    }
+  },
+  "running_services": {
+    "vision_system": {
+      "pid": 108139,
+      "command": "stable_vision_system.py",
+      "port": 8767,
+      "all_pids": [
+        108132,
+        108139
+      ]
+    },
+    "servo_api": {
+      "pid": 26015,
+      "command": "servo_api_server.py",
+      "port": 5000,
+      "all_pids": [
+        26015
+      ]
+    },
+    "dashboard_server": {
+      "pid": 18338,
+      "command": "dashboard-server.js",
+      "ports": [
+        8765,
+        8766,
+        8768
+      ],
+      "all_pids": [
+        18337,
+        18338
+      ]
+    }
+  },
+  "verification_results": {
+    "timestamp": 1758976023.7844968,
+    "log_files_created": [
+      {
+        "service": "servo_monitor",
+        "file": "/home/rolo/r2ai/logs/servo_monitor.log",
+        "size_bytes": 3195,
+        "entries": 6
+      },
+      {
+        "service": "deployment_manager",
+        "file": "/home/rolo/r2ai/logs/deployment_manager.log",
+        "size_bytes": 14227,
+        "entries": 28
+      },
+      {
+        "service": "backup",
+        "file": "/home/rolo/r2ai/logs/backup.log",
+        "size_bytes": 300,
+        "entries": 1
+      },
+      {
+        "service": "dashboard_server",
+        "file": "/home/rolo/r2ai/logs/dashboard_server.log",
+        "size_bytes": 61,
+        "entries": 1
+      },
+      {
+        "service": "r2d2_backend_monitor",
+        "file": "/home/rolo/r2ai/logs/r2d2_backend_monitor.log",
+        "size_bytes": 2256,
+        "entries": 4
+      },
+      {
+        "service": "vision_monitor",
+        "file": "/home/rolo/r2ai/logs/vision_monitor.log",
+        "size_bytes": 2601,
+        "entries": 5
+      }
+    ],
+    "services_monitored": [],
+    "total_log_entries": 45,
+    "verification_success": true,
+    "log_analysis": {
+      "timestamp": "2025-09-27T12:27:08.801081+00:00",
+      "log_files": [
+        {
+          "service": "servo_monitor",
+          "file": "/home/rolo/r2ai/logs/servo_monitor.log",
+          "size_mb": 0.0,
+          "modified": "2025-09-27T08:27:04.785505"
+        },
+        {
+          "service": "deployment_manager",
+          "file": "/home/rolo/r2ai/logs/deployment_manager.log",
+          "size_mb": 0.01,
+          "modified": "2025-09-27T08:27:04.577503"
+        },
+        {
+          "service": "backup",
+          "file": "/home/rolo/r2ai/logs/backup.log",
+          "size_mb": 0.0,
+          "modified": "2025-09-20T19:53:02.919030"
+        },
+        {
+          "service": "dashboard_server",
+          "file": "/home/rolo/r2ai/logs/dashboard_server.log",
+          "size_mb": 0.0,
+          "modified": "2025-09-25T20:29:10.343209"
+        },
+        {
+          "service": "r2d2_backend_monitor",
+          "file": "/home/rolo/r2ai/logs/r2d2_backend_monitor.log",
+          "size_mb": 0.0,
+          "modified": "2025-09-27T08:27:04.785505"
+        },
+        {
+          "service": "vision_monitor",
+          "file": "/home/rolo/r2ai/logs/vision_monitor.log",
+          "size_mb": 0.0,
+          "modified": "2025-09-27T08:27:04.785505"
+        }
+      ],
+      "summary": {
+        "total_services": 6,
+        "error_count": 4,
+        "warning_count": 0,
+        "performance_issues": []
+      }
+    }
+  },
+  "deployment_summary": {
+    "total_services_detected": 3,
+    "logging_monitor_active": true,
+    "log_files_created": 6,
+    "total_log_entries": 45,
+    "deployment_success": true
+  },
+  "next_steps": [
+    "Logging integration deployed successfully",
+    "Monitor logs in /home/rolo/r2ai/logs/ directory",
+    "Use get_log_analyzer() for structured log analysis",
+    "QA testing can now validate logging functionality"
+  ]
+}

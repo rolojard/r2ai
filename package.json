@@ -1,9 +1,10 @@
 {
   "scripts": {
-    "start": "node --max-old-space-size=4096 dashboard-server.js",
-    "dev": "node --max-old-space-size=4096 dashboard-server.js"
+    "start": "node --max-old-space-size=2048 --optimize-for-size --expose-gc --gc-interval=100 dashboard-server.js",
+    "dev": "node --max-old-space-size=2048 --optimize-for-size --expose-gc --gc-interval=100 dashboard-server.js"
   },
   "dependencies": {
-    "ws": "^8.18.3"
+    "ws": "^8.18.3",
+    "axios": "^1.6.0"
   }
 }
