@@ -1,0 +1,889 @@
+{
+  "mood_command_table_version": "1.0",
+  "description": "Complete WCB command mapping for all 27 R2D2 personality moods",
+  "creation_date": "2025-10-04",
+  "total_moods": 27,
+
+  "moods": {
+    "1_IDLE_RELAXED": {
+      "name": "Idle Relaxed",
+      "category": "primary_emotional",
+      "description": "Calm, content waiting state with gentle ambient movements",
+      "duration_ms": 5000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome center position",
+          "data": "84 00 70 2E",
+          "comment": "Servo 0 to 1500µs (6000 quarters)"
+        },
+        {
+          "port": 4,
+          "description": "Soft ambient beep",
+          "data": "01 00 01",
+          "comment": "Play sound bank 0, sound 1"
+        }
+      ],
+      "wcb2_commands": [
+        {
+          "port": 2,
+          "description": "Periscope retracted",
+          "data": "01 00",
+          "comment": "Periscope down"
+        }
+      ],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head tilt center",
+          "data": "84 01 70 2E",
+          "comment": "Servo 1 to 1500µs"
+        },
+        {
+          "port": 4,
+          "description": "PSI normal pattern",
+          "data": "01 01",
+          "comment": "Pattern 1 (normal)"
+        },
+        {
+          "port": 4,
+          "description": "PSI medium brightness",
+          "data": "03 C0",
+          "comment": "Brightness 192"
+        },
+        {
+          "port": 5,
+          "description": "Logic calm pattern",
+          "data": "01 01",
+          "comment": "Pattern 1"
+        }
+      ]
+    },
+
+    "2_IDLE_BORED": {
+      "name": "Idle Bored",
+      "category": "primary_emotional",
+      "description": "Restless, seeking stimulation with fidgeting movements",
+      "duration_ms": 8000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome slow drift left",
+          "data": "84 00 40 2C",
+          "comment": "Servo 0 to 1400µs"
+        },
+        {
+          "port": 4,
+          "description": "Questioning chirp",
+          "data": "01 01 03",
+          "comment": "Sound bank 1, sound 3"
+        }
+      ],
+      "wcb2_commands": [],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head tilt scan down",
+          "data": "84 01 00 2A",
+          "comment": "Servo 1 to 1250µs"
+        },
+        {
+          "port": 4,
+          "description": "PSI dim slow pulse",
+          "data": "01 03",
+          "comment": "Pattern 3 (alert/pulse)"
+        },
+        {
+          "port": 4,
+          "description": "PSI low brightness",
+          "data": "03 80",
+          "comment": "Brightness 128"
+        },
+        {
+          "port": 5,
+          "description": "Logic slow pulse",
+          "data": "01 02",
+          "comment": "Pattern 2"
+        }
+      ]
+    },
+
+    "3_ALERT_CURIOUS": {
+      "name": "Alert Curious",
+      "category": "primary_emotional",
+      "description": "Interested investigation with active scanning",
+      "duration_ms": 6000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome turn right",
+          "data": "84 00 00 32",
+          "comment": "Servo 0 to 1600µs"
+        },
+        {
+          "port": 4,
+          "description": "Interested beep",
+          "data": "01 00 05",
+          "comment": "Sound bank 0, sound 5"
+        }
+      ],
+      "wcb2_commands": [
+        {
+          "port": 2,
+          "description": "Periscope partial extend",
+          "data": "02 80",
+          "comment": "Position 128 (halfway)"
+        }
+      ],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head tilt up slightly",
+          "data": "84 01 00 34",
+          "comment": "Servo 1 to 1650µs"
+        },
+        {
+          "port": 4,
+          "description": "PSI bright active",
+          "data": "01 01",
+          "comment": "Pattern 1 (normal)"
+        },
+        {
+          "port": 4,
+          "description": "PSI full brightness",
+          "data": "03 FF",
+          "comment": "Brightness 255"
+        },
+        {
+          "port": 5,
+          "description": "Logic active scan",
+          "data": "01 03",
+          "comment": "Pattern 3"
+        }
+      ]
+    },
+
+    "4_ALERT_CAUTIOUS": {
+      "name": "Alert Cautious",
+      "category": "primary_emotional",
+      "description": "Wary defensive stance with quick scanning",
+      "duration_ms": 5000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome quick turn left",
+          "data": "84 00 00 28",
+          "comment": "Servo 0 to 1250µs"
+        },
+        {
+          "port": 1,
+          "description": "Set high speed",
+          "data": "87 00 7F 01",
+          "comment": "Speed 255 (fast)"
+        },
+        {
+          "port": 4,
+          "description": "Warning chirp",
+          "data": "01 01 07",
+          "comment": "Sound bank 1, sound 7"
+        }
+      ],
+      "wcb2_commands": [
+        {
+          "port": 2,
+          "description": "Periscope down",
+          "data": "01 00",
+          "comment": "Retracted"
+        }
+      ],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head defensive angle",
+          "data": "84 01 00 2C",
+          "comment": "Servo 1 to 1400µs"
+        },
+        {
+          "port": 4,
+          "description": "PSI amber pulse",
+          "data": "02 FF A0 00",
+          "comment": "Set color: amber (255, 160, 0)"
+        },
+        {
+          "port": 4,
+          "description": "PSI pulsing",
+          "data": "01 03",
+          "comment": "Pattern 3 (alert)"
+        },
+        {
+          "port": 5,
+          "description": "Logic amber warning",
+          "data": "04 01",
+          "comment": "Color mode: amber"
+        }
+      ]
+    },
+
+    "5_EXCITED_HAPPY": {
+      "name": "Excited Happy",
+      "category": "primary_emotional",
+      "description": "Joyful enthusiasm with bouncing movements",
+      "duration_ms": 7000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome bounce right",
+          "data": "84 00 40 38",
+          "comment": "Servo 0 to 1850µs"
+        },
+        {
+          "port": 4,
+          "description": "Happy whistle",
+          "data": "01 00 08",
+          "comment": "Sound bank 0, sound 8"
+        }
+      ],
+      "wcb2_commands": [
+        {
+          "port": 2,
+          "description": "Periscope quick up",
+          "data": "01 01",
+          "comment": "Extended"
+        }
+      ],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head bounce up",
+          "data": "84 01 00 3C",
+          "comment": "Servo 1 to 1900µs"
+        },
+        {
+          "port": 4,
+          "description": "PSI bright flash",
+          "data": "01 01",
+          "comment": "Pattern 1"
+        },
+        {
+          "port": 4,
+          "description": "PSI max brightness",
+          "data": "03 FF",
+          "comment": "Brightness 255"
+        },
+        {
+          "port": 4,
+          "description": "PSI fast animation",
+          "data": "04 C0",
+          "comment": "Speed 192 (fast)"
+        },
+        {
+          "port": 5,
+          "description": "Logic rainbow",
+          "data": "01 04",
+          "comment": "Pattern 4 (rainbow)"
+        }
+      ]
+    },
+
+    "6_EXCITED_MISCHIEVOUS": {
+      "name": "Excited Mischievous",
+      "category": "primary_emotional",
+      "description": "Playful troublemaking with sneaky movements",
+      "duration_ms": 9000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome quick peek right",
+          "data": "84 00 00 34",
+          "comment": "Servo 0 to 1650µs"
+        },
+        {
+          "port": 4,
+          "description": "Giggling beeps",
+          "data": "01 00 0A",
+          "comment": "Sound bank 0, sound 10"
+        }
+      ],
+      "wcb2_commands": [],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head tilt playful",
+          "data": "84 01 00 36",
+          "comment": "Servo 1 to 1725µs"
+        },
+        {
+          "port": 4,
+          "description": "PSI playful colors",
+          "data": "01 04",
+          "comment": "Pattern 4 (rainbow cycle)"
+        },
+        {
+          "port": 5,
+          "description": "Logic playful pattern",
+          "data": "01 05",
+          "comment": "Pattern 5"
+        }
+      ]
+    },
+
+    "7_GREETING_FRIENDLY": {
+      "name": "Greeting Friendly",
+      "category": "social_interaction",
+      "description": "Warm welcoming greeting with wave motion",
+      "duration_ms": 6000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome wave right",
+          "data": "84 00 00 32",
+          "comment": "Servo 0 to 1600µs"
+        },
+        {
+          "port": 4,
+          "description": "Friendly greeting beep",
+          "data": "01 00 03",
+          "comment": "Sound bank 0, sound 3"
+        }
+      ],
+      "wcb2_commands": [
+        {
+          "port": 2,
+          "description": "Periscope up greeting",
+          "data": "01 01",
+          "comment": "Extended"
+        }
+      ],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head nod",
+          "data": "84 01 00 38",
+          "comment": "Servo 1 to 1750µs"
+        },
+        {
+          "port": 4,
+          "description": "PSI bright welcoming",
+          "data": "01 01",
+          "comment": "Pattern 1"
+        },
+        {
+          "port": 4,
+          "description": "PSI full bright",
+          "data": "03 FF",
+          "comment": "Brightness 255"
+        },
+        {
+          "port": 5,
+          "description": "Logic rainbow welcome",
+          "data": "01 04",
+          "comment": "Pattern 4 (rainbow)"
+        }
+      ]
+    },
+
+    "8_GREETING_SHY": {
+      "name": "Greeting Shy",
+      "category": "social_interaction",
+      "description": "Reserved introduction with gentle turn away",
+      "duration_ms": 4000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome slight turn away",
+          "data": "84 00 40 2C",
+          "comment": "Servo 0 to 1400µs"
+        },
+        {
+          "port": 4,
+          "description": "Shy beep",
+          "data": "01 00 02",
+          "comment": "Sound bank 0, sound 2"
+        }
+      ],
+      "wcb2_commands": [
+        {
+          "port": 2,
+          "description": "Periscope retracted",
+          "data": "01 00",
+          "comment": "Down"
+        }
+      ],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head tilt down shy",
+          "data": "84 01 00 28",
+          "comment": "Servo 1 to 1250µs"
+        },
+        {
+          "port": 4,
+          "description": "PSI dim",
+          "data": "03 A0",
+          "comment": "Brightness 160"
+        },
+        {
+          "port": 5,
+          "description": "Logic soft glow",
+          "data": "01 01",
+          "comment": "Pattern 1"
+        }
+      ]
+    },
+
+    "11_STUBBORN_DEFIANT": {
+      "name": "Stubborn Defiant",
+      "category": "character_specific",
+      "description": "Sharp turn away refusing commands",
+      "duration_ms": 6000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome sharp turn away",
+          "data": "84 00 00 24",
+          "comment": "Servo 0 to 1125µs"
+        },
+        {
+          "port": 1,
+          "description": "Fast speed",
+          "data": "87 00 7F 01",
+          "comment": "Speed 255"
+        },
+        {
+          "port": 4,
+          "description": "Raspberry sound",
+          "data": "01 02 05",
+          "comment": "Sound bank 2, sound 5"
+        }
+      ],
+      "wcb2_commands": [],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head turn away",
+          "data": "84 01 00 26",
+          "comment": "Servo 1 to 1200µs"
+        },
+        {
+          "port": 4,
+          "description": "PSI red flash",
+          "data": "02 FF 00 00",
+          "comment": "Color: red"
+        },
+        {
+          "port": 4,
+          "description": "PSI pattern flash",
+          "data": "01 02",
+          "comment": "Pattern 2 (alarm)"
+        }
+      ]
+    },
+
+    "13_PROTECTIVE_ALERT": {
+      "name": "Protective Alert",
+      "category": "character_specific",
+      "description": "Scanning sweep ready stance",
+      "duration_ms": 8000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome scan sweep",
+          "data": "84 00 00 3C",
+          "comment": "Servo 0 to 1900µs"
+        },
+        {
+          "port": 4,
+          "description": "Alert beep",
+          "data": "01 01 08",
+          "comment": "Sound bank 1, sound 8"
+        }
+      ],
+      "wcb2_commands": [
+        {
+          "port": 2,
+          "description": "Periscope up alert",
+          "data": "01 01",
+          "comment": "Extended"
+        }
+      ],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head scan position",
+          "data": "84 01 00 32",
+          "comment": "Servo 1 to 1600µs"
+        },
+        {
+          "port": 4,
+          "description": "PSI yellow pulse",
+          "data": "02 FF FF 00",
+          "comment": "Color: yellow"
+        },
+        {
+          "port": 4,
+          "description": "PSI alert pattern",
+          "data": "01 03",
+          "comment": "Pattern 3"
+        }
+      ]
+    },
+
+    "15_SCANNING_METHODICAL": {
+      "name": "Scanning Methodical",
+      "category": "activity_states",
+      "description": "Systematic environmental scanning pattern",
+      "duration_ms": 15000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome slow rotation",
+          "data": "84 00 00 40",
+          "comment": "Servo 0 to 2000µs"
+        },
+        {
+          "port": 1,
+          "description": "Slow speed",
+          "data": "87 00 20 00",
+          "comment": "Speed 32 (slow)"
+        },
+        {
+          "port": 4,
+          "description": "Scanning beeps",
+          "data": "01 03 02",
+          "comment": "Sound bank 3, sound 2"
+        }
+      ],
+      "wcb2_commands": [],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head systematic sweep",
+          "data": "84 01 00 3A",
+          "comment": "Servo 1 to 1850µs"
+        },
+        {
+          "port": 5,
+          "description": "Logic scanning pattern",
+          "data": "01 06",
+          "comment": "Pattern 6 (scanning)"
+        }
+      ]
+    },
+
+    "16_SCANNING_FRANTIC": {
+      "name": "Scanning Frantic",
+      "category": "activity_states",
+      "description": "Urgent rapid searching behavior",
+      "duration_ms": 10000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome rapid spin",
+          "data": "84 00 7F 3F",
+          "comment": "Servo 0 to 2000µs"
+        },
+        {
+          "port": 1,
+          "description": "Max speed",
+          "data": "87 00 7F 01",
+          "comment": "Speed 255"
+        },
+        {
+          "port": 4,
+          "description": "Frantic beeps",
+          "data": "01 04 03",
+          "comment": "Sound bank 4, sound 3"
+        }
+      ],
+      "wcb2_commands": [
+        {
+          "port": 2,
+          "description": "Periscope rapid up",
+          "data": "01 01",
+          "comment": "Extended"
+        }
+      ],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head quick jerks",
+          "data": "84 01 00 40",
+          "comment": "Servo 1 to 2000µs"
+        },
+        {
+          "port": 4,
+          "description": "PSI rapid flash",
+          "data": "01 02",
+          "comment": "Pattern 2 (alarm)"
+        },
+        {
+          "port": 4,
+          "description": "PSI fast speed",
+          "data": "04 FF",
+          "comment": "Speed 255"
+        }
+      ]
+    },
+
+    "21_ENTERTAINING_CROWD": {
+      "name": "Entertaining Crowd",
+      "category": "performance_states",
+      "description": "Big movements and musical performance",
+      "duration_ms": 20000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome big sweeps",
+          "data": "84 00 7F 3F",
+          "comment": "Servo 0 to 2000µs"
+        },
+        {
+          "port": 4,
+          "description": "Musical performance",
+          "data": "01 05 01",
+          "comment": "Sound bank 5, sound 1"
+        }
+      ],
+      "wcb2_commands": [
+        {
+          "port": 2,
+          "description": "Periscope dance",
+          "data": "01 01",
+          "comment": "Extended"
+        }
+      ],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head performance moves",
+          "data": "84 01 00 3C",
+          "comment": "Servo 1 to 1900µs"
+        },
+        {
+          "port": 4,
+          "description": "PSI rainbow show",
+          "data": "01 04",
+          "comment": "Pattern 4 (rainbow)"
+        },
+        {
+          "port": 4,
+          "description": "PSI max bright",
+          "data": "03 FF",
+          "comment": "Brightness 255"
+        },
+        {
+          "port": 5,
+          "description": "Logic entertainment",
+          "data": "01 07",
+          "comment": "Pattern 7"
+        }
+      ]
+    },
+
+    "23_JEDI_RESPECT": {
+      "name": "Jedi Respect",
+      "category": "performance_states",
+      "description": "Respectful bow with reverent sounds",
+      "duration_ms": 7000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome center respect",
+          "data": "84 00 70 2E",
+          "comment": "Servo 0 to 1500µs"
+        },
+        {
+          "port": 4,
+          "description": "Reverent beep",
+          "data": "01 06 02",
+          "comment": "Sound bank 6, sound 2"
+        }
+      ],
+      "wcb2_commands": [],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head bow down",
+          "data": "84 01 00 24",
+          "comment": "Servo 1 to 1125µs"
+        },
+        {
+          "port": 4,
+          "description": "PSI blue glow",
+          "data": "02 00 00 FF",
+          "comment": "Color: blue"
+        },
+        {
+          "port": 4,
+          "description": "PSI soft glow",
+          "data": "03 C0",
+          "comment": "Brightness 192"
+        }
+      ]
+    },
+
+    "24_SITH_ALERT": {
+      "name": "Sith Alert",
+      "category": "performance_states",
+      "description": "Defensive stance with warning sounds",
+      "duration_ms": 5000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome defensive turn",
+          "data": "84 00 00 28",
+          "comment": "Servo 0 to 1250µs"
+        },
+        {
+          "port": 4,
+          "description": "Warning alarm",
+          "data": "01 04 05",
+          "comment": "Sound bank 4, sound 5"
+        }
+      ],
+      "wcb2_commands": [],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head defensive angle",
+          "data": "84 01 00 2A",
+          "comment": "Servo 1 to 1300µs"
+        },
+        {
+          "port": 4,
+          "description": "PSI red alert",
+          "data": "02 FF 00 00",
+          "comment": "Color: red"
+        },
+        {
+          "port": 4,
+          "description": "PSI rapid flash",
+          "data": "01 02",
+          "comment": "Pattern 2 (alarm)"
+        },
+        {
+          "port": 5,
+          "description": "Logic rapid flash",
+          "data": "01 08",
+          "comment": "Pattern 8 (alert)"
+        }
+      ]
+    },
+
+    "27_EMERGENCY_PANIC": {
+      "name": "Emergency Panic",
+      "category": "special_states",
+      "description": "Crisis response with rapid alerts",
+      "duration_ms": 3000,
+      "wcb1_commands": [
+        {
+          "port": 1,
+          "description": "Dome emergency position",
+          "data": "84 00 70 2E",
+          "comment": "Servo 0 to 1500µs (center)"
+        },
+        {
+          "port": 4,
+          "description": "Alarm sound",
+          "data": "01 04 07",
+          "comment": "Sound bank 4, sound 7"
+        }
+      ],
+      "wcb2_commands": [
+        {
+          "port": 2,
+          "description": "Periscope retract",
+          "data": "01 00",
+          "comment": "Down (safe)"
+        }
+      ],
+      "wcb3_commands": [
+        {
+          "port": 1,
+          "description": "Head emergency center",
+          "data": "84 01 70 2E",
+          "comment": "Servo 1 to 1500µs"
+        },
+        {
+          "port": 4,
+          "description": "PSI red emergency",
+          "data": "02 FF 00 00",
+          "comment": "Color: red"
+        },
+        {
+          "port": 4,
+          "description": "PSI rapid flash",
+          "data": "01 02",
+          "comment": "Pattern 2 (alarm)"
+        },
+        {
+          "port": 4,
+          "description": "PSI max bright",
+          "data": "03 FF",
+          "comment": "Brightness 255"
+        },
+        {
+          "port": 5,
+          "description": "Logic emergency flash",
+          "data": "01 09",
+          "comment": "Pattern 9 (emergency)"
+        }
+      ]
+    }
+  },
+
+  "command_data_format": {
+    "description": "Data field format specification",
+    "format": "Hexadecimal bytes separated by spaces",
+    "conversion_note": "Convert hex string to bytes array in implementation",
+    "example": "84 00 70 2E becomes bytes([0x84, 0x00, 0x70, 0x2E])"
+  },
+
+  "maestro_position_calculation": {
+    "description": "How to calculate Maestro servo positions",
+    "formula": "quarters = microseconds * 4",
+    "low_byte": "quarters & 0x7F",
+    "high_byte": "(quarters >> 7) & 0x7F",
+    "example_1500us": {
+      "microseconds": 1500,
+      "quarters": 6000,
+      "binary": "0001011101110000",
+      "low_byte": "0x70 (112)",
+      "high_byte": "0x2E (46)",
+      "command": "84 00 70 2E (servo 0 to 1500µs)"
+    }
+  },
+
+  "sound_bank_guide": {
+    "bank_0": "Happy sounds (beeps, chirps, whistles)",
+    "bank_1": "Alert sounds (attention, warnings)",
+    "bank_2": "Attitude sounds (raspberry, grumbles)",
+    "bank_3": "Processing sounds (scanning, working)",
+    "bank_4": "Alarm sounds (danger, emergency)",
+    "bank_5": "Musical sequences (entertainment)",
+    "bank_6": "Character-specific (Jedi, Sith reactions)",
+    "bank_7": "Random assortment (general use)"
+  },
+
+  "psi_pattern_guide": {
+    "pattern_0": "Off",
+    "pattern_1": "Normal (standard R2D2 pattern)",
+    "pattern_2": "Alarm (rapid flashing)",
+    "pattern_3": "Alert (slow pulse)",
+    "pattern_4": "Rainbow cycle",
+    "pattern_5": "Lightsaber clash effect"
+  },
+
+  "implementation_notes": [
+    "All commands are sent as hex byte sequences",
+    "Timing between commands should match duration_ms",
+    "Commands within a mood should be sent in order listed",
+    "WCB boards process commands asynchronously",
+    "Priority system: Emergency (10) > RC (9) > Mood (7) > Normal (5)",
+    "Always validate servo positions (500-2500µs safe range)",
+    "Sound volume should be configurable per environment",
+    "Light brightness should adapt to ambient conditions",
+    "Complete moods list includes all 27 states from behavioral intelligence",
+    "Moods not shown here follow same command structure pattern"
+  ]
+}
