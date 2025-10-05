@@ -1,0 +1,342 @@
+═══════════════════════════════════════════════════════════════
+WCB Dashboard API - cURL Examples
+Production-Ready REST API for R2D2 Mood Control
+Port: 8770 | Base URL: http://localhost:8770
+═══════════════════════════════════════════════════════════════
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. HEALTH CHECK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+curl http://localhost:8770/
+
+Expected Response:
+{
+  "service": "WCB Dashboard API",
+  "version": "1.0.0",
+  "status": "running",
+  "orchestrator_connected": true,
+  "timestamp": "2025-10-05T12:34:56.789"
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. EXECUTE MOODS (Common Scenarios)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# IDLE_RELAXED (Calm state)
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 1, "priority": 7}'
+
+# ALERT_CURIOUS (Investigation mode)
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 3, "priority": 7}'
+
+# EXCITED_HAPPY (Joyful state)
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 5, "priority": 8}'
+
+# GREETING_FRIENDLY (Welcome gesture)
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 7, "priority": 7}'
+
+# STUBBORN_DEFIANT (Refusal)
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 11, "priority": 7}'
+
+# PROTECTIVE_ALERT (Guard mode)
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 13, "priority": 9}'
+
+# SCANNING_METHODICAL (Systematic scan)
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 15, "priority": 7}'
+
+# JEDI_RESPECT (Reverent bow)
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 23, "priority": 7}'
+
+# EMERGENCY_PANIC (Crisis mode)
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 27, "priority": 10}'
+
+# With mood name validation
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 5, "mood_name": "EXCITED_HAPPY", "priority": 7}'
+
+Expected Response:
+{
+  "status": "success",
+  "mood": "EXCITED_HAPPY",
+  "mood_id": 5,
+  "commands_sent": 7,
+  "execution_time_ms": 850,
+  "timestamp": "2025-10-05T12:34:56.789"
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. STOP CURRENT MOOD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+curl -X POST http://localhost:8770/api/wcb/mood/stop
+
+Expected Response:
+{
+  "status": "stopped",
+  "mood": "EXCITED_HAPPY",
+  "stopped_at": "2025-10-05T12:35:00.123"
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. GET MOOD STATUS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+curl http://localhost:8770/api/wcb/mood/status
+
+Expected Response (Active):
+{
+  "active": true,
+  "mood": "EXCITED_HAPPY",
+  "mood_id": 5,
+  "progress_percent": 45,
+  "commands_sent": 12,
+  "started_at": "2025-10-05T12:34:00.000",
+  "uptime_seconds": 3600
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. LIST ALL MOODS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+curl http://localhost:8770/api/wcb/mood/list
+
+# Pretty print with jq
+curl http://localhost:8770/api/wcb/mood/list | jq '.'
+
+# Get just total count
+curl http://localhost:8770/api/wcb/mood/list | jq '.total'
+
+# Get moods in specific category
+curl http://localhost:8770/api/wcb/mood/list | jq '.categories["Primary Emotional"]'
+
+Expected Response:
+{
+  "moods": [
+    {
+      "id": 1,
+      "name": "IDLE_RELAXED",
+      "category": "Primary Emotional",
+      "command_count": 4
+    },
+    ...
+  ],
+  "total": 27,
+  "categories": {
+    "Primary Emotional": [1, 2, 3, 4, 5, 6],
+    ...
+  }
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. GET STATISTICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+curl http://localhost:8770/api/wcb/stats
+
+# Pretty print
+curl http://localhost:8770/api/wcb/stats | jq '.'
+
+# Get specific stat
+curl http://localhost:8770/api/wcb/stats | jq '.moods_executed'
+
+Expected Response:
+{
+  "moods_executed": 47,
+  "total_commands_sent": 892,
+  "total_commands_failed": 3,
+  "average_execution_time_ms": 4235,
+  "uptime_seconds": 3600,
+  "current_mode": "simulation",
+  "api_version": "1.0.0"
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. GET BOARDS STATUS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+curl http://localhost:8770/api/wcb/boards/status
+
+Expected Response:
+{
+  "wcb1": {
+    "connected": true,
+    "last_command": "EXCITED_HAPPY",
+    "last_update": "2025-10-05T12:34:56.789"
+  },
+  "wcb2": {
+    "connected": true,
+    "last_command": "EXCITED_HAPPY",
+    "last_update": "2025-10-05T12:34:56.789"
+  },
+  "wcb3": {
+    "connected": true,
+    "last_command": "EXCITED_HAPPY",
+    "last_update": "2025-10-05T12:34:56.789"
+  },
+  "overall_status": "connected"
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. ADVANCED EXAMPLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Execute all Primary Emotional moods in sequence
+for i in {1..6}; do
+  curl -X POST http://localhost:8770/api/wcb/mood/execute \
+    -H "Content-Type: application/json" \
+    -d "{\"mood_id\": $i, \"priority\": 7}"
+  sleep 2
+done
+
+# Monitor mood execution in loop
+while true; do
+  curl -s http://localhost:8770/api/wcb/mood/status | jq '.active, .mood'
+  sleep 1
+done
+
+# Execute mood and get stats
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 5, "priority": 7}' && \
+curl http://localhost:8770/api/wcb/stats | jq '.moods_executed'
+
+# Test error handling - invalid mood
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 99, "priority": 7}'
+
+# Test error handling - mood name mismatch
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 5, "mood_name": "WRONG_NAME", "priority": 7}'
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9. ALL 27 MOODS QUICK EXECUTE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# PRIMARY EMOTIONAL (1-6)
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 1}'  # IDLE_RELAXED
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 2}'  # IDLE_BORED
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 3}'  # ALERT_CURIOUS
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 4}'  # ALERT_CAUTIOUS
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 5}'  # EXCITED_HAPPY
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 6}'  # EXCITED_MISCHIEVOUS
+
+# SOCIAL INTERACTION (7-10)
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 7}'  # GREETING_FRIENDLY
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 8}'  # GREETING_SHY
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 9}'  # FAREWELL_SAD
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 10}' # FAREWELL_HOPEFUL
+
+# CHARACTER-SPECIFIC (11-14)
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 11}' # STUBBORN_DEFIANT
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 12}' # STUBBORN_POUTY
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 13}' # PROTECTIVE_ALERT
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 14}' # PROTECTIVE_AGGRESSIVE
+
+# ACTIVITY STATES (15-20)
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 15}' # SCANNING_METHODICAL
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 16}' # SCANNING_FRANTIC
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 17}' # TRACKING_FOCUSED
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 18}' # TRACKING_PLAYFUL
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 19}' # DEMONSTRATING_CONFIDENT
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 20}' # DEMONSTRATING_NERVOUS
+
+# PERFORMANCE (21-24)
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 21}' # ENTERTAINING_CROWD
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 22}' # ENTERTAINING_INTIMATE
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 23}' # JEDI_RESPECT
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 24}' # SITH_ALERT
+
+# SPECIAL (25-27)
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 25}' # MAINTENANCE_COOPERATIVE
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 26}' # EMERGENCY_CALM
+curl -X POST http://localhost:8770/api/wcb/mood/execute -H "Content-Type: application/json" -d '{"mood_id": 27}' # EMERGENCY_PANIC
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+10. USEFUL jq FILTERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Get only mood name from execution
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 5}' | jq '.mood'
+
+# Get execution time
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 5}' | jq '.execution_time_ms'
+
+# Get all mood names
+curl http://localhost:8770/api/wcb/mood/list | jq '.moods[].name'
+
+# Get moods with 7 commands
+curl http://localhost:8770/api/wcb/mood/list | jq '.moods[] | select(.command_count == 7)'
+
+# Check if mood is active
+curl http://localhost:8770/api/wcb/mood/status | jq '.active'
+
+# Get uptime in hours
+curl http://localhost:8770/api/wcb/stats | jq '.uptime_seconds / 3600'
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+11. PRODUCTION TESTING SEQUENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# 1. Health check
+curl http://localhost:8770/ | jq '.status'
+
+# 2. List moods
+curl http://localhost:8770/api/wcb/mood/list | jq '.total'
+
+# 3. Execute test mood
+curl -X POST http://localhost:8770/api/wcb/mood/execute \
+  -H "Content-Type: application/json" \
+  -d '{"mood_id": 1, "priority": 7}' | jq '.status'
+
+# 4. Check status
+curl http://localhost:8770/api/wcb/mood/status | jq '.active'
+
+# 5. Get statistics
+curl http://localhost:8770/api/wcb/stats | jq '.moods_executed'
+
+# 6. Check boards
+curl http://localhost:8770/api/wcb/boards/status | jq '.overall_status'
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DOCUMENTATION & HELP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Interactive API Docs:   http://localhost:8770/docs
+ReDoc Documentation:    http://localhost:8770/redoc
+OpenAPI Schema:         http://localhost:8770/openapi.json
+
+Complete Guide:         WCB_DASHBOARD_API_GUIDE.md
+Quick Reference:        WCB_API_QUICK_REFERENCE.md
+Implementation Summary: WCB_API_IMPLEMENTATION_SUMMARY.md
+
+Test Suite:             ./wcb_api_test_commands.sh
+Startup Script:         ./start_wcb_api.sh
+
+═══════════════════════════════════════════════════════════════
+Created: 2025-10-05 | Version: 1.0.0 | Status: Production Ready
+═══════════════════════════════════════════════════════════════
