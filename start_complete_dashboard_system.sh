@@ -1,91 +1,75 @@
 #!/bin/bash
-# R2D2 Complete Dashboard System Startup Script
-# Starts both dashboard server and video feed system
+# R2D2 Complete Dashboard System Startup
+# Starts vision system + dashboard server + WCB API
 
-echo "🎯 Starting R2D2 Complete Dashboard System"
-echo "============================================"
+echo "🤖 Starting Complete R2D2 Dashboard System..."
+echo "=============================================="
+echo ""
 
-# Function to check if port is in use
-check_port() {
-    netstat -tuln | grep ":$1 " > /dev/null
-    return $?
-}
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
 
-# Function to kill processes on specific ports
-cleanup_port() {
-    local port=$1
-    local pids=$(lsof -ti:$port 2>/dev/null)
-    if [ ! -z "$pids" ]; then
-        echo "🧹 Cleaning up existing processes on port $port"
-        kill -9 $pids 2>/dev/null || true
-        sleep 1
-    fi
-}
+cd /home/rolo/r2ai
 
-# Cleanup existing processes
-echo "🧹 Cleaning up any existing services..."
-cleanup_port 8765
-cleanup_port 8766
-cleanup_port 8767
+# Step 1: Start Vision System
+echo "Step 1: Starting Vision System (port 8767)..."
+if ./start_vision_system.sh; then
+    echo -e "${GREEN}✓ Vision system started${NC}"
+else
+    echo -e "${YELLOW}⚠ Vision system startup had issues (check vision_system.log)${NC}"
+    echo "  Continuing anyway..."
+fi
+echo ""
 
-# Kill any existing dashboard or vision processes
-pkill -f "dashboard-server.js" 2>/dev/null || true
-pkill -f "test_dashboard_video_feed.py" 2>/dev/null || true
+# Wait for vision to initialize
 sleep 2
 
-echo "🚀 Starting Dashboard HTTP and WebSocket Server..."
-npm start &
-DASHBOARD_PID=$!
-
-# Wait for dashboard to start
-sleep 3
-
-echo "🎥 Starting Live Video Feed System..."
-python3 r2d2_ultra_stable_vision.py &
-VIDEO_PID=$!
-
-# Wait for services to initialize
-sleep 5
-
-echo "🔍 Checking service status..."
-
-# Check if services are running
-if check_port 8765; then
-    echo "✅ Dashboard HTTP Server (8765): Running"
+# Step 2: Start Dashboard Server
+echo "Step 2: Starting Dashboard Server (ports 8765, 8766, 8768)..."
+if ./start_dashboard.sh; then
+    echo -e "${GREEN}✓ Dashboard server started${NC}"
 else
-    echo "❌ Dashboard HTTP Server (8765): Failed to start"
+    echo -e "${RED}✗ Dashboard server failed to start${NC}"
+    echo "  Stopping vision system..."
+    ./stop_vision_system.sh
+    exit 1
 fi
+echo ""
 
-if check_port 8766; then
-    echo "✅ Dashboard WebSocket Server (8766): Running"
+# Step 3: Check WCB API (optional - don't fail if not running)
+echo "Step 3: Checking WCB API (port 8770)..."
+if curl -s http://localhost:8770/ > /dev/null 2>&1; then
+    echo -e "${GREEN}✓ WCB API is running${NC}"
 else
-    echo "❌ Dashboard WebSocket Server (8766): Failed to start"
+    echo -e "${YELLOW}⚠ WCB API not running (optional)${NC}"
+    echo "  To start: python3 wcb_dashboard_api.py &"
 fi
+echo ""
 
-if check_port 8767; then
-    echo "✅ Vision WebSocket Server (8767): Running"
-else
-    echo "❌ Vision WebSocket Server (8767): Failed to start"
+echo "=============================================="
+echo -e "${GREEN}🎉 Complete Dashboard System Started!${NC}"
+echo ""
+echo "📊 Available Services:"
+echo "  • Vision Feed: ws://localhost:8767"
+echo "  • Dashboard Server: http://localhost:8765"
+echo "  • WebSocket: ws://localhost:8766"
+echo "  • Behavioral WS: ws://localhost:8768"
+if curl -s http://localhost:8770/ > /dev/null 2>&1; then
+    echo "  • WCB API: http://localhost:8770"
 fi
-
 echo ""
-echo "🎉 R2D2 Dashboard System Started!"
-echo "============================================"
-echo "🌐 Dashboard URL: http://localhost:8765"
+echo "🌐 Dashboards:"
+echo "  • Main: http://localhost:8765/"
+echo "  • Enhanced: http://localhost:8765/enhanced"
+echo "  • WCB Mood: file:///home/rolo/r2ai/r2d2_wcb_mood_dashboard.html"
 echo ""
-echo "📊 Expected Features:"
-echo "   - Live video feed with Star Wars character detection"
-echo "   - Real-time character recognition display"
-echo "   - R2D2 emotional reactions"
-echo "   - Servo control interface"
-echo "   - Audio system controls"
+echo "📋 Logs:"
+echo "  • Vision: tail -f vision_system.log"
+echo "  • Dashboard: tail -f dashboard.log"
 echo ""
-echo "🔧 Service Information:"
-echo "   - Dashboard PID: $DASHBOARD_PID"
-echo "   - Video Feed PID: $VIDEO_PID"
+echo "🛑 To stop all:"
+echo "  ./stop_complete_dashboard_system.sh"
 echo ""
-echo "⏹️  To stop services:"
-echo "   kill $DASHBOARD_PID $VIDEO_PID"
-echo "   Or run: pkill -f 'dashboard-server.js|test_dashboard_video_feed.py'"
-echo ""
-echo "✨ Open your browser to http://localhost:8765 to access the dashboard!"
