@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R2D2 Behavioral Intelligence + WCB Orchestration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0b1e 0%, #1a1a2e 50%, #16213e 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid #3b82f6;
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #3b82f6, #10b981, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .connection-status.connected {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+            animation: pulse-green 2s infinite;
+        }
+
+        .connection-status.disconnected {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+            50% { box-shadow: 0 4px 25px rgba(16, 185, 129, 0.6); }
+        }
+
+        .main-container {
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-panel {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .panel-icon {
+            font-size: 2rem;
+        }
+
+        .panel-header h2 {
+            color: #3b82f6;
+            font-size: 1.5rem;
+        }
+
+        .personality-mode {
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .personality-mode:hover {
+            border-color: #3b82f6;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .personality-mode.active {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .personality-mode .emoji {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .personality-mode .name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 5px;
+        }
+
+        .personality-mode .description {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .personality-mode .mood-id {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 8px;
+            padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .personality-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .mood-status-panel {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .mood-status-panel h3 {
+            color: #3b82f6;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .status-label {
+            color: #94a3b8;
+        }
+
+        .status-value {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .progress-container {
+            background: rgba(0, 0, 0, 0.3);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .quick-mood-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .quick-mood-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .quick-mood-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .quick-mood-btn.active {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .emergency-stop-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .emergency-stop-btn:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            transform: scale(1.02);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .personality-controls {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .personality-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-mood-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status disconnected" id="connectionStatus">Connecting...</div>
+
+    <header class="header">
+        <h1>🎭 R2D2 Behavioral Intelligence + WCB Orchestration</h1>
+        <p class="subtitle">Advanced Character AI • WCB Mood Integration • Real-time Behavioral Control</p>
+    </header>
+
+    <div class="main-container">
+        <div class="dashboard-grid">
+            <!-- Personality Mode Control -->
+            <div class="control-panel">
+                <div class="panel-header">
+                    <div class="panel-icon">🧠</div>
+                    <h2>Personality Modes (WCB Integrated)</h2>
+                </div>
+
+                <div class="personality-controls">
+                    <div class="personality-mode" data-mode="curious" onclick="setPersonalityMode('curious', 3)">
+                        <span class="emoji">🤔</span>
+                        <div class="name">Curious</div>
+                        <div class="description">Investigative & inquisitive</div>
+                        <div class="mood-id">WCB Mood: 3</div>
+                    </div>
+                    <div class="personality-mode" data-mode="excited" onclick="setPersonalityMode('excited', 5)">
+                        <span class="emoji">🤩</span>
+                        <div class="name">Excited</div>
+                        <div class="description">Enthusiastic & energetic</div>
+                        <div class="mood-id">WCB Mood: 5</div>
+                    </div>
+                    <div class="personality-mode" data-mode="cautious" onclick="setPersonalityMode('cautious', 4)">
+                        <span class="emoji">😬</span>
+                        <div class="name">Cautious</div>
+                        <div class="description">Careful & alert</div>
+                        <div class="mood-id">WCB Mood: 4</div>
+                    </div>
+                    <div class="personality-mode" data-mode="playful" onclick="setPersonalityMode('playful', 6)">
+                        <span class="emoji">😄</span>
+                        <div class="name">Playful</div>
+                        <div class="description">Mischievous & fun</div>
+                        <div class="mood-id">WCB Mood: 6</div>
+                    </div>
+                    <div class="personality-mode" data-mode="protective" onclick="setPersonalityMode('protective', 13)">
+                        <span class="emoji">🛡️</span>
+                        <div class="name">Protective</div>
+                        <div class="description">Vigilant & loyal</div>
+                        <div class="mood-id">WCB Mood: 13</div>
+                    </div>
+                    <div class="personality-mode" data-mode="friendly" onclick="setPersonalityMode('friendly', 7)">
+                        <span class="emoji">👋</span>
+                        <div class="name">Friendly</div>
+                        <div class="description">Warm & welcoming</div>
+                        <div class="mood-id">WCB Mood: 7</div>
+                    </div>
+                </div>
+
+                <!-- Quick Mood Actions -->
+                <div class="quick-mood-actions">
+                    <button class="quick-mood-btn" onclick="executeMood(1)">😌 Relaxed</button>
+                    <button class="quick-mood-btn" onclick="executeMood(7)">👋 Greet</button>
+                    <button class="quick-mood-btn" onclick="executeMood(21)">🎪 Entertain</button>
+                    <button class="quick-mood-btn" onclick="executeMood(15)">🔍 Scan</button>
+                </div>
+
+                <!-- Emergency Stop -->
+                <button class="emergency-stop-btn" onclick="executeMood(27, 10)">
+                    🚨 EMERGENCY PANIC
+                </button>
+            </div>
+
+            <!-- WCB Mood Status Panel -->
+            <div class="control-panel">
+                <div class="panel-header">
+                    <div class="panel-icon">📊</div>
+                    <h2>WCB Mood Status</h2>
+                </div>
+
+                <div class="mood-status-panel">
+                    <h3>Current Execution</h3>
+                    <div class="status-item">
+                        <span class="status-label">Active Mood:</span>
+                        <span class="status-value" id="currentMood">Idle</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Commands Sent:</span>
+                        <span class="status-value" id="commandsSent">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Execution Time:</span>
+                        <span class="status-value" id="executionTime">0s</span>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar" id="moodProgress"></div>
+                    </div>
+
+                    <button onclick="stopMood()" style="width: 100%; background: #ef4444; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; cursor: pointer; margin-top: 10px;">
+                        ⏹️ Stop Mood
+                    </button>
+                </div>
+
+                <!-- Statistics -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🎭</div>
+                        <div class="stat-value" id="totalMoods">0</div>
+                        <div class="stat-label">Total Moods</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-value" id="totalCommands">0</div>
+                        <div class="stat-label">Commands</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔗</div>
+                        <div class="stat-value" id="wcbStatus">●</div>
+                        <div class="stat-label">WCB API</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-value" id="uptime">0m</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Behavioral State Mapping Guide -->
+        <div class="control-panel">
+            <div class="panel-header">
+                <div class="panel-icon">📖</div>
+                <h2>Behavioral State → WCB Mood Mapping</h2>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 0.9rem;">
+                <div style="padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                    <strong style="color: #3b82f6;">Curious Mode:</strong> Alert Curious (Mood 3)
+                </div>
+                <div style="padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                    <strong style="color: #3b82f6;">Excited Mode:</strong> Excited Happy (Mood 5)
+                </div>
+                <div style="padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                    <strong style="color: #3b82f6;">Cautious Mode:</strong> Alert Cautious (Mood 4)
+                </div>
+                <div style="padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                    <strong style="color: #3b82f6;">Playful Mode:</strong> Excited Mischievous (Mood 6)
+                </div>
+                <div style="padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                    <strong style="color: #3b82f6;">Protective Mode:</strong> Protective Alert (Mood 13)
+                </div>
+                <div style="padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                    <strong style="color: #3b82f6;">Friendly Mode:</strong> Greeting Friendly (Mood 7)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // WCB API Configuration
+        const WCB_API_URL = 'http://localhost:8770';
+        
+        // State tracking
+        let currentPersonalityMode = null;
+        let totalMoodsExecuted = 0;
+        let totalCommandsSent = 0;
+        let startTime = Date.now();
+        let moodStartTime = null;
+        let statusPollInterval = null;
+
+        // Personality to Mood mapping
+        const PERSONALITY_MOOD_MAP = {
+            'curious': 3,
+            'excited': 5,
+            'cautious': 4,
+            'playful': 6,
+            'protective': 13,
+            'friendly': 7
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 R2D2 Behavioral WCB Dashboard Initializing...');
+            checkWCBConnection();
+            startStatusPolling();
+            updateUptime();
+        });
+
+        // Set personality mode (triggers WCB mood)
+        async function setPersonalityMode(mode, moodId) {
+            // Clear previous active state
+            document.querySelectorAll('.personality-mode').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Set new active state
+            const modeElement = document.querySelector(`[data-mode="${mode}"]`);
+            if (modeElement) {
+                modeElement.classList.add('active');
+            }
+
+            currentPersonalityMode = mode;
+            console.log(`🎭 Personality mode set to: ${mode}`);
+
+            // Execute corresponding WCB mood
+            await executeMood(moodId);
+        }
+
+        // Execute WCB mood
+        async function executeMood(moodId, priority = 7) {
+            try {
+                const response = await fetch(`${WCB_API_URL}/api/wcb/mood/execute`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({mood_id: moodId, priority: priority})
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    moodStartTime = Date.now();
+                    totalMoodsExecuted++;
+                    totalCommandsSent += result.commands_sent || 0;
+                    
+                    updateStatistics();
+                    console.log(`✅ Mood executed: ${result.mood}, ${result.commands_sent} commands`);
+                } else {
+                    console.error(`❌ Mood execution failed: ${result.detail}`);
+                }
+            } catch (error) {
+                console.error('Mood execution error:', error);
+            }
+        }
+
+        // Stop current mood
+        async function stopMood() {
+            try {
+                const response = await fetch(`${WCB_API_URL}/api/wcb/mood/stop`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('currentMood').textContent = 'Stopped';
+                    document.getElementById('moodProgress').style.width = '0%';
+                    console.log('✅ Mood stopped');
+                }
+            } catch (error) {
+                console.error('Stop error:', error);
+            }
+        }
+
+        // Poll status from WCB API
+        function startStatusPolling() {
+            if (statusPollInterval) clearInterval(statusPollInterval);
+            statusPollInterval = setInterval(pollMoodStatus, 500);
+        }
+
+        async function pollMoodStatus() {
+            try {
+                const response = await fetch(`${WCB_API_URL}/api/wcb/mood/status`);
+                const status = await response.json();
+                
+                if (status.active) {
+                    document.getElementById('currentMood').textContent = status.mood || 'Active';
+                    document.getElementById('commandsSent').textContent = status.commands_sent || 0;
+                    document.getElementById('moodProgress').style.width = `${status.progress_percent || 0}%`;
+                    
+                    // Update execution time
+                    if (moodStartTime) {
+                        const elapsed = Math.floor((Date.now() - moodStartTime) / 1000);
+                        document.getElementById('executionTime').textContent = `${elapsed}s`;
+                    }
+                } else {
+                    document.getElementById('currentMood').textContent = 'Idle';
+                    document.getElementById('moodProgress').style.width = '0%';
+                    moodStartTime = null;
+                }
+                
+                updateConnectionStatus(true);
+            } catch (error) {
+                updateConnectionStatus(false);
+            }
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            document.getElementById('totalMoods').textContent = totalMoodsExecuted;
+            document.getElementById('totalCommands').textContent = totalCommandsSent;
+        }
+
+        // Check WCB connection
+        async function checkWCBConnection() {
+            try {
+                const response = await fetch(`${WCB_API_URL}/api/wcb/mood/status`);
+                if (response.ok) {
+                    document.getElementById('wcbStatus').textContent = '✓';
+                    document.getElementById('wcbStatus').style.color = '#10b981';
+                }
+            } catch (error) {
+                document.getElementById('wcbStatus').textContent = '✗';
+                document.getElementById('wcbStatus').style.color = '#ef4444';
+            }
+        }
+
+        // Update connection status
+        function updateConnectionStatus(connected) {
+            const statusEl = document.getElementById('connectionStatus');
+            if (connected) {
+                statusEl.className = 'connection-status connected';
+                statusEl.textContent = 'WCB Connected';
+            } else {
+                statusEl.className = 'connection-status disconnected';
+                statusEl.textContent = 'WCB Disconnected';
+            }
+        }
+
+        // Update uptime
+        function updateUptime() {
+            setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 60000);
+                document.getElementById('uptime').textContent = `${elapsed}m`;
+            }, 10000);
+        }
+
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+            if (statusPollInterval) clearInterval(statusPollInterval);
+        });
+    </script>
+</body>
+</html>
