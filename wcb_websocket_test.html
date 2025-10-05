@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WCB WebSocket Test Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .panel h2 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-connected { background: #4CAF50; box-shadow: 0 0 10px #4CAF50; }
+        .status-disconnected { background: #f44336; box-shadow: 0 0 10px #f44336; }
+        .status-connecting { background: #ff9800; box-shadow: 0 0 10px #ff9800; }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+        }
+
+        button.success {
+            background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+        }
+
+        .log-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-left: 3px solid #667eea;
+            padding-left: 10px;
+        }
+
+        .log-entry.info { border-left-color: #2196F3; }
+        .log-entry.success { border-left-color: #4CAF50; }
+        .log-entry.error { border-left-color: #f44336; }
+        .log-entry.warning { border-left-color: #ff9800; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .mood-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .mood-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .mood-card.active {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .mood-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .mood-info {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        .progress-bar {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            height: 20px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        select {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        select option {
+            background: #2a5298;
+            color: white;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 WCB WebSocket Test Interface</h1>
+
+        <!-- Connection Status -->
+        <div class="panel">
+            <h2><span class="status-indicator status-disconnected" id="status-indicator"></span> Connection Status</h2>
+            <div id="connection-status">Disconnected</div>
+            <div class="button-group" style="margin-top: 10px;">
+                <button onclick="connectWebSocket()" class="success">Connect</button>
+                <button onclick="disconnectWebSocket()" class="danger">Disconnect</button>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="panel">
+            <h2>⚡ Quick Actions</h2>
+            <div class="button-group">
+                <button onclick="requestMoodList()">Get Mood List</button>
+                <button onclick="requestStatus()">Get Status</button>
+                <button onclick="requestStats()">Get Statistics</button>
+                <button onclick="stopMood()" class="danger">Stop Current Mood</button>
+                <button onclick="clearLog()">Clear Log</button>
+            </div>
+        </div>
+
+        <!-- Mood Control -->
+        <div class="panel">
+            <h2>🎭 Mood Control</h2>
+            <select id="mood-selector">
+                <option value="">Select a mood...</option>
+            </select>
+            <div class="button-group">
+                <button onclick="executeMoodFromSelector()" class="success">Execute Selected Mood</button>
+            </div>
+            <div id="mood-grid" class="mood-grid"></div>
+        </div>
+
+        <!-- Current Status -->
+        <div class="panel">
+            <h2>📊 Current Status</h2>
+            <div id="current-status-display">
+                <p>No status data</p>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="panel">
+            <h2>📈 Statistics</h2>
+            <div class="stats-grid" id="stats-display">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-moods">0</div>
+                    <div class="stat-label">Moods Executed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-commands">0</div>
+                    <div class="stat-label">Total Commands</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-avgtime">0ms</div>
+                    <div class="stat-label">Avg Execution Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-uptime">0s</div>
+                    <div class="stat-label">Uptime</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Log -->
+        <div class="panel">
+            <h2>📝 Message Log</h2>
+            <div class="log-container" id="log-container"></div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let reconnectAttempts = 0;
+        const MAX_RECONNECT_ATTEMPTS = 5;
+
+        // WebSocket Management
+        function connectWebSocket() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                log('Already connected', 'warning');
+                return;
+            }
+
+            log('Connecting to WebSocket...', 'info');
+            ws = new WebSocket('ws://localhost:8766');
+
+            ws.onopen = () => {
+                log('WebSocket connected successfully!', 'success');
+                updateConnectionStatus(true);
+                reconnectAttempts = 0;
+
+                // Request initial data
+                requestMoodList();
+                requestStatus();
+                requestStats();
+            };
+
+            ws.onerror = (error) => {
+                log('WebSocket error: ' + error, 'error');
+                updateConnectionStatus(false);
+            };
+
+            ws.onclose = () => {
+                log('WebSocket disconnected', 'warning');
+                updateConnectionStatus(false);
+
+                // Auto-reconnect
+                if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                    reconnectAttempts++;
+                    setTimeout(() => {
+                        log(`Reconnecting (attempt ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`, 'info');
+                        connectWebSocket();
+                    }, 3000);
+                }
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    handleMessage(data);
+                } catch (error) {
+                    log('Error parsing message: ' + error, 'error');
+                }
+            };
+        }
+
+        function disconnectWebSocket() {
+            if (ws) {
+                ws.close();
+                ws = null;
+                log('WebSocket disconnected by user', 'info');
+            }
+        }
+
+        function updateConnectionStatus(connected) {
+            const indicator = document.getElementById('status-indicator');
+            const status = document.getElementById('connection-status');
+
+            if (connected) {
+                indicator.className = 'status-indicator status-connected';
+                status.textContent = 'Connected to ws://localhost:8766';
+            } else {
+                indicator.className = 'status-indicator status-disconnected';
+                status.textContent = 'Disconnected';
+            }
+        }
+
+        // Message Handlers
+        function handleMessage(data) {
+            log(`Received: ${data.type}`, 'info');
+
+            switch(data.type) {
+                case 'wcb_mood_status':
+                    updateMoodStatus(data);
+                    break;
+                case 'wcb_mood_result':
+                    handleMoodResult(data);
+                    break;
+                case 'wcb_mood_list':
+                    updateMoodList(data);
+                    break;
+                case 'wcb_stats':
+                    updateStats(data);
+                    break;
+                case 'wcb_error':
+                    handleError(data);
+                    break;
+            }
+        }
+
+        function updateMoodStatus(data) {
+            const display = document.getElementById('current-status-display');
+
+            if (data.active) {
+                display.innerHTML = `
+                    <div style="color: #4CAF50; font-weight: bold; margin-bottom: 10px;">
+                        ⚡ ACTIVE: ${data.mood}
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${data.progress_percent}%">
+                            ${Math.round(data.progress_percent)}%
+                        </div>
+                    </div>
+                    <div style="opacity: 0.8;">
+                        Commands sent: ${data.commands_sent}<br>
+                        Started: ${new Date(data.started_at).toLocaleTimeString()}
+                    </div>
+                `;
+
+                // Highlight active mood in grid
+                document.querySelectorAll('.mood-card').forEach(card => {
+                    if (card.dataset.mood === data.mood) {
+                        card.classList.add('active');
+                    } else {
+                        card.classList.remove('active');
+                    }
+                });
+            } else {
+                display.innerHTML = `
+                    <div style="opacity: 0.6;">
+                        💤 Idle - No active mood
+                    </div>
+                `;
+                document.querySelectorAll('.mood-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+            }
+        }
+
+        function handleMoodResult(data) {
+            if (data.status === 'success') {
+                log(`✓ Mood executed: ${data.mood} (${data.commands_sent} commands, ${data.execution_time_ms}ms)`, 'success');
+                showNotification(`Success: ${data.mood} executed!`, 'success');
+            } else {
+                log(`✗ Mood execution failed: ${data.message}`, 'error');
+                showNotification(`Failed: ${data.message}`, 'error');
+            }
+        }
+
+        function updateMoodList(data) {
+            log(`Loaded ${data.total} moods`, 'success');
+
+            const selector = document.getElementById('mood-selector');
+            selector.innerHTML = '<option value="">Select a mood...</option>';
+
+            const grid = document.getElementById('mood-grid');
+            grid.innerHTML = '';
+
+            data.moods.forEach(mood => {
+                // Add to selector
+                const option = document.createElement('option');
+                option.value = mood.id;
+                option.textContent = `${mood.id}. ${mood.name} (${mood.command_count} cmds)`;
+                selector.appendChild(option);
+
+                // Add to grid
+                const card = document.createElement('div');
+                card.className = 'mood-card';
+                card.dataset.mood = mood.name;
+                card.innerHTML = `
+                    <div class="mood-name">${mood.name}</div>
+                    <div class="mood-info">#${mood.id} • ${mood.command_count} cmds</div>
+                `;
+                card.onclick = () => executeMood(mood.id, mood.name);
+                grid.appendChild(card);
+            });
+        }
+
+        function updateStats(data) {
+            document.getElementById('stat-moods').textContent = data.moods_executed;
+            document.getElementById('stat-commands').textContent = data.total_commands_sent;
+            document.getElementById('stat-avgtime').textContent = data.average_execution_time_ms + 'ms';
+            document.getElementById('stat-uptime').textContent = formatUptime(data.uptime_seconds);
+        }
+
+        function handleError(data) {
+            log(`ERROR: ${data.error} - ${data.details}`, 'error');
+            showNotification(`Error: ${data.error}`, 'error');
+        }
+
+        // Command Functions
+        function requestMoodList() {
+            sendMessage({type: 'wcb_mood_list_request'});
+            log('Requesting mood list...', 'info');
+        }
+
+        function requestStatus() {
+            sendMessage({type: 'wcb_mood_status_request'});
+            log('Requesting status...', 'info');
+        }
+
+        function requestStats() {
+            sendMessage({type: 'wcb_stats_request'});
+            log('Requesting statistics...', 'info');
+        }
+
+        function executeMood(moodId, moodName) {
+            sendMessage({
+                type: 'wcb_mood_execute',
+                mood_id: moodId,
+                mood_name: moodName,
+                priority: 7
+            });
+            log(`Executing mood: ${moodName} (ID: ${moodId})`, 'info');
+        }
+
+        function executeMoodFromSelector() {
+            const selector = document.getElementById('mood-selector');
+            if (!selector.value) {
+                log('No mood selected', 'warning');
+                return;
+            }
+
+            const option = selector.options[selector.selectedIndex];
+            const moodId = parseInt(selector.value);
+            const moodName = option.textContent.split('.')[1].split('(')[0].trim();
+
+            executeMood(moodId, moodName);
+        }
+
+        function stopMood() {
+            sendMessage({type: 'wcb_mood_stop'});
+            log('Stopping current mood...', 'info');
+        }
+
+        function sendMessage(message) {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('WebSocket not connected', 'error');
+                showNotification('Not connected to WebSocket', 'error');
+                return;
+            }
+
+            ws.send(JSON.stringify(message));
+        }
+
+        // Utility Functions
+        function log(message, type = 'info') {
+            const container = document.getElementById('log-container');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+
+            const time = new Date().toLocaleTimeString();
+            entry.textContent = `[${time}] ${message}`;
+
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log-container').innerHTML = '';
+            log('Log cleared', 'info');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+            setTimeout(() => notification.classList.add('show'), 10);
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function formatUptime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+
+            if (hours > 0) return `${hours}h ${minutes}m`;
+            if (minutes > 0) return `${minutes}m ${secs}s`;
+            return `${secs}s`;
+        }
+
+        // Auto-connect on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            log('WCB WebSocket Test Interface loaded', 'success');
+            connectWebSocket();
+        });
+    </script>
+</body>
+</html>

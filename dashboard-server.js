@@ -14,9 +14,30 @@ const WEBSOCKET_PORT = 8766;
 const BEHAVIORAL_WEBSOCKET_PORT = 8768;
 const SERVO_API_URL = 'http://localhost:5000/api';
 const SERVO_WEBSOCKET_URL = 'ws://localhost:5000';
+const WCB_API_URL = 'http://localhost:8770';
 
 // Import axios for HTTP requests
 const axios = require('axios');
+
+// WCB API Client Helper Function
+async function callWCBAPI(endpoint, method = 'GET', body = null) {
+    try {
+        const options = {
+            method: method,
+            headers: {'Content-Type': 'application/json'}
+        };
+        if (body) options.data = body;
+
+        const response = await axios({
+            url: `${WCB_API_URL}${endpoint}`,
+            ...options
+        });
+        return response.data;
+    } catch (error) {
+        console.error('WCB API Error:', error.message);
+        throw error;
+    }
+}
 
 // Track child processes for proper cleanup
 const childProcesses = new Set();
@@ -588,7 +609,7 @@ function simulateEnvironmentalChanges() {
     }
 }
 
-function handleWebSocketMessage(ws, data) {
+async function handleWebSocketMessage(ws, data) {
     switch(data.type) {
         case 'request_data':
             sendSystemStats(ws);
@@ -618,6 +639,22 @@ function handleWebSocketMessage(ws, data) {
             break;
         case 'emergency_stop':
             handleEmergencyStop(ws, data);
+            break;
+        // WCB Mood Control WebSocket Handlers
+        case 'wcb_mood_execute':
+            await handleWCBMoodExecute(ws, data);
+            break;
+        case 'wcb_mood_stop':
+            await handleWCBMoodStop(ws, data);
+            break;
+        case 'wcb_mood_status_request':
+            await handleWCBMoodStatusRequest(ws, data);
+            break;
+        case 'wcb_mood_list_request':
+            await handleWCBMoodListRequest(ws, data);
+            break;
+        case 'wcb_stats_request':
+            await handleWCBStatsRequest(ws, data);
             break;
     }
 }
@@ -876,6 +913,48 @@ memoryCleanupInterval = setInterval(() => {
 setInterval(() => {
     forceGarbageCollection();
 }, MEMORY_CONFIG.FORCE_GC_INTERVAL);
+
+// WCB Status Broadcasting Interval (1 second)
+setInterval(async () => {
+    try {
+        // Fetch WCB status and stats from API
+        const status = await callWCBAPI('/api/wcb/mood/status');
+        const stats = await callWCBAPI('/api/wcb/stats');
+
+        // Broadcast to all connected WebSocket clients
+        wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                // Send status update
+                client.send(JSON.stringify({
+                    type: 'wcb_mood_status',
+                    active: status.active || false,
+                    mood: status.mood || null,
+                    progress_percent: status.progress_percent || 0,
+                    commands_sent: status.commands_sent || 0,
+                    started_at: status.started_at || null,
+                    timestamp: Date.now()
+                }));
+
+                // Send stats update
+                client.send(JSON.stringify({
+                    type: 'wcb_stats',
+                    moods_executed: stats.moods_executed || 0,
+                    total_commands_sent: stats.total_commands_sent || 0,
+                    average_execution_time_ms: stats.average_execution_time_ms || 0,
+                    uptime_seconds: stats.uptime_seconds || 0,
+                    timestamp: Date.now()
+                }));
+            }
+        });
+    } catch (error) {
+        // Silently fail if WCB API is not available
+        // Only log on first occurrence to avoid spam
+        if (!global.wcbBroadcastErrorLogged) {
+            console.log('WCB status broadcast: API not available (will retry silently)');
+            global.wcbBroadcastErrorLogged = true;
+        }
+    }
+}, 1000); // Every 1 second
 
 // Graceful shutdown
 process.on('SIGINT', () => {
@@ -1254,6 +1333,164 @@ function handleServoConfig(ws, data) {
             }));
         }
     });
+}
+
+// ===== WCB MOOD CONTROL WEBSOCKET HANDLERS =====
+
+async function handleWCBMoodExecute(ws, data) {
+    console.log(`WCB Mood Execute: ${data.mood_id} (${data.mood_name || 'unnamed'}), Priority: ${data.priority || 7}`);
+
+    try {
+        const result = await callWCBAPI('/api/wcb/mood/execute', 'POST', {
+            mood_id: data.mood_id,
+            mood_name: data.mood_name,
+            priority: data.priority || 7
+        });
+
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                type: 'wcb_mood_result',
+                status: result.status || 'success',
+                mood: result.mood || data.mood_name,
+                commands_sent: result.commands_sent || 0,
+                execution_time_ms: result.execution_time_ms || 0,
+                message: result.message,
+                timestamp: Date.now()
+            }));
+        }
+
+        console.log(`WCB Mood Execute Success: ${result.mood}`);
+    } catch (error) {
+        console.error('WCB Mood Execute Error:', error.message);
+
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                type: 'wcb_error',
+                error: 'Mood execution failed',
+                details: error.message,
+                timestamp: Date.now()
+            }));
+        }
+    }
+}
+
+async function handleWCBMoodStop(ws, data) {
+    console.log('WCB Mood Stop requested');
+
+    try {
+        const result = await callWCBAPI('/api/wcb/mood/stop', 'POST');
+
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                type: 'wcb_mood_result',
+                status: result.status || 'success',
+                message: result.message || 'Mood stopped',
+                timestamp: Date.now()
+            }));
+        }
+
+        console.log('WCB Mood Stop Success');
+    } catch (error) {
+        console.error('WCB Mood Stop Error:', error.message);
+
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                type: 'wcb_error',
+                error: 'Stop failed',
+                details: error.message,
+                timestamp: Date.now()
+            }));
+        }
+    }
+}
+
+async function handleWCBMoodStatusRequest(ws, data) {
+    console.log('WCB Mood Status requested');
+
+    try {
+        const status = await callWCBAPI('/api/wcb/mood/status');
+
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                type: 'wcb_mood_status',
+                active: status.active || false,
+                mood: status.mood || null,
+                progress_percent: status.progress_percent || 0,
+                commands_sent: status.commands_sent || 0,
+                started_at: status.started_at || null,
+                timestamp: Date.now()
+            }));
+        }
+    } catch (error) {
+        console.error('WCB Mood Status Error:', error.message);
+
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                type: 'wcb_error',
+                error: 'Status request failed',
+                details: error.message,
+                timestamp: Date.now()
+            }));
+        }
+    }
+}
+
+async function handleWCBMoodListRequest(ws, data) {
+    console.log('WCB Mood List requested');
+
+    try {
+        const moodList = await callWCBAPI('/api/wcb/mood/list');
+
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                type: 'wcb_mood_list',
+                moods: moodList.moods || [],
+                total: moodList.total || 0,
+                timestamp: Date.now()
+            }));
+        }
+    } catch (error) {
+        console.error('WCB Mood List Error:', error.message);
+
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                type: 'wcb_error',
+                error: 'Mood list failed',
+                details: error.message,
+                timestamp: Date.now()
+            }));
+        }
+    }
+}
+
+async function handleWCBStatsRequest(ws, data) {
+    console.log('WCB Stats requested');
+
+    try {
+        const stats = await callWCBAPI('/api/wcb/stats');
+
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                type: 'wcb_stats',
+                moods_executed: stats.moods_executed || 0,
+                total_commands_sent: stats.total_commands_sent || 0,
+                average_execution_time_ms: stats.average_execution_time_ms || 0,
+                uptime_seconds: stats.uptime_seconds || 0,
+                timestamp: Date.now()
+            }));
+        }
+    } catch (error) {
+        console.error('WCB Stats Error:', error.message);
+
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                type: 'wcb_error',
+                error: 'Stats request failed',
+                details: error.message,
+                timestamp: Date.now()
+            }));
+        }
+    }
 }
 
 module.exports = { server, wss };
