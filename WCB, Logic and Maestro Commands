@@ -1,0 +1,472 @@
+Filty Holo Projector Lights
+;W3;S2F0036   (Filthy
+;W3;S299
+;W3;S2T1991
+;W3;S2A051
+
+Periscope Commands
+;W2;S2:PS4  (random Fast Periscope)
+;W2;S2:PS5  (random Slow Periscope)
+;W2;S2:PS1  (Down Periscope)
+;W2;S2:PS2  (Up Periscope
+;W2;S2:PS0  (Sneaky Periscope)
+
+
+
+;W3;S34T6|20     -Leia PSI 20 sec
+;W3;S34T7        -Heart
+;W3;S30T3
+;S50T3
+
+;W30T3
+
+Dome Maestro Commands
+;M301   Maestro  Open
+;M302   Maestro  fast top
+;M303   Maestro  Bye
+;M304   Maestro  Close
+;M305   Maestro  alt open and close
+;M306   Maestro  Fast Alt
+;M307   Maestro  Breathing
+;M308   Maestro  Long Random
+;M309   Maestro  Scream
+;M310   Maestro  Come here
+;M311   Maestro  Slow to fast
+
+Body Maestro Commands
+;M11 Arms open and close
+;M12 Arms wave
+;M13 Arms Open
+;M14 Arms Closed
+;M15 Arms RAndom
+
+PSI Commands
+Command T Modes
+
+Mode 0 - Turn Panel off (This will also turn stop the Teeces if they share the serial connection and the "0" address is used)
+Mode 1 - Default (Swipe) The default mode can be changed on the config.h tab
+Mode 2 - Flash (fast flash) (4 seconds) Use caution around those sensitive to flashing lights.
+Mode 3 - Alarm (slow flash) (4 seconds)
+Mode 4 - Short Circuit (10 seconds)
+Mode 5 - Scream (4 seconds)
+Mode 6 - Leia Message (34 seconds)
+Mode 7 - I heart U (10 seconds)
+Mode 8 - Quarter Panel sweep (7 seconds)
+Mode 9 - Flashing Red Heart (Front PSI), Pulse Monitor (Rear PSI)
+Mode 10 - Star Wars - Title Scroll (15 seconds)
+Mode 11 - Imperial March (47 seconds)
+Mode 12 - Disco Ball (4 seconds)
+Mode 13 - Disco Ball -Runs Indefinitely
+Mode 14 - Rebel Symbol (5 seconds)
+Mode 15 - Knight Rider (20 seconds)
+Mode 16 - Test Sequence (White on Indefinitely)
+Mode 17 - Red on Indefinitely
+Mode 18 - Green on Indefinitely
+Mode 19 - Light Saber Battle
+Mode 20 - Star Wars Intro (scrolling yellow "text" getting smaller and dimmer)
+Mode 21 - VU Meter (4 seconds)
+Mode 92 - VU Meter -Runs Indefinitely (Spectrum on Teeces)
+
+
+Address modifiers for "T" commands.
+
+The digit preceding the T is the address:
+
+0 - global address, all displays that support the command are set
+1 - TFLD (Top Front Logic Display)
+2 - BFLD (Bottom Front Logic Display)
+3 - RLD (Rear Logic Display)
+4 - Front PSI
+5 - Rear PSI
+6 - Front Holo (not implemented here)
+7 - Rear Holo (not implemented here)
+8 - Top Holo (not implemented here)
+
+Filty Holo Projector commands
+I2C/Serial Command Structure
+How to Make Your HPs Do Some Unique Things
+Command Structure
+Most of the commands available to to you over I2C or Serial communication come in the form of a 4-5 character
+alphanumeric string . This string uses a well defined composition utilizing the following structure:
+
+DT##C or DT##CS or DT##P or DT## or DT###
+D - the HP designator; used to select the specific HP you wish to send the command to.
+ Value Options: F - Front HP
+ R - Rear HP
+ T - Top HP
+ A - All 3 HPs
+T - the Sequence Type;
+ Value Options: 0 - LED Function
+ 1- Servo Function
+
+ ## - the Sequence Value (including leading zero);
+ LED Sequences
+ Value Options: 01 - Leia Sequence, Random shades of blue to mimic Leia Hologram*
+ 02 - Color Projector Sequence, Like Leia above using color command value
+ 03 - Dim Pulse Sequence, Color slowly pulses on and off (color & speed options)
+ 04 - Cycle Sequence, using color command value
+ 05 - Short Circuit, Led flashes on and off with interval slowing over time
+ 06 - Toggles Color, Simply sets LEDs to solid color value.
+ 07 - Rainbow Sequence*
+ 96 - Clears LED, Disables “Off Color”, Disables Auto LED Sequence*
+ 971 - Clears LED, Disables “Off Color”, Enables Auto LED Sequence using Default Sequences*
+ 972 - Clears LED, Disables “Off Color”, Enables Auto LED Sequence using Random Sequences*
+ 98 - Clears LED, Enables “Off Color”, Disables Auto LED Sequence*
+ 991 - Clears LED, Enables “Off Color”, Enables Auto LED Sequence using Default Sequences*
+ 992 - Clears LED, Enables “Off Color”, Enables Auto LED Sequence using Random Sequences*
+ * Color Value Below Unneeded, Therefore Ignored, Can Be Omitted From Command String
+
+ Servo Sequences
+ Value Options: 01 - Sends HP to a Preset Position (requires position value)*
+ 02 - Enables RC Control on HP (Left/Right)*
+ 03 - Enables RC Control on HP (Up/Down)*
+ 04 - Sends HP to a Random Position
+ 05 - Wags HP Left/Right*
+ 06 - Wags HP Up/Down*
+ 98 - Disables Auto HP Twitch
+ 99 - Enables Auto HP Twitch
+ *Function disabled or severely limited when Basic HP Positioning in enabled.
+Guide to Using Your FlthyHPs v1.8 2
+
+C - Color Value from the list below:
+ Value Options: 1 - Red
+ 2 - Yellow
+ 3 - Green
+ 4 - Cyan (Aqua)
+ 5 - Blue
+ 6 - Magenta
+ 7 - Orange
+ 8 - Purple
+ 9 - White
+ 0 - Random
+S - (optional), speed setting integer for the Dim Pulse LED function below (0-9)
+P - (optional), the Position integer value from list below:
+Preset Position Integer Values
+ 0 = Down
+ 1 = Center
+ 2 = Up
+ 3 = Left
+ 4 = Upper Left
+ 5 = Lower Left
+ 6 = Right
+ 7 = Upper Right
+ 8 = Lower Right
+Some Simple Examples:
+“R0063” - This toggles the Rear HP LEDs to Green (R/0/06/3)
+“F0036” - This pulses the front HP LEDs in Magenta (F/0/03/6)
+“T007” - This starts the Rainbow sequence in the Top HP LEDs. (T/0/07)
+“A098” - This clears the LEDs in all 3 HPs and disables the LED auto twitch mode. (A/0/98)
+“F103” - This sends the Front HP to the UP position. (F/1/03)
+“A101” - This sends all three HPs to the center position. (A/1/01)
+“R104” - This enables RC mode on the rear HP. (R/1/04)
+“T1991” - This enables the Servo auto twitch mode. (T/1/99)
+Important: Command strings sent via Serial communication require the addition of a carriage return character (\r)
+to the end of the command string. So the command string “R0063” from the examples above, would become
+“R0063\r” when using serial communication. This carriage return character lets the system know it has reached the
+end of a command.
+
+HCR Commands
+Commands
+
+Commands can be sent over Serial, UART, or I2C. All commands must be wrapped in a container:  <...>
+
+To send multiple commands at once, include them within a single container separated by commas: <...,...>
+
+...or chain multiple containers in a single string: <...><...>
+Command
+Response
+Description
+
+Stimuli
+
+SH0
+
+Trigger mild happy vocalization
+
+SH1
+
+Trigger extreme happy vocalization
+
+SS0
+
+Trigger mild sad vocalization
+
+SS1
+
+Trigger extreme sad vocalization
+
+SM0
+
+Trigger mild angry vocalization
+
+SM1
+
+Trigger extreme angry vocalization
+
+SC0
+
+Trigger mild scared vocalization
+
+SC1
+
+Trigger extreme scared vocalization
+
+SE
+
+Trigger overload/electrocution vocalization
+
+Muse
+
+M1
+
+Enable muse
+
+M0
+
+Disable muse
+
+MT
+
+Toggle muse
+
+MM
+
+Trigger single musing
+
+MN#
+
+Set minimum gap (seconds) between musings
+
+MX#
+
+Set maximum gap (seconds) between musings
+
+SD WAV
+
+CA####
+
+Play WAV file number 0000-9999 on WAV channel A
+
+CB####
+
+Play WAV file number 0000-9999 on WAV channel B
+
+CA####C####
+
+Play random WAV file between file number 0000-9999 and file number 0000-9999 on WAV channel A
+
+CB####C####
+
+Play random WAV file between file number 0000-9999 and file number 0000-9999 on WAV channel B
+
+Stop
+
+PSV
+
+Stop vocalizer immediately
+
+PSG
+
+Stop vocalizer gracefully (will continue to play until next phoneme on which it is gramatically correct to end a sentence)
+
+PSA
+
+Stop WAV channel A immediately
+
+PSB
+
+Stop WAV channel B immediately
+
+Volume
+
+PVV#
+
+Set vocalizer volume 0-100 (†)
+
+PVA#
+
+Set WAV channel A volume 0-100 (†)
+
+PVB#
+
+Set WAV channel B volume 0-100 (†)
+
+Override
+
+OA0
+
+Disable Canonical mode and enable Improvisational mode (*)
+
+OA1
+
+Enable Canonical mode and disable Improvisational mode (*)
+
+O1
+
+Enable Personality Chip Override (*)
+
+O0
+
+Disable Personality Chip Override (*)
+
+OR
+
+Reset all emotions to 0
+
+OH#
+
+Set Happy emotion to 0-100
+
+OS#
+
+Set Sad emotion to 0-100
+
+OM#
+
+Set Mad emotion to 0-100
+
+OC#
+
+Set Scared emotion to 0-100
+
+Record
+
+---
+
+RRP#
+
+Play from memory slot 0-9
+
+RRS#
+
+Save to memory slot 0-9 (*)
+
+R0
+
+Set strict memory playback (*)
+
+R1
+
+Set organic memory playback (*)
+
+Query
+
+QEH
+
+<QEH,#>
+
+Returns the Happy emotion as an integer from 0-100
+
+QES
+
+<QES,#>
+
+Returns the Sad emotion as an integer from 0-100
+
+QEM
+
+<QEM,#>
+
+Returns the Angry emotion as an integer from 0-100
+
+QEC
+
+<QEC,#>
+
+Returns the Scared emotion as an integer from 0-100
+
+QE
+
+<QE,#,#,#,#>
+
+Returns the value of each emotion as an integer from 0-100 in the following order: happy,sad,mad,scared
+
+QO
+
+<QO,#>
+
+Returns 0 if personality chip override is disabled, or 1 if enabled
+
+QM
+
+<QM,#>
+
+Returns 0 if muse is disabled, or 1 if  enabled
+
+QF
+
+<QF,#>
+
+Returns an integer from 0-9999 representing the total number of WAV files detected on the SD
+
+QT
+
+<QT,#>
+
+Returns a float representing the total original duration of the currently playing vocalization, or 0 if no vocalization is currently playing
+
+QPV
+
+<QPV,#>
+
+Returns 0 if the vocalizer is not currently vocalizing, or 1 if it is
+
+QPA
+
+<QPA,#>
+
+Returns an integer from 0-9999 representing the WAV file number currently playing on WAV channel A (or -1 if nothing is playing)
+
+QPB
+
+<QPB,#>
+
+Returns an integer from 0-9999 representing the WAV file number currently playing on WAV channel B (or -1 if nothing is playing)
+
+QVV
+
+<QVV,#>
+
+Returns an integer from 0-100 representing the vocalizer volume
+
+QVA
+
+<QVA,#>
+
+Returns an integer from 0-100 representing WAV channel A volume
+
+QVB
+
+<QVB,#>
+
+Returns an integer from 0-100 representing WAV channel B volume
+
+QD
+
+<QD,#,...,#>
+
+Returns key metrics. Comma separated list with the results of these commands: QEH,QES,QEM,QEC,QO,QM,QF,QT,QPV,QPA,QPB
+
+(*) = Persistently stored in R2D2Vocalizer.txt
+
+(†) = Persistently stored in Config.txt
+Command Examples
+
+<SH1> — Trigger extreme happy vocalization.
+
+<CA0025> — Play SD WAV file number 0025 on WAV channel A.
+
+<CB0003C0185> — Play random SD WAV File between file number 0003 and file number 0185 on WAV channel B.
+
+<QEH> — Query Happy emotion. Receive: <QEH,12>
+
+<QE> — Query all emotions. Receive: <QE,4,28,100,68>
+
+Multiple commands can be chained:
+
+<SH1,M1> — Trigger extreme happy vocalization and enable muse.
+
+<SH1><M1> — Alternate syntax for same command as above.
+
+<SM0,QM> — Trigger mild angry vocalization and query muse state. Receive: <QM0>
+
