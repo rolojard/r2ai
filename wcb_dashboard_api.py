@@ -12,11 +12,12 @@ from typing import Dict, List, Optional, Any
 from enum import Enum
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, validator
 
 from wcb_hardware_orchestrator import HardwareOrchestrator, R2D2Mood
+from r2d2_auth_module import auth_manager, validate_api_token
 
 # Configure logging
 logging.basicConfig(
@@ -368,6 +369,46 @@ class OrchestratorManager:
 
 
 # ============================================================================
+# AUTHENTICATION HELPERS
+# ============================================================================
+
+def verify_auth_token(authorization: Optional[str] = Header(None)) -> str:
+    """
+    Verify authentication token from Authorization header
+    Dependency for FastAPI endpoints requiring authentication
+
+    Args:
+        authorization: Authorization header value
+
+    Returns:
+        str: Valid token
+
+    Raises:
+        HTTPException: 401 if token is invalid or missing
+    """
+    if not authorization:
+        logger.warning("Authentication failed: No Authorization header")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing authentication token",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    if not validate_api_token(authorization):
+        logger.warning(f"Authentication failed: Invalid token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication token",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    # Extract token for return
+    token = auth_manager.extract_bearer_token(authorization)
+    logger.debug(f"Authentication successful: {token[:8]}...")
+    return token
+
+
+# ============================================================================
 # FASTAPI APPLICATION
 # ============================================================================
 
@@ -431,17 +472,19 @@ async def root():
 
 
 @app.post("/api/wcb/mood/execute", response_model=MoodExecuteResponse, tags=["Mood Control"])
-async def execute_mood(request: MoodExecuteRequest):
+async def execute_mood(request: MoodExecuteRequest, token: str = Depends(verify_auth_token)):
     """
-    Execute a specific R2D2 mood
+    Execute a specific R2D2 mood (REQUIRES AUTHENTICATION)
 
     - **mood_id**: Mood ID from 1-27
     - **mood_name**: Optional mood name for validation
     - **priority**: Execution priority (1-10, default 7)
 
     Returns execution status, timing, and command count
+
+    **Authentication**: Requires Bearer token in Authorization header
     """
-    logger.info(f"API Request: Execute mood {request.mood_id} with priority {request.priority}")
+    logger.info(f"API Request: Execute mood {request.mood_id} with priority {request.priority} (token: {token[:8]}...)")
 
     # Validate mood name if provided
     if request.mood_name:
@@ -463,56 +506,66 @@ async def execute_mood(request: MoodExecuteRequest):
 
 
 @app.post("/api/wcb/mood/stop", response_model=MoodStopResponse, tags=["Mood Control"])
-async def stop_mood():
+async def stop_mood(token: str = Depends(verify_auth_token)):
     """
-    Stop currently executing mood
+    Stop currently executing mood (REQUIRES AUTHENTICATION)
 
     Returns stop status and timestamp
+
+    **Authentication**: Requires Bearer token in Authorization header
     """
-    logger.info("API Request: Stop current mood")
+    logger.info(f"API Request: Stop current mood (token: {token[:8]}...)")
     result = await manager.stop_mood()
     return MoodStopResponse(**result)
 
 
 @app.get("/api/wcb/mood/status", response_model=MoodStatusResponse, tags=["Mood Control"])
-async def get_mood_status():
+async def get_mood_status(token: str = Depends(verify_auth_token)):
     """
-    Get current mood execution status
+    Get current mood execution status (REQUIRES AUTHENTICATION)
 
     Returns active status, current mood, progress, and statistics
+
+    **Authentication**: Requires Bearer token in Authorization header
     """
     status_data = manager.get_status()
     return MoodStatusResponse(**status_data)
 
 
 @app.get("/api/wcb/mood/list", response_model=MoodListResponse, tags=["Mood Control"])
-async def list_moods():
+async def list_moods(token: str = Depends(verify_auth_token)):
     """
-    List all available R2D2 moods
+    List all available R2D2 moods (REQUIRES AUTHENTICATION)
 
     Returns complete list of 27 moods with categories and command counts
+
+    **Authentication**: Requires Bearer token in Authorization header
     """
     mood_list = manager.get_mood_list()
     return MoodListResponse(**mood_list)
 
 
 @app.get("/api/wcb/stats", response_model=StatsResponse, tags=["Statistics"])
-async def get_stats():
+async def get_stats(token: str = Depends(verify_auth_token)):
     """
-    Get API usage statistics
+    Get API usage statistics (REQUIRES AUTHENTICATION)
 
     Returns execution counts, timing statistics, and uptime
+
+    **Authentication**: Requires Bearer token in Authorization header
     """
     stats = manager.get_stats()
     return StatsResponse(**stats)
 
 
 @app.get("/api/wcb/boards/status", response_model=WCBBoardsStatusResponse, tags=["Hardware"])
-async def get_boards_status():
+async def get_boards_status(token: str = Depends(verify_auth_token)):
     """
-    Get WCB boards connection status
+    Get WCB boards connection status (REQUIRES AUTHENTICATION)
 
     Returns status for WCB1, WCB2, and WCB3 boards
+
+    **Authentication**: Requires Bearer token in Authorization header
     """
     boards_status = manager.get_boards_status()
     return WCBBoardsStatusResponse(**boards_status)

@@ -28,6 +28,9 @@ from collections import deque
 import sys
 import os
 
+# Import authentication module
+from r2d2_auth_module import auth_manager, validate_websocket_token
+
 # Import torch at module level for performance
 try:
     import torch
@@ -478,6 +481,15 @@ class OrinNanoProductionVision:
     async def _handle_websocket_stable(self, websocket) -> None:
         """WebSocket handler with timeout and proper cleanup (FIX #5)"""
         client_addr = websocket.remote_address
+
+        # AUTHENTICATION CHECK - Validate token from headers
+        auth_valid = validate_websocket_token(websocket.request_headers)
+        if not auth_valid:
+            logger.warning(f"Unauthorized WebSocket connection attempt from {client_addr}")
+            await websocket.close(code=1008, reason="Unauthorized - Invalid or missing token")
+            return
+
+        logger.info(f"Client authenticated successfully: {client_addr}")
 
         # Check client limit
         with self.client_lock:
