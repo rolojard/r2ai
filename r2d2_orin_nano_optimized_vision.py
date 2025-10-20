@@ -17,8 +17,10 @@ import logging
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 import queue
+from collections import deque
 import sys
 import os
+import signal
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -27,18 +29,33 @@ logger = logging.getLogger(__name__)
 class OrinNanoOptimizedVision:
     """Orin Nano optimized vision system with hardware-level anti-flickering"""
 
-    def __init__(self, websocket_port=8767, camera_device='/dev/video0'):
+    def __init__(self, websocket_port=8767, camera_device=0):
+        # Input validation - whitelist valid port range
+        if not isinstance(websocket_port, int) or websocket_port < 1024 or websocket_port > 65535:
+            raise ValueError(f"Invalid websocket_port: {websocket_port}. Must be integer between 1024-65535")
+
+        # Input validation - whitelist valid camera device indices
+        if not isinstance(camera_device, int) or camera_device < 0 or camera_device > 10:
+            raise ValueError(f"Invalid camera_device: {camera_device}. Must be integer between 0-10")
+
         self.websocket_port = websocket_port
         self.camera_device = camera_device
         self.running = False
         self.camera = None
         self.model = None
 
+        # Thread tracking for proper cleanup
+        self.capture_thread = None
+        self.detection_thread = None
+
         # Optimized queue sizes for Orin Nano memory management
-        self.frame_queue = queue.Queue(maxsize=1)  # Single frame buffer to prevent lag
-        self.detection_queue = queue.Queue(maxsize=3)  # Small detection buffer
+        # Using deque with maxlen=1 for automatic old-frame eviction (prevents memory leak)
+        self.frame_queue = deque(maxlen=1)  # Single frame buffer, auto-discards old frames
+        self.frame_queue_lock = threading.Lock()  # Protect frame queue access
+        self.detection_queue = deque(maxlen=3)  # Small detection buffer, auto-discards old
+        self.detection_queue_lock = threading.Lock()  # Protect detection queue access
         self.connected_clients = set()
-        self.max_clients = 1  # Single client connection for stability
+        self.max_clients = 3  # Allow dashboard + backup connections
 
         # Hardware-optimized parameters
         self.camera_params = {
@@ -48,13 +65,19 @@ class OrinNanoOptimizedVision:
             'format': cv2.CAP_PROP_FOURCC,
             'codec': cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),  # Hardware MJPEG
             'buffer_size': 1,  # Minimal buffer to prevent flickering
-            'auto_exposure': 1,  # Enable auto exposure for lighting stability
-            'auto_white_balance': 1  # Enable auto white balance
+            'auto_exposure': 3,  # V4L2 auto exposure mode 3 (aperture priority)
+            'auto_white_balance': 1,  # Enable auto white balance
+            'brightness': 128,  # Balanced brightness (0-255, default 128)
+            'contrast': 42,  # Improved contrast for better separation
+            'saturation': 100,  # OPTIMIZED: Increased saturation for vibrant, non-washed colors
+            'gain': 50,  # Reduced gain to minimize noise/grain
+            'sharpness': 140  # Enhanced sharpness for clearer, less grainy image
         }
 
         self.performance_stats = {
             'fps': 0,
             'detection_time': 0,
+            'inference_fps': 0,
             'total_detections': 0,
             'confidence_threshold': 0.5,
             'gpu_memory_usage': 0,
@@ -70,38 +93,49 @@ class OrinNanoOptimizedVision:
         self._load_optimized_model()
 
     def _load_optimized_model(self):
-        """Load YOLO model optimized for Orin Nano"""
+        """Load YOLO model optimized for Orin Nano with TensorRT support"""
         try:
             from ultralytics import YOLO
+            import torch
             logger.info("Loading YOLOv8n model optimized for Orin Nano...")
 
-            # Use YOLOv8n for optimal performance on edge hardware
-            self.model = YOLO('yolov8n.pt')
-
-            # Configure for Orin Nano GPU acceleration
-            import torch
-            if torch.cuda.is_available():
-                device = torch.device('cuda:0')
-                self.model.to(device)
-                logger.info(f"YOLO model loaded on GPU: {torch.cuda.get_device_name(0)}")
-
-                # Optimize GPU memory usage
-                torch.cuda.empty_cache()
-                torch.backends.cudnn.benchmark = True  # Optimize for consistent input sizes
-
+            # CRITICAL FIX: Use TensorRT engine if available for 2-3x speedup
+            tensorrt_engine = '/home/rolo/r2ai/yolov8n_fp16.engine'
+            if os.path.exists(tensorrt_engine):
+                logger.info(f"Loading TensorRT engine: {tensorrt_engine}")
+                self.model = YOLO(tensorrt_engine, task='detect')
+                self.using_tensorrt = True
+                logger.info("TensorRT engine loaded successfully - 2-3x faster inference!")
             else:
-                logger.warning("CUDA not available, using CPU")
+                logger.info("TensorRT engine not found, using PyTorch model")
+                # Use YOLOv8n for optimal performance on edge hardware
+                self.model = YOLO('yolov8n.pt')
+                self.using_tensorrt = False
 
-            # Orin Nano optimized parameters
-            self.model.overrides['verbose'] = False
-            self.model.overrides['conf'] = 0.5  # Confidence threshold
-            self.model.overrides['iou'] = 0.45   # IoU threshold
-            self.model.overrides['max_det'] = 100  # Limit detections for performance
-            self.model.overrides['device'] = 'cuda' if torch.cuda.is_available() else 'cpu'
+                # Configure for Orin Nano GPU acceleration
+                if torch.cuda.is_available():
+                    device = torch.device('cuda:0')
+                    self.model.to(device)
+                    logger.info(f"YOLO model loaded on GPU: {torch.cuda.get_device_name(0)}")
 
-        except Exception as e:
+                    # Optimize GPU memory usage
+                    torch.cuda.empty_cache()
+                    torch.backends.cudnn.benchmark = True  # Optimize for consistent input sizes
+
+                else:
+                    logger.warning("CUDA not available, using CPU")
+
+                # Orin Nano optimized parameters
+                self.model.overrides['verbose'] = False
+                self.model.overrides['conf'] = 0.5  # Confidence threshold
+                self.model.overrides['iou'] = 0.45   # IoU threshold
+                self.model.overrides['max_det'] = 100  # Limit detections for performance
+                self.model.overrides['device'] = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+
+        except (RuntimeError, ValueError, OSError, ImportError) as e:
             logger.error(f"Failed to load YOLO model: {e}")
             self.model = None
+            self.using_tensorrt = False
 
     def _initialize_camera_v4l2(self):
         """Initialize camera with optimized V4L2 parameters for Orin Nano"""
@@ -135,10 +169,30 @@ class OrinNanoOptimizedVision:
             param_success.append(self.camera.set(cv2.CAP_PROP_AUTO_EXPOSURE, self.camera_params['auto_exposure']))
             param_success.append(self.camera.set(cv2.CAP_PROP_AUTO_WB, self.camera_params['auto_white_balance']))
 
+            # Image quality parameters - CRITICAL FIX for washed out and grainy video
+            try:
+                self.camera.set(cv2.CAP_PROP_BRIGHTNESS, self.camera_params['brightness'])
+                self.camera.set(cv2.CAP_PROP_CONTRAST, self.camera_params['contrast'])
+                self.camera.set(cv2.CAP_PROP_SATURATION, self.camera_params['saturation'])
+                self.camera.set(cv2.CAP_PROP_GAIN, self.camera_params['gain'])
+
+                # Try to set sharpness if supported by camera
+                try:
+                    self.camera.set(cv2.CAP_PROP_SHARPNESS, self.camera_params['sharpness'])
+                except (RuntimeError, cv2.error):
+                    pass  # Sharpness not supported by all cameras
+
+                logger.info(f"Applied image quality settings: brightness={self.camera_params['brightness']}, "
+                          f"contrast={self.camera_params['contrast']}, "
+                          f"saturation={self.camera_params['saturation']}, "
+                          f"gain={self.camera_params['gain']}")
+            except (RuntimeError, cv2.error) as e:
+                logger.warning(f"Could not set all image quality parameters: {e}")
+
             # Disable auto focus for stability (if supported)
             try:
                 self.camera.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-            except:
+            except (RuntimeError, cv2.error):
                 pass  # Not all cameras support this
 
             logger.info(f"Camera parameter setup success rate: {sum(param_success)}/{len(param_success)}")
@@ -158,6 +212,20 @@ class OrinNanoOptimizedVision:
                 return False
 
             logger.info(f"Camera successfully initialized: {frame.shape}")
+
+            # Warm-up period: Discard first 30 frames to allow auto-exposure to adjust
+            logger.info("Warming up camera for auto-exposure adjustment...")
+            for i in range(30):
+                ret, _ = self.camera.read()
+                if not ret:
+                    logger.warning(f"Warning: Failed to capture warm-up frame {i+1}/30")
+
+            # Capture a frame after warm-up to check brightness
+            ret, warmed_frame = self.camera.read()
+            if ret:
+                logger.info(f"Post-warmup frame stats: min={warmed_frame.min()}, max={warmed_frame.max()}, mean={warmed_frame.mean():.1f}")
+
+            logger.info("Camera warm-up complete")
             return True
 
         except Exception as e:
@@ -169,6 +237,7 @@ class OrinNanoOptimizedVision:
         logger.info("Starting hardware-optimized frame capture")
         frame_count = 0
         fps_start_time = time.time()
+        total_frames_queued = 0
 
         while self.running:
             try:
@@ -181,6 +250,13 @@ class OrinNanoOptimizedVision:
                     time.sleep(0.01)  # Brief pause before retry
                     continue
 
+                # DEBUG: Check captured frame pixel data
+                if frame_count % 30 == 0:  # Log every 30th frame
+                    logger.info(f"[CAPTURE DEBUG] Raw frame - shape: {frame.shape}, dtype: {frame.dtype}, "
+                              f"min: {frame.min()}, max: {frame.max()}, mean: {frame.mean():.1f}")
+                    if frame.max() == 0:
+                        logger.error(f"[CAPTURE DEBUG] ❌ CAPTURED FRAME IS ALL BLACK!")
+
                 # Calculate actual capture latency
                 capture_end_time = time.perf_counter()
                 self.performance_stats['capture_latency'] = (capture_end_time - frame_start_time) * 1000
@@ -190,19 +266,16 @@ class OrinNanoOptimizedVision:
                 if frame_count % 30 == 0:
                     elapsed = time.time() - fps_start_time
                     self.performance_stats['fps'] = frame_count / elapsed
+                    with self.frame_queue_lock:
+                        queue_size = len(self.frame_queue)
+                    logger.info(f"[CAPTURE] FPS: {self.performance_stats['fps']:.1f}, Total frames queued: {total_frames_queued}, frame_queue size: {queue_size}")
                     frame_count = 0
                     fps_start_time = time.time()
 
-                # Non-blocking queue update to prevent frame stacking
-                if not self.frame_queue.full():
-                    self.frame_queue.put_nowait(frame.copy())
-                else:
-                    # Replace old frame with new one
-                    try:
-                        self.frame_queue.get_nowait()
-                        self.frame_queue.put_nowait(frame.copy())
-                    except queue.Empty:
-                        self.frame_queue.put_nowait(frame.copy())
+                # Thread-safe atomic queue update with deque (auto-discards old frames)
+                with self.frame_queue_lock:
+                    self.frame_queue.append(frame.copy())  # deque with maxlen=1 auto-discards old
+                    total_frames_queued += 1
 
                 # Precise frame timing to eliminate flicker
                 current_time = time.perf_counter()
@@ -218,24 +291,62 @@ class OrinNanoOptimizedVision:
 
     def _process_detections_gpu_optimized(self):
         """GPU-optimized detection processing"""
-        logger.info("Starting GPU-optimized detection processing")
+        logger.info(f"Starting GPU-optimized detection processing (model available: {self.model is not None})")
+        frames_processed = 0
+        detections_sent = 0
 
         while self.running:
             try:
-                # Get frame with timeout
-                frame = self.frame_queue.get(timeout=1.0)
+                # Get frame with timeout - thread-safe deque access
+                frame = None
+                with self.frame_queue_lock:
+                    if len(self.frame_queue) > 0:
+                        frame = self.frame_queue.popleft()
+
+                if frame is None:
+                    time.sleep(0.01)  # Brief wait if no frame available
+                    continue
+
+                frames_processed += 1
 
                 if self.model is None:
+                    logger.warning(f"[DETECTION] Model is None, skipping detection but still sending frame (frames processed: {frames_processed})")
+                    # Even without model, send the frame to WebSocket
+                    annotated_frame = self._draw_detections_optimized(frame, [])
+                    detection_data = {
+                        'frame': annotated_frame,
+                        'detections': [],
+                        'timestamp': datetime.now().isoformat(),
+                        'stats': self.performance_stats.copy()
+                    }
+
+                    # Thread-safe atomic queue update with deque
+                    with self.detection_queue_lock:
+                        self.detection_queue.append(detection_data)  # deque auto-discards old
+                        detections_sent += 1
+                        queue_size = len(self.detection_queue)
+                    if detections_sent % 10 == 0:
+                        logger.info(f"[DETECTION] No model - sent {detections_sent} frames to detection_queue, queue size: {queue_size}")
                     continue
 
                 # GPU detection timing
                 detection_start = time.perf_counter()
 
-                # Run inference with GPU optimization
-                results = self.model(frame, verbose=False, stream=False)
+                # CRITICAL FIX: Force GPU inference with explicit device parameter
+                # Without this, model may fall back to CPU inference!
+                if self.using_tensorrt:
+                    # TensorRT engine already optimized for GPU
+                    results = self.model(frame, verbose=False, stream=False)
+                else:
+                    # PyTorch model - MUST specify device='cuda:0' to force GPU usage
+                    results = self.model(frame, verbose=False, stream=False, device='cuda:0')
 
                 detection_end = time.perf_counter()
                 self.performance_stats['detection_time'] = (detection_end - detection_start) * 1000
+
+                # Calculate actual inference FPS (not capture FPS!)
+                inference_fps = 1000.0 / self.performance_stats['detection_time'] if self.performance_stats['detection_time'] > 0 else 0
+                self.performance_stats['inference_fps'] = inference_fps
 
                 # Process results
                 detections = []
@@ -270,22 +381,33 @@ class OrinNanoOptimizedVision:
                     'stats': self.performance_stats.copy()
                 }
 
-                # Non-blocking queue update
-                if not self.detection_queue.full():
-                    self.detection_queue.put_nowait(detection_data)
-                else:
+                # Thread-safe atomic queue update with deque
+                with self.detection_queue_lock:
+                    self.detection_queue.append(detection_data)  # deque auto-discards old
+                    detections_sent += 1
+                    queue_size = len(self.detection_queue)
+
+                if detections_sent % 10 == 0:
+                    logger.info(f"[DETECTION] Sent {detections_sent} frames | Inference: {inference_fps:.1f} FPS | "
+                              f"Det time: {self.performance_stats['detection_time']:.1f}ms | "
+                              f"Detections: {len(detections)} | Queue: {queue_size}")
+
+                # Log GPU stats every 30 frames
+                if detections_sent % 30 == 0:
                     try:
-                        self.detection_queue.get_nowait()
-                        self.detection_queue.put_nowait(detection_data)
-                    except queue.Empty:
-                        self.detection_queue.put_nowait(detection_data)
+                        import torch
+                        if torch.cuda.is_available():
+                            gpu_mem_allocated = torch.cuda.memory_allocated(0) / 1024**2
+                            gpu_mem_reserved = torch.cuda.memory_reserved(0) / 1024**2
+                            logger.info(f"[GPU] Memory: {gpu_mem_allocated:.1f}MB allocated, {gpu_mem_reserved:.1f}MB reserved")
+                    except (RuntimeError, ImportError):
+                        pass
 
                 self.performance_stats['total_detections'] += len(detections)
 
-            except queue.Empty:
-                continue
             except Exception as e:
                 logger.error(f"Detection processing error: {e}")
+                time.sleep(0.1)
 
     def _draw_detections_optimized(self, frame, detections):
         """Optimized detection drawing for Orin Nano"""
@@ -305,13 +427,13 @@ class OrinNanoOptimizedVision:
             cv2.putText(annotated_frame, label, (int(x1), int(y1) - 5),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
 
-        # Performance overlay
-        perf_text = f"FPS: {self.performance_stats['fps']:.1f} | " \
-                   f"Det: {self.performance_stats['detection_time']:.1f}ms | " \
-                   f"Cap: {self.performance_stats['capture_latency']:.1f}ms"
+        # Performance overlay with inference FPS
+        perf_text = f"Capture: {self.performance_stats['fps']:.1f} FPS | " \
+                   f"Inference: {self.performance_stats['inference_fps']:.1f} FPS | " \
+                   f"Det: {self.performance_stats['detection_time']:.1f}ms"
 
         cv2.putText(annotated_frame, perf_text, (10, 30),
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         return annotated_frame
 
@@ -343,16 +465,34 @@ class OrinNanoOptimizedVision:
             # Stable streaming with precise timing
             last_send_time = time.perf_counter()
             send_interval = 1.0 / 12  # Fixed 12 FPS for web streaming stability
+            frames_sent = 0
+            heartbeats_sent = 0
 
             while self.running:
                 try:
-                    # Get detection data
-                    detection_data = self.detection_queue.get(timeout=0.1)
+                    # Get detection data - thread-safe deque access with timeout behavior
+                    detection_data = None
+                    with self.detection_queue_lock:
+                        if len(self.detection_queue) > 0:
+                            detection_data = self.detection_queue.popleft()
 
-                    # Encode frame with optimized quality
+                    if detection_data is None:
+                        # No data available, send heartbeat instead
+                        raise queue.Empty
+
+                    # DEBUG: Check frame pixel data
+                    frame = detection_data['frame']
+                    if frames_sent % 30 == 0:  # Log every 30th frame
+                        logger.info(f"[FRAME DEBUG] shape: {frame.shape}, dtype: {frame.dtype}, "
+                                  f"min: {frame.min()}, max: {frame.max()}, mean: {frame.mean():.1f}")
+                        if frame.max() == 0:
+                            logger.error(f"[FRAME DEBUG] ❌ FRAME IS ALL BLACK (all zeros)!")
+
+                    # Encode frame with MAXIMUM quality (98) to eliminate compression artifacts
+                    # This fixes grainy appearance from over-compression
                     encode_start = time.perf_counter()
-                    _, buffer = cv2.imencode('.jpg', detection_data['frame'],
-                                           [cv2.IMWRITE_JPEG_QUALITY, 85])
+                    _, buffer = cv2.imencode('.jpg', frame,
+                                           [cv2.IMWRITE_JPEG_QUALITY, 98])
                     frame_base64 = base64.b64encode(buffer).decode('utf-8')
                     encode_time = (time.perf_counter() - encode_start) * 1000
 
@@ -371,6 +511,12 @@ class OrinNanoOptimizedVision:
 
                     # Send with timing control
                     await websocket.send(json.dumps(message))
+                    frames_sent += 1
+
+                    if frames_sent % 10 == 0:
+                        with self.detection_queue_lock:
+                            queue_size = len(self.detection_queue)
+                        logger.info(f"[WEBSOCKET] Sent {frames_sent} frames to client {client_addr}, detection_queue size: {queue_size}")
 
                     # Precise timing for flicker-free streaming
                     current_time = time.perf_counter()
@@ -385,6 +531,11 @@ class OrinNanoOptimizedVision:
                         'type': 'heartbeat',
                         'timestamp': datetime.now().isoformat()
                     }))
+                    heartbeats_sent += 1
+                    if heartbeats_sent % 50 == 0:
+                        with self.detection_queue_lock:
+                            queue_size = len(self.detection_queue)
+                        logger.warning(f"[WEBSOCKET] Sent {heartbeats_sent} heartbeats (NO FRAMES), detection_queue size: {queue_size}")
                     await asyncio.sleep(0.1)
 
                 except websockets.exceptions.ConnectionClosed:
@@ -419,14 +570,25 @@ class OrinNanoOptimizedVision:
         return character_detections
 
     async def _run_websocket_server(self):
-        """Run WebSocket server"""
+        """Run WebSocket server with graceful shutdown"""
+        loop = asyncio.get_running_loop()
+        stop_future = loop.create_future()
+
+        # Handle signals for graceful shutdown
+        def signal_handler():
+            if not stop_future.done():
+                stop_future.set_result(None)
+
+        for sig in (signal.SIGTERM, signal.SIGINT):
+            loop.add_signal_handler(sig, signal_handler)
+
         async with websockets.serve(
             self._handle_websocket_stable,
             "0.0.0.0",  # Listen on all interfaces
             self.websocket_port
         ):
             logger.info(f"Orin Nano Vision WebSocket server running on port {self.websocket_port}")
-            await asyncio.Future()  # Run forever
+            await stop_future  # Wait for signal
 
     def start(self):
         """Start the optimized vision system"""
@@ -442,12 +604,12 @@ class OrinNanoOptimizedVision:
 
         self.running = True
 
-        # Start hardware-optimized threads
-        capture_thread = threading.Thread(target=self._capture_frames_hardware_optimized, daemon=True)
-        capture_thread.start()
+        # Start hardware-optimized threads (NOT daemon threads for proper cleanup)
+        self.capture_thread = threading.Thread(target=self._capture_frames_hardware_optimized, daemon=False, name="CaptureThread")
+        self.capture_thread.start()
 
-        detection_thread = threading.Thread(target=self._process_detections_gpu_optimized, daemon=True)
-        detection_thread.start()
+        self.detection_thread = threading.Thread(target=self._process_detections_gpu_optimized, daemon=False, name="DetectionThread")
+        self.detection_thread.start()
 
         logger.info("All threads started successfully")
 
@@ -462,20 +624,38 @@ class OrinNanoOptimizedVision:
         return True
 
     def stop(self):
-        """Stop the vision system"""
+        """Stop the vision system with proper thread cleanup"""
         logger.info("Stopping Orin Nano Vision System")
         self.running = False
 
+        # Wait for threads to finish (with timeout)
+        if self.capture_thread and self.capture_thread.is_alive():
+            logger.info("Waiting for capture thread to finish...")
+            self.capture_thread.join(timeout=5.0)
+            if self.capture_thread.is_alive():
+                logger.warning("Capture thread did not finish in time")
+
+        if self.detection_thread and self.detection_thread.is_alive():
+            logger.info("Waiting for detection thread to finish...")
+            self.detection_thread.join(timeout=5.0)
+            if self.detection_thread.is_alive():
+                logger.warning("Detection thread did not finish in time")
+
+        # Release camera
         if self.camera:
             self.camera.release()
+            logger.info("Camera released")
 
         # Clean up GPU memory
         try:
             import torch
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
-        except:
+                logger.info("GPU memory cleared")
+        except (RuntimeError, ImportError):
             pass
+
+        logger.info("Vision system stopped successfully")
 
 def main():
     """Main function"""
@@ -485,22 +665,36 @@ def main():
     print("Press Ctrl+C to stop")
     print("=" * 50)
 
-    # Parse arguments
+    # Parse arguments with input validation
     port = 8767
-    camera_device = '/dev/video0'  # Direct device access
+    camera_device = 0  # Integer device index (0 = /dev/video0)
 
     if len(sys.argv) > 1:
         try:
             port = int(sys.argv[1])
+            if port < 1024 or port > 65535:
+                logger.error(f"Port {port} out of valid range (1024-65535)")
+                sys.exit(1)
         except ValueError:
-            logger.error("Invalid port number")
+            logger.error("Invalid port number, must be integer")
             sys.exit(1)
 
     if len(sys.argv) > 2:
-        camera_device = sys.argv[2]
+        try:
+            camera_device = int(sys.argv[2])
+            if camera_device < 0 or camera_device > 10:
+                logger.error(f"Camera device {camera_device} out of valid range (0-10)")
+                sys.exit(1)
+        except ValueError:
+            logger.error("Invalid camera device, must be integer (0, 1, 2, etc.)")
+            sys.exit(1)
 
-    # Create and start system
-    vision_system = OrinNanoOptimizedVision(websocket_port=port, camera_device=camera_device)
+    # Create and start system with validated inputs
+    try:
+        vision_system = OrinNanoOptimizedVision(websocket_port=port, camera_device=camera_device)
+    except ValueError as e:
+        logger.error(f"Invalid configuration: {e}")
+        sys.exit(1)
 
     try:
         success = vision_system.start()
