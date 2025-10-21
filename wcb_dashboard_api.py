@@ -18,6 +18,7 @@ from pydantic import BaseModel, Field, validator
 
 from wcb_hardware_orchestrator import HardwareOrchestrator, R2D2Mood
 from r2d2_auth_module import auth_manager, validate_api_token
+from r2d2_csrf_module import csrf_manager, validate_csrf_token
 
 # Configure logging
 logging.basicConfig(
@@ -408,6 +409,37 @@ def verify_auth_token(authorization: Optional[str] = Header(None)) -> str:
     return token
 
 
+def verify_csrf_token(x_csrf_token: Optional[str] = Header(None)) -> str:
+    """
+    Verify CSRF token from X-CSRF-Token header
+    Dependency for FastAPI POST endpoints requiring CSRF protection
+
+    Args:
+        x_csrf_token: CSRF token from X-CSRF-Token header
+
+    Returns:
+        str: Valid CSRF token
+
+    Raises:
+        HTTPException: 403 if token is invalid or missing
+    """
+    if not x_csrf_token:
+        logger.warning("CSRF validation failed: No X-CSRF-Token header")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Missing CSRF token"
+        )
+
+    if not validate_csrf_token(x_csrf_token):
+        logger.warning("CSRF validation failed: Invalid token")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid CSRF token"
+        )
+
+    return x_csrf_token
+
+
 # ============================================================================
 # FASTAPI APPLICATION
 # ============================================================================
@@ -446,12 +478,28 @@ app = FastAPI(
 )
 
 # CORS middleware for dashboard access
+# SECURITY: Restricted to localhost only - UPDATE for production deployment
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure for production
+    allow_origins=[
+        # Enhanced Dashboard (port 9876)
+        "http://localhost:9876",
+        "http://127.0.0.1:9876",
+        # WCB Mood Dashboard (port 8000)
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        # Vision System Dashboard (port 3000)
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        # Generic localhost (file:// protocol fallback)
+        "http://localhost",
+        "http://127.0.0.1",
+        # Add production domain here later:
+        # "https://r2d2.yourdomain.com",
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-CSRF-Token"],
 )
 
 
@@ -471,10 +519,58 @@ async def root():
     }
 
 
-@app.post("/api/wcb/mood/execute", response_model=MoodExecuteResponse, tags=["Mood Control"])
-async def execute_mood(request: MoodExecuteRequest, token: str = Depends(verify_auth_token)):
+@app.get("/api/auth/token", tags=["Authentication"])
+async def get_auth_token():
     """
-    Execute a specific R2D2 mood (REQUIRES AUTHENTICATION)
+    Get current authentication token for dashboard initialization
+
+    This endpoint allows dashboards to retrieve the current active token
+    on startup, ensuring API and dashboard tokens are always synchronized.
+
+    Returns:
+        dict: Current token information with token, type, and status
+
+    Note: This is a PUBLIC endpoint (no auth required) to bootstrap authentication
+    """
+    token = auth_manager.get_primary_token()
+    return {
+        "token": token,
+        "type": "bearer",
+        "timestamp": datetime.now().isoformat(),
+        "status": "active"
+    }
+
+
+@app.post("/api/csrf/token", tags=["Authentication"])
+async def generate_csrf_token():
+    """
+    Generate new CSRF token for form submissions
+
+    This endpoint creates a new CSRF token that dashboards must include
+    in X-CSRF-Token header for all POST requests.
+
+    Returns:
+        dict: CSRF token information with token, expires_in, and timestamp
+
+    Note: This is a PUBLIC endpoint (no auth required) to bootstrap CSRF protection
+    """
+    csrf_token = csrf_manager.generate_token()
+    return {
+        "csrf_token": csrf_token,
+        "expires_in_minutes": csrf_manager.token_expiry_minutes,
+        "timestamp": datetime.now().isoformat(),
+        "status": "active"
+    }
+
+
+@app.post("/api/wcb/mood/execute", response_model=MoodExecuteResponse, tags=["Mood Control"])
+async def execute_mood(
+    request: MoodExecuteRequest,
+    token: str = Depends(verify_auth_token),
+    csrf_token: str = Depends(verify_csrf_token)
+):
+    """
+    Execute a specific R2D2 mood (REQUIRES AUTHENTICATION + CSRF)
 
     - **mood_id**: Mood ID from 1-27
     - **mood_name**: Optional mood name for validation
@@ -483,8 +579,9 @@ async def execute_mood(request: MoodExecuteRequest, token: str = Depends(verify_
     Returns execution status, timing, and command count
 
     **Authentication**: Requires Bearer token in Authorization header
+    **CSRF Protection**: Requires valid CSRF token in X-CSRF-Token header
     """
-    logger.info(f"API Request: Execute mood {request.mood_id} with priority {request.priority} (token: {token[:8]}...)")
+    logger.info(f"API Request: Execute mood {request.mood_id} with priority {request.priority} (token: {token[:8]}..., csrf: {csrf_token[:16]}...)")
 
     # Validate mood name if provided
     if request.mood_name:
@@ -506,15 +603,19 @@ async def execute_mood(request: MoodExecuteRequest, token: str = Depends(verify_
 
 
 @app.post("/api/wcb/mood/stop", response_model=MoodStopResponse, tags=["Mood Control"])
-async def stop_mood(token: str = Depends(verify_auth_token)):
+async def stop_mood(
+    token: str = Depends(verify_auth_token),
+    csrf_token: str = Depends(verify_csrf_token)
+):
     """
-    Stop currently executing mood (REQUIRES AUTHENTICATION)
+    Stop currently executing mood (REQUIRES AUTHENTICATION + CSRF)
 
     Returns stop status and timestamp
 
     **Authentication**: Requires Bearer token in Authorization header
+    **CSRF Protection**: Requires valid CSRF token in X-CSRF-Token header
     """
-    logger.info(f"API Request: Stop current mood (token: {token[:8]}...)")
+    logger.info(f"API Request: Stop current mood (token: {token[:8]}..., csrf: {csrf_token[:16]}...)")
     result = await manager.stop_mood()
     return MoodStopResponse(**result)
 
