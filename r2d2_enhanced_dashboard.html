@@ -1751,6 +1751,36 @@
         </div>
     </div>
 
+    <!-- Security Utilities Library -->
+    <script src="dashboard-security-utils.js"></script>
+    <script>
+        // Initialize security managers with authentication token
+        // Production token from SUPER-CODER auth system (Phase 2: fd81ba71-43f6-4bb3-afb5-e8dc3f9eb12e)
+        const AUTH_TOKEN = localStorage.getItem('r2d2_auth_token') || 'fd81ba71-43f6-4bb3-afb5-e8dc3f9eb12e';
+
+        // Initialize auth manager
+        if (AUTH_TOKEN) {
+            initializeAuth(AUTH_TOKEN);
+            console.log('✓ Auth manager initialized with token');
+        } else {
+            console.warn('⚠️ No auth token found - API calls will fail');
+        }
+
+        // Authentication required handler
+        function handleAuthenticationRequired() {
+            console.error('Authentication required');
+            toastManager.show('Please log in to continue', 'warning', 5000);
+            // Optionally redirect to login page
+            // window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.href);
+        }
+
+        // Network error handler
+        function handleNetworkError(error) {
+            console.error('Network error:', error);
+            toastManager.show('Network error: ' + error.message, 'error', 5000);
+        }
+    </script>
+
     <script>
         // HIGHEST QUALITY WebSocket Connection Management System
         let visionWs = null;
@@ -1832,7 +1862,9 @@
             try {
                 console.log('🎥 Connecting to Vision System (Attempt ' + (connection.reconnectAttempts + 1) + ')');
 
-                connection.ws = new WebSocket('ws://localhost:8767');
+                // SECURITY FIX: Add authentication token to WebSocket URL
+                const wsUrlWithAuth = `ws://localhost:8767?token=${AUTH_TOKEN}`;
+                connection.ws = new WebSocket(wsUrlWithAuth);
                 visionWs = connection.ws; // Maintain backward compatibility
 
                 // Enhanced connection timeout
@@ -1920,7 +1952,9 @@
             try {
                 console.log('🎛️ Connecting to Dashboard System (Attempt ' + (connection.reconnectAttempts + 1) + ')');
 
-                connection.ws = new WebSocket('ws://localhost:8766');
+                // SECURITY FIX: Add authentication token to WebSocket URL
+                const wsUrlWithAuth = `ws://localhost:8766?token=${AUTH_TOKEN}`;
+                connection.ws = new WebSocket(wsUrlWithAuth);
                 dashboardWs = connection.ws;
 
                 const connectionTimeout = setTimeout(() => {
@@ -1991,65 +2025,96 @@
             }
         }
 
-        // Flicker-free frame management (matching working dashboard approach)
+        // Flicker-free frame management with improved error handling
         let lastFrameTime = 0;
         let frameThrottleInterval = 1000 / 15; // Max 15 FPS display
         let pendingFrameUpdate = false;
+        let frameUpdateCount = 0;
 
         function updateVideoFeedWithFlickerFree(frameData) {
-            // Implement frame rate throttling to prevent flicker
+            if (!frameData) {
+                console.warn('⚠️ updateVideoFeedWithFlickerFree called with no frame data');
+                return;
+            }
+
             const currentTime = Date.now();
-            if (currentTime - lastFrameTime < frameThrottleInterval || pendingFrameUpdate) {
-                return; // Skip frame to maintain smooth display
+            const timeSinceLastFrame = currentTime - lastFrameTime;
+
+            // Only throttle if we recently had a successful frame AND pending is true
+            // Force update if it's been more than 5 seconds since last frame
+            if (pendingFrameUpdate && timeSinceLastFrame < 5000) {
+                console.log(`⏭️ Frame throttled (${timeSinceLastFrame}ms since last, pending=${pendingFrameUpdate})`);
+                return;
             }
 
             // Update video feed with flicker-free rendering
             const videoFeed = document.getElementById('videoFeed');
             const noVideo = document.getElementById('noVideo');
 
-            if (frameData) {
-                pendingFrameUpdate = true;
-
-                // Create new image for smooth transition
-                const newImg = new Image();
-                newImg.onload = function() {
-                    // Only update if image loaded successfully
-                    requestAnimationFrame(() => {
-                        videoFeed.src = this.src;
-                        videoFeed.style.display = 'block';
-                        noVideo.style.display = 'none';
-
-                        lastFrameTime = currentTime;
-                        pendingFrameUpdate = false;
-                    });
-                };
-                newImg.onerror = function() {
-                    pendingFrameUpdate = false;
-                    console.error('Failed to load video frame');
-                };
-                newImg.src = 'data:image/jpeg;base64,' + frameData;
+            if (!videoFeed || !noVideo) {
+                console.error('❌ Video elements not found in DOM');
+                return;
             }
+
+            pendingFrameUpdate = true;
+
+            // Create new image for smooth transition
+            const newImg = new Image();
+
+            newImg.onload = function() {
+                // Only update if image loaded successfully
+                requestAnimationFrame(() => {
+                    videoFeed.src = this.src;
+                    videoFeed.style.display = 'block';
+                    noVideo.style.display = 'none';
+
+                    lastFrameTime = currentTime;
+                    pendingFrameUpdate = false;
+                    frameUpdateCount++;
+
+                    console.log(`✅ Frame #${frameUpdateCount} rendered (${this.naturalWidth}x${this.naturalHeight}) after ${timeSinceLastFrame}ms`);
+                });
+            };
+
+            newImg.onerror = function() {
+                pendingFrameUpdate = false;
+                console.error('❌ Failed to load video frame - invalid base64 data');
+                console.error('Frame data length:', frameData.length);
+                console.error('First 100 chars:', frameData.substring(0, 100));
+            };
+
+            // Set timeout to prevent stuck pending state
+            setTimeout(() => {
+                if (pendingFrameUpdate) {
+                    console.warn('⚠️ Frame load timeout - resetting pending state');
+                    pendingFrameUpdate = false;
+                }
+            }, 2000);
+
+            newImg.src = 'data:image/jpeg;base64,' + frameData;
         }
 
         function hideVideoFeed() {
             document.getElementById('videoFeed').style.display = 'none';
-            document.getElementById('noVideo').style.display = 'flex';
-            document.getElementById('noVideo').innerHTML = `
-                <div>
-                    <div>📷 Vision system disconnected</div>
-                    <div style="font-size: 14px; margin-top: 10px;">Attempting to reconnect...</div>
-                </div>
-            `;
+            const noVideo = document.getElementById('noVideo');
+            noVideo.style.display = 'flex';
+
+            // XSS FIX: Use textContent for static content (consistency with WCB dashboard)
+            noVideo.textContent = '📷 Vision system disconnected - Attempting to reconnect...';
         }
 
         function handleVisionData(data) {
-            console.log('Received vision data:', data.type);
+            console.log('handleVisionData() called with type:', data.type);
 
             // Handle ALL vision message types: vision_data, video_frame, character_vision_data
             if (data.type === 'video_frame' || data.type === 'vision_data') {
+                console.log(`Processing ${data.type} - hasFrame: ${!!data.frame}`);
                 // Update vision frame with flicker-free webcam feed
                 if (data.frame) {
+                    console.log(`Calling updateVideoFeedWithFlickerFree() with frame length: ${data.frame.length}`);
                     updateVideoFeedWithFlickerFree(data.frame);
+                } else {
+                    console.warn(`⚠️ ${data.type} message has no frame data!`);
                 }
 
                 // Update frame stats
@@ -2074,9 +2139,13 @@
                     document.getElementById('systemFPS').textContent = (data.frame_count / data.uptime).toFixed(1);
                 }
             } else if (data.type === 'character_vision_data') {
+                console.log('Processing character_vision_data - hasFrame:', !!data.frame);
                 // Handle character detection with flicker-free video feed
                 if (data.frame) {
+                    console.log(`Calling updateVideoFeedWithFlickerFree() with frame length: ${data.frame.length}`);
                     updateVideoFeedWithFlickerFree(data.frame);
+                } else {
+                    console.warn('⚠️ character_vision_data message has no frame data!');
                 }
 
                 // Update character detection
@@ -2094,12 +2163,28 @@
                     document.getElementById('systemFPS').textContent = data.stats.fps.toFixed(1);
                     document.getElementById('charactersDetected').textContent = data.character_detections ? data.character_detections.length : 0;
                 }
+            } else {
+                console.warn(`⚠️ handleVisionData() received unknown type: ${data.type}`);
             }
         }
 
         function handleDashboardData(data) {
             // Handle dashboard-specific data
-            console.log('Dashboard data:', data);
+            console.log('Dashboard data received:', {
+                type: data.type,
+                hasFrame: !!data.frame,
+                frameLength: data.frame ? data.frame.length : 0,
+                hasStats: !!data.stats,
+                allKeys: Object.keys(data)
+            });
+
+            // Route vision messages to vision handler
+            if (data.type === 'character_vision_data' || data.type === 'vision_data' || data.type === 'video_frame') {
+                console.log(`✅ Routing ${data.type} to handleVisionData()`);
+                handleVisionData(data);
+            } else {
+                console.warn(`⚠️ Unknown message type: ${data.type}`);
+            }
         }
 
         function showCharacterDetection(character) {
@@ -2515,7 +2600,9 @@
             try {
                 console.log('🧠 Connecting to Behavioral Intelligence System (Attempt ' + (connection.reconnectAttempts + 1) + ')');
 
-                connection.ws = new WebSocket('ws://localhost:8768');
+                // SECURITY FIX: Add authentication token to WebSocket URL
+                const wsUrlWithAuth = `ws://localhost:8768?token=${AUTH_TOKEN}`;
+                connection.ws = new WebSocket(wsUrlWithAuth);
                 behaviorWs = connection.ws;
 
                 const connectionTimeout = setTimeout(() => {
@@ -2781,7 +2868,8 @@
             const startTime = Date.now();
             const updateInterval = 100;
 
-            const progressInterval = setInterval(() => {
+            // MEMORY LEAK FIX: Use ManagedInterval for automatic cleanup
+            const progressInterval = new ManagedInterval(() => {
                 const elapsed = Date.now() - startTime;
                 const progress = Math.min((elapsed / duration) * 100, 100);
 
@@ -2791,16 +2879,22 @@
                 updateBehaviorStatusDisplay();
 
                 if (progress >= 100) {
-                    clearInterval(progressInterval);
-                    // Return to idle state
-                    setTimeout(() => {
+                    progressInterval.stop();
+
+                    // MEMORY LEAK FIX: Use ManagedTimeout for automatic cleanup
+                    const idleTimeout = new ManagedTimeout(() => {
                         behaviorStatus.current = `Idle - ${currentPersonality}`;
                         behaviorStatus.progress = 0;
                         behaviorStatus.duration = '00:00';
                         updateBehaviorStatusDisplay();
-                    }, 500);
+                    }, 500, 'behaviorIdleReturn');
+                    idleTimeout.start();
+                    resourceManager.registerTimeout('behaviorIdleReturn', idleTimeout);
                 }
-            }, updateInterval);
+            }, updateInterval, 'behaviorProgress');
+
+            progressInterval.start();
+            resourceManager.registerInterval('behaviorProgress', progressInterval);
         }
 
         function pauseQueue() {
@@ -2898,37 +2992,62 @@
 
             countElement.textContent = `(${behaviorQueue.length})`;
 
+            // CRITICAL XSS FIX: Replace innerHTML with safe DOM creation
+            queueElement.innerHTML = ''; // Clear first
+
             if (behaviorQueue.length === 0) {
-                queueElement.innerHTML = '<div class="queue-empty">No behaviors queued</div>';
+                const emptyDiv = createSafeElement('div', { className: 'queue-empty' }, 'No behaviors queued');
+                queueElement.appendChild(emptyDiv);
             } else {
-                queueElement.innerHTML = behaviorQueue.map((behavior, index) => `
-                    <div class="queue-item" style="
-                        background: rgba(59, 130, 246, 0.1);
-                        border: 1px solid #3b82f6;
-                        border-radius: 6px;
-                        padding: 8px 12px;
-                        margin-bottom: 6px;
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                    ">
-                        <div>
-                            <strong style="color: #3b82f6;">${behavior.name}</strong>
-                            <small style="display: block; color: #9ca3af;">
-                                ${formatDuration(behavior.duration)} • ${behavior.timestamp}
-                            </small>
-                        </div>
-                        <button onclick="removeBehaviorFromQueue(${index})" style="
-                            background: #dc2626;
-                            color: white;
-                            border: none;
-                            border-radius: 4px;
-                            padding: 4px 8px;
-                            cursor: pointer;
-                            font-size: 0.8rem;
-                        ">Remove</button>
-                    </div>
-                `).join('');
+                behaviorQueue.forEach((behavior, index) => {
+                    // Create queue item container safely
+                    const queueItem = createSafeElement('div', {
+                        className: 'queue-item',
+                        style: {
+                            background: 'rgba(59, 130, 246, 0.1)',
+                            border: '1px solid #3b82f6',
+                            borderRadius: '6px',
+                            padding: '8px 12px',
+                            marginBottom: '6px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }
+                    });
+
+                    // Create info container
+                    const infoDiv = document.createElement('div');
+
+                    // Sanitize behavior name (CRITICAL - prevents XSS injection)
+                    const nameStrong = createSafeElement('strong', {
+                        style: { color: '#3b82f6' }
+                    }, behavior.name); // Safe: textContent used internally
+
+                    const detailsSmall = createSafeElement('small', {
+                        style: { display: 'block', color: '#9ca3af' }
+                    }, `${formatDuration(behavior.duration)} • ${behavior.timestamp}`);
+
+                    infoDiv.appendChild(nameStrong);
+                    infoDiv.appendChild(detailsSmall);
+
+                    // Create remove button
+                    const removeBtn = createSafeElement('button', {
+                        style: {
+                            background: '#dc2626',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            padding: '4px 8px',
+                            cursor: 'pointer',
+                            fontSize: '0.8rem'
+                        }
+                    }, 'Remove');
+                    removeBtn.onclick = () => removeBehaviorFromQueue(index);
+
+                    queueItem.appendChild(infoDiv);
+                    queueItem.appendChild(removeBtn);
+                    queueElement.appendChild(queueItem);
+                });
             }
 
             // Update queue status
@@ -2958,26 +3077,41 @@
             const audioQueue = document.getElementById('audioQueue');
 
             if (audioData) {
+                // XSS FIX: Replace innerHTML with safe DOM creation
+                audioActivity.innerHTML = ''; // Clear first
+
                 if (audioData.current) {
-                    audioActivity.innerHTML = `
-                        <div class="audio-item">
-                            <span class="audio-current">${audioData.current}</span>
-                            <small>${audioData.description || 'Playing...'}</small>
-                        </div>
-                    `;
+                    const audioItem = createSafeElement('div', { className: 'audio-item' });
+                    const currentSpan = createSafeElement('span', {
+                        className: 'audio-current'
+                    }, audioData.current); // Safe: textContent
+                    const description = createSafeElement('small', {},
+                        audioData.description || 'Playing...'); // Safe: textContent
+
+                    audioItem.appendChild(currentSpan);
+                    audioItem.appendChild(description);
+                    audioActivity.appendChild(audioItem);
                 } else {
-                    audioActivity.innerHTML = `
-                        <div class="audio-item">
-                            <span class="audio-current">Ready</span>
-                            <small>No active sounds</small>
-                        </div>
-                    `;
+                    const audioItem = createSafeElement('div', { className: 'audio-item' });
+                    const currentSpan = createSafeElement('span', {
+                        className: 'audio-current'
+                    }, 'Ready');
+                    const description = createSafeElement('small', {}, 'No active sounds');
+
+                    audioItem.appendChild(currentSpan);
+                    audioItem.appendChild(description);
+                    audioActivity.appendChild(audioItem);
                 }
 
+                // XSS FIX: Use safe DOM creation for queue display
+                audioQueue.innerHTML = ''; // Clear first
                 if (audioData.queue && audioData.queue.length > 0) {
-                    audioQueue.innerHTML = `<small>Queue: ${audioData.queue.length} sounds</small>`;
+                    const queueSmall = createSafeElement('small', {},
+                        `Queue: ${audioData.queue.length} sounds`);
+                    audioQueue.appendChild(queueSmall);
                 } else {
-                    audioQueue.innerHTML = '<small>Queue: Empty</small>';
+                    const queueEmpty = createSafeElement('small', {}, 'Queue: Empty');
+                    audioQueue.appendChild(queueEmpty);
                 }
             }
         }
@@ -2985,27 +3119,53 @@
         function updateCharacterRecognition(characters) {
             const charactersGrid = document.getElementById('detectedCharacters');
 
+            // CRITICAL XSS FIX: Replace innerHTML with safe DOM creation
+            charactersGrid.innerHTML = ''; // Clear first
+
             if (characters && characters.length > 0) {
-                charactersGrid.innerHTML = characters.map(character => `
-                    <div class="character-card" style="
-                        background: rgba(34, 197, 94, 0.1);
-                        border: 1px solid #22c55e;
-                        border-radius: 8px;
-                        padding: 12px;
-                        text-align: center;
-                    ">
-                        <div style="font-size: 1.2rem; margin-bottom: 6px;">${character.emoji || '👤'}</div>
-                        <strong style="color: #22c55e; display: block;">${character.name}</strong>
-                        <small style="color: #9ca3af;">
-                            ${Math.round(character.confidence * 100)}% confidence
-                        </small>
-                        <div style="margin-top: 6px; font-size: 0.8rem; color: #f59e0b;">
-                            R2D2: ${character.reaction || 'Neutral'}
-                        </div>
-                    </div>
-                `).join('');
+                characters.forEach(character => {
+                    // Create character card container safely
+                    const card = createSafeElement('div', {
+                        className: 'character-card',
+                        style: {
+                            background: 'rgba(34, 197, 94, 0.1)',
+                            border: '1px solid #22c55e',
+                            borderRadius: '8px',
+                            padding: '12px',
+                            textAlign: 'center'
+                        }
+                    });
+
+                    // Sanitize emoji (prevent XSS in emoji field)
+                    const emojiDiv = createSafeElement('div', {
+                        style: { fontSize: '1.2rem', marginBottom: '6px' }
+                    }, character.emoji || '👤'); // Safe: textContent
+
+                    // Sanitize character name (CRITICAL - prevents XSS injection)
+                    const nameStrong = createSafeElement('strong', {
+                        style: { color: '#22c55e', display: 'block' }
+                    }, character.name); // Safe: textContent
+
+                    const confidenceSmall = createSafeElement('small', {
+                        style: { color: '#9ca3af' }
+                    }, `${Math.round(character.confidence * 100)}% confidence`);
+
+                    // Sanitize reaction (prevents XSS in reaction field)
+                    const reactionDiv = createSafeElement('div', {
+                        style: { marginTop: '6px', fontSize: '0.8rem', color: '#f59e0b' }
+                    }, `R2D2: ${character.reaction || 'Neutral'}`); // Safe: textContent
+
+                    card.appendChild(emojiDiv);
+                    card.appendChild(nameStrong);
+                    card.appendChild(confidenceSmall);
+                    card.appendChild(reactionDiv);
+                    charactersGrid.appendChild(card);
+                });
             } else {
-                charactersGrid.innerHTML = '<div class="character-placeholder">👤 No characters detected</div>';
+                const placeholder = createSafeElement('div', {
+                    className: 'character-placeholder'
+                }, '👤 No characters detected');
+                charactersGrid.appendChild(placeholder);
             }
         }
 
@@ -3190,14 +3350,33 @@
         function startSystemMonitoring() {
             console.log('📊 Starting system monitoring intervals');
 
+            // MEMORY LEAK FIX: Use ManagedInterval for automatic cleanup
             // Connection health monitoring every 5 seconds
-            setInterval(monitorConnectionHealth, 5000);
+            const healthInterval = new ManagedInterval(
+                monitorConnectionHealth,
+                5000,
+                'connectionHealth'
+            );
+            healthInterval.start();
+            resourceManager.registerInterval('connectionHealth', healthInterval);
 
             // Performance monitoring every 2 seconds
-            setInterval(updatePerformanceDisplay, 2000);
+            const performanceInterval = new ManagedInterval(
+                updatePerformanceDisplay,
+                2000,
+                'performance'
+            );
+            performanceInterval.start();
+            resourceManager.registerInterval('performance', performanceInterval);
 
             // System status updates every 3 seconds
-            setInterval(updateSystemStatus, 3000);
+            const statusInterval = new ManagedInterval(
+                updateSystemStatus,
+                3000,
+                'systemStatus'
+            );
+            statusInterval.start();
+            resourceManager.registerInterval('systemStatus', statusInterval);
         }
 
         function monitorConnectionHealth() {
