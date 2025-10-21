@@ -4,6 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>R2D2 Enhanced Control Dashboard</title>
+
+    <!-- Auth Token Initialization (CRITICAL FIX) -->
+    <script>
+        console.log('🔐 Initializing authentication...');
+
+        // Strategy 1: Retrieve from server endpoint
+        // Strategy 2: Fall back to localStorage
+        // Strategy 3: Use test token for development
+
+        window.R2D2_AUTH_TOKEN = null;
+        window.R2D2_CSRF_TOKEN = null;
+
+        // Function to fetch both auth and CSRF tokens from server
+        async function initializeTokens() {
+            try {
+                // Fetch auth token from server
+                const authResponse = await fetch('http://localhost:8770/api/auth/token', {
+                    credentials: 'include'
+                });
+
+                if (authResponse.ok) {
+                    const authData = await authResponse.json();
+                    window.R2D2_AUTH_TOKEN = authData.token;
+                    console.log('✅ Auth token from server:', authData.token.substring(0, 8) + '...');
+                    localStorage.setItem('r2d2_auth_token', authData.token);
+                } else {
+                    throw new Error('Auth token fetch failed');
+                }
+
+                // Fetch CSRF token from server
+                const csrfResponse = await fetch('http://localhost:8770/api/csrf/token', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                if (csrfResponse.ok) {
+                    const csrfData = await csrfResponse.json();
+                    window.R2D2_CSRF_TOKEN = csrfData.csrf_token;
+                    console.log('✅ CSRF token from server:', csrfData.csrf_token.substring(0, 16) + '...');
+                    sessionStorage.setItem('r2d2_csrf_token', csrfData.csrf_token);
+                } else {
+                    console.warn('⚠️ CSRF token fetch failed, will retry on POST');
+                }
+            } catch (err) {
+                console.warn('⚠️ Could not fetch tokens from server:', err.message);
+
+                // Fall back to localStorage for auth token
+                const stored = localStorage.getItem('r2d2_auth_token');
+                if (stored) {
+                    window.R2D2_AUTH_TOKEN = stored;
+                    console.log('✅ Auth token from localStorage:', stored.substring(0, 8) + '...');
+                } else {
+                    // Development fallback
+                    window.R2D2_AUTH_TOKEN = 'development-token-for-testing';
+                    console.warn('⚠️ Using development token (no server response)');
+                }
+            }
+        }
+
+        // Initialize tokens immediately
+        initializeTokens();
+    </script>
+
     <style>
         * {
             margin: 0;
@@ -1754,31 +1817,72 @@
     <!-- Security Utilities Library -->
     <script src="dashboard-security-utils.js"></script>
     <script>
-        // Initialize security managers with authentication token
-        // Production token from SUPER-CODER auth system (Phase 2: fd81ba71-43f6-4bb3-afb5-e8dc3f9eb12e)
-        const AUTH_TOKEN = localStorage.getItem('r2d2_auth_token') || 'fd81ba71-43f6-4bb3-afb5-e8dc3f9eb12e';
+        // Global auth token variable (will be set by initializeAuth)
+        let AUTH_TOKEN = null;
 
-        // Initialize auth manager
-        if (AUTH_TOKEN) {
-            initializeAuth(AUTH_TOKEN);
-            console.log('✓ Auth manager initialized with token');
-        } else {
-            console.warn('⚠️ No auth token found - API calls will fail');
+        // Initialize authentication by fetching token from API
+        async function initializeAuthToken() {
+            try {
+                // Fetch current token from WCB API
+                const response = await fetch('http://localhost:8770/api/auth/token');
+                const data = await response.json();
+
+                AUTH_TOKEN = data.token;
+
+                // Store in localStorage for session persistence
+                localStorage.setItem('r2d2_auth_token', AUTH_TOKEN);
+
+                console.log('✅ Auth token retrieved from server:', AUTH_TOKEN.substring(0, 8) + '...');
+                console.log('✅ Token type:', data.type);
+                console.log('✅ Token status:', data.status);
+
+                // Initialize auth manager with retrieved token (if available from security utils)
+                if (typeof initializeAuth !== 'undefined') {
+                    window.initializeAuth(AUTH_TOKEN);
+                }
+
+                return AUTH_TOKEN;
+            } catch (error) {
+                console.error('❌ Failed to retrieve auth token from server:', error);
+
+                // Fallback to localStorage
+                const storedToken = localStorage.getItem('r2d2_auth_token');
+                if (storedToken) {
+                    AUTH_TOKEN = storedToken;
+                    console.warn('⚠️ Using stored token from localStorage:', AUTH_TOKEN.substring(0, 8) + '...');
+                    return AUTH_TOKEN;
+                }
+
+                // Ultimate fallback for development
+                console.error('⚠️ No token available - API calls will fail');
+                console.error('⚠️ Please ensure WCB API is running on http://localhost:8770');
+                return null;
+            }
         }
 
         // Authentication required handler
         function handleAuthenticationRequired() {
             console.error('Authentication required');
-            toastManager.show('Please log in to continue', 'warning', 5000);
-            // Optionally redirect to login page
-            // window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.href);
+            if (typeof toastManager !== 'undefined') {
+                toastManager.show('Authentication required - please refresh page', 'warning', 5000);
+            }
+            // Retry auth initialization
+            initializeAuthToken();
         }
 
         // Network error handler
         function handleNetworkError(error) {
             console.error('Network error:', error);
-            toastManager.show('Network error: ' + error.message, 'error', 5000);
+            if (typeof toastManager !== 'undefined') {
+                toastManager.show('Network error: ' + error.message, 'error', 5000);
+            }
         }
+
+        // Initialize auth on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initializeAuthToken();
+            console.log('✅ Enhanced Dashboard authentication initialized');
+        });
     </script>
 
     <script>
