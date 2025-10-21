@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R2D2 Dashboard Security Test Suite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #f8fafc;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 15px;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #3b82f6, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .test-section {
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+
+        .test-section h2 {
+            color: #3b82f6;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-case {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #64748b;
+        }
+
+        .test-case.passed {
+            border-left-color: #10b981;
+        }
+
+        .test-case.failed {
+            border-left-color: #ef4444;
+        }
+
+        .test-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-result {
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            margin-bottom: 5px;
+        }
+
+        .test-details {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-badge.pass {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-badge.fail {
+            background: #ef4444;
+            color: white;
+        }
+
+        .summary {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .summary h2 {
+            color: #3b82f6;
+            margin-bottom: 15px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-value.green {
+            color: #10b981;
+        }
+
+        .stat-value.red {
+            color: #ef4444;
+        }
+
+        .stat-value.blue {
+            color: #3b82f6;
+        }
+
+        .stat-label {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+
+        .run-button {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .run-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .run-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .code {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>🔒 R2D2 Dashboard Security Test Suite</h1>
+        <p>Comprehensive validation of XSS prevention, CSRF protection, authentication, and memory management</p>
+        <div style="margin-top: 15px;">
+            <button class="run-button" onclick="runAllTests()">▶️ Run All Tests</button>
+        </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary" id="summary">
+        <h2>Test Summary</h2>
+        <div class="summary-stats">
+            <div class="stat-card">
+                <div class="stat-value blue" id="totalTests">0</div>
+                <div class="stat-label">Total Tests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value green" id="passedTests">0</div>
+                <div class="stat-label">Passed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value red" id="failedTests">0</div>
+                <div class="stat-label">Failed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value blue" id="successRate">0%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Results -->
+    <div id="testResults"></div>
+
+    <!-- Load Security Utilities -->
+    <script src="dashboard-security-utils.js"></script>
+
+    <!-- Test Suite -->
+    <script>
+        let testResults = [];
+        let totalTests = 0;
+        let passedTests = 0;
+        let failedTests = 0;
+
+        /**
+         * Test result object
+         */
+        function TestResult(name, passed, message, details = null) {
+            this.name = name;
+            this.passed = passed;
+            this.message = message;
+            this.details = details;
+        }
+
+        /**
+         * Add test result
+         */
+        function addResult(name, passed, message, details = null) {
+            testResults.push(new TestResult(name, passed, message, details));
+            totalTests++;
+            if (passed) passedTests++;
+            else failedTests++;
+        }
+
+        /**
+         * Run all security tests
+         */
+        async function runAllTests() {
+            console.log('🧪 Running security test suite...');
+
+            // Reset
+            testResults = [];
+            totalTests = 0;
+            passedTests = 0;
+            failedTests = 0;
+
+            // Run test categories
+            testXSSPrevention();
+            testCSRFProtection();
+            testAuthenticationManager();
+            testMemoryManagement();
+            await testSecureFetch();
+
+            // Display results
+            displayResults();
+            updateSummary();
+
+            console.log(`✅ Test suite complete: ${passedTests}/${totalTests} passed`);
+        }
+
+        /**
+         * Test 1: XSS Prevention
+         */
+        function testXSSPrevention() {
+            console.log('Testing XSS prevention...');
+
+            // Test 1.1: sanitizeHTML with script tag
+            const xss1 = "<script>alert('XSS')</script>";
+            const sanitized1 = sanitizeHTML(xss1);
+            const safe1 = !sanitized1.includes('<script>');
+            addResult(
+                'XSS-1: Script tag sanitization',
+                safe1,
+                safe1 ? 'Script tags properly escaped' : 'FAILED: Script tags not escaped',
+                `Input: ${xss1}\nOutput: ${sanitized1}`
+            );
+
+            // Test 1.2: sanitizeHTML with img onerror
+            const xss2 = "<img src=x onerror=alert('XSS')>";
+            const sanitized2 = sanitizeHTML(xss2);
+            const safe2 = !sanitized2.includes('onerror=');
+            addResult(
+                'XSS-2: IMG onerror sanitization',
+                safe2,
+                safe2 ? 'Event handlers properly escaped' : 'FAILED: Event handlers not escaped',
+                `Input: ${xss2}\nOutput: ${sanitized2}`
+            );
+
+            // Test 1.3: sanitizeHTML with iframe
+            const xss3 = "<iframe src='javascript:alert(1)'></iframe>";
+            const sanitized3 = sanitizeHTML(xss3);
+            const safe3 = !sanitized3.includes('<iframe');
+            addResult(
+                'XSS-3: Iframe sanitization',
+                safe3,
+                safe3 ? 'Iframe tags properly escaped' : 'FAILED: Iframe tags not escaped',
+                `Input: ${xss3}\nOutput: ${sanitized3}`
+            );
+
+            // Test 1.4: setTextContent safety
+            const testDiv = document.createElement('div');
+            const xss4 = "<script>alert('Should not execute')</script>";
+            setTextContent(testDiv, xss4);
+            const safe4 = testDiv.innerHTML.includes('&lt;script&gt;') || !testDiv.querySelector('script');
+            addResult(
+                'XSS-4: setTextContent prevents execution',
+                safe4,
+                safe4 ? 'Text content set safely without HTML parsing' : 'FAILED: HTML was parsed',
+                `Input: ${xss4}\nDiv innerHTML: ${testDiv.innerHTML}`
+            );
+
+            // Test 1.5: createSafeElement
+            const xss5 = "<img src=x onerror=alert('XSS')>";
+            const safeEl = createSafeElement('div', { className: 'test' }, xss5);
+            const safe5 = safeEl.textContent === xss5 && !safeEl.querySelector('img');
+            addResult(
+                'XSS-5: createSafeElement sanitizes attributes',
+                safe5,
+                safe5 ? 'Element created safely with sanitized content' : 'FAILED: Unsafe content in element',
+                `Text content: ${safeEl.textContent}\nInner HTML: ${safeEl.innerHTML}`
+            );
+
+            // Test 1.6: Complex XSS payload
+            const xss6 = "\"><svg/onload=alert('XSS')>";
+            const sanitized6 = sanitizeHTML(xss6);
+            const safe6 = !sanitized6.includes('onload=') && !sanitized6.includes('<svg');
+            addResult(
+                'XSS-6: Complex payload sanitization',
+                safe6,
+                safe6 ? 'Complex payload properly escaped' : 'FAILED: Complex payload not fully sanitized',
+                `Input: ${xss6}\nOutput: ${sanitized6}`
+            );
+        }
+
+        /**
+         * Test 2: CSRF Protection
+         */
+        function testCSRFProtection() {
+            console.log('Testing CSRF protection...');
+
+            // Test 2.1: CSRF token generation
+            const token1 = csrfManager.getToken();
+            const valid1 = token1 && token1.startsWith('csrf_') && token1.length > 20;
+            addResult(
+                'CSRF-1: Token generation',
+                valid1,
+                valid1 ? 'CSRF token generated successfully' : 'FAILED: Invalid token format',
+                `Token: ${token1}\nLength: ${token1 ? token1.length : 0}`
+            );
+
+            // Test 2.2: Token uniqueness
+            const token2 = csrfManager.refreshToken();
+            const unique = token1 !== token2;
+            addResult(
+                'CSRF-2: Token uniqueness',
+                unique,
+                unique ? 'Token refresh generates new unique token' : 'FAILED: Tokens are identical',
+                `Original: ${token1}\nRefreshed: ${token2}`
+            );
+
+            // Test 2.3: Token validation
+            const currentToken = csrfManager.getToken();
+            const validationPass = csrfManager.validateToken(currentToken);
+            const validationFail = !csrfManager.validateToken('invalid_token_123');
+            const valid3 = validationPass && validationFail;
+            addResult(
+                'CSRF-3: Token validation',
+                valid3,
+                valid3 ? 'Token validation working correctly' : 'FAILED: Validation logic broken',
+                `Valid token: ${validationPass}\nInvalid token: ${!validationFail}`
+            );
+
+            // Test 2.4: Token persistence (sessionStorage)
+            try {
+                const stored = sessionStorage.getItem('r2d2_csrf_token');
+                const valid4 = stored && stored === csrfManager.getToken();
+                addResult(
+                    'CSRF-4: Token persistence',
+                    valid4,
+                    valid4 ? 'Token persisted in sessionStorage' : 'FAILED: Token not persisted',
+                    `Stored: ${stored}\nCurrent: ${csrfManager.getToken()}`
+                );
+            } catch (e) {
+                addResult(
+                    'CSRF-4: Token persistence',
+                    false,
+                    'FAILED: sessionStorage not available',
+                    `Error: ${e.message}`
+                );
+            }
+        }
+
+        /**
+         * Test 3: Authentication Manager
+         */
+        function testAuthenticationManager() {
+            console.log('Testing authentication manager...');
+
+            // Test 3.1: Auth manager initialization
+            const testToken = 'test_auth_token_1234567890';
+            const testAuth = new AuthHeaderManager(testToken);
+            const valid1 = testAuth.getToken() === testToken;
+            addResult(
+                'AUTH-1: Manager initialization',
+                valid1,
+                valid1 ? 'Auth manager initialized with token' : 'FAILED: Token not set',
+                `Expected: ${testToken}\nActual: ${testAuth.getToken()}`
+            );
+
+            // Test 3.2: Token authentication check
+            const isAuth = testAuth.isAuthenticated();
+            addResult(
+                'AUTH-2: Authentication check',
+                isAuth,
+                isAuth ? 'Authentication status correct' : 'FAILED: Should be authenticated',
+                `isAuthenticated: ${isAuth}`
+            );
+
+            // Test 3.3: Header generation
+            const headers = testAuth.getHeaders();
+            const hasAuth = headers['Authorization'] === `Bearer ${testToken}`;
+            const hasContentType = headers['Content-Type'] === 'application/json';
+            const hasCSRF = headers['X-CSRF-Token'] && headers['X-CSRF-Token'].startsWith('csrf_');
+            const valid3 = hasAuth && hasContentType && hasCSRF;
+            addResult(
+                'AUTH-3: Header generation',
+                valid3,
+                valid3 ? 'Complete headers generated with auth and CSRF' : 'FAILED: Headers incomplete',
+                `Authorization: ${headers['Authorization']}\nCSRF: ${headers['X-CSRF-Token']}\nContent-Type: ${headers['Content-Type']}`
+            );
+
+            // Test 3.4: Token clearing
+            testAuth.clearToken();
+            const cleared = !testAuth.isAuthenticated() && !testAuth.getToken();
+            addResult(
+                'AUTH-4: Token clearing',
+                cleared,
+                cleared ? 'Token cleared successfully' : 'FAILED: Token still present',
+                `isAuthenticated: ${testAuth.isAuthenticated()}\nToken: ${testAuth.getToken()}`
+            );
+
+            // Test 3.5: Token expiry simulation
+            const expiringAuth = new AuthHeaderManager('expiring_token');
+            expiringAuth.setToken('expiring_token', 100); // 100ms expiry
+            setTimeout(() => {
+                const stillValid = expiringAuth.isAuthenticated();
+                addResult(
+                    'AUTH-5: Token expiry handling',
+                    !stillValid,
+                    !stillValid ? 'Expired tokens rejected' : 'FAILED: Expired token still valid',
+                    `Token after expiry: ${expiringAuth.getToken()}`
+                );
+                displayResults();
+                updateSummary();
+            }, 150);
+        }
+
+        /**
+         * Test 4: Memory Management
+         */
+        function testMemoryManagement() {
+            console.log('Testing memory management...');
+
+            // Test 4.1: ManagedInterval lifecycle
+            let intervalCount = 0;
+            const testInterval = new ManagedInterval(() => intervalCount++, 50, 'testInterval');
+            testInterval.start();
+            const running1 = testInterval.isRunning();
+
+            setTimeout(() => {
+                testInterval.stop();
+                const stopped = !testInterval.isRunning();
+                const executed = intervalCount >= 2;
+                const valid1 = running1 && stopped && executed;
+                addResult(
+                    'MEMORY-1: ManagedInterval lifecycle',
+                    valid1,
+                    valid1 ? 'Interval starts, executes, and stops correctly' : 'FAILED: Interval lifecycle broken',
+                    `Started: ${running1}\nStopped: ${stopped}\nExecutions: ${intervalCount}`
+                );
+                displayResults();
+                updateSummary();
+            }, 150);
+
+            // Test 4.2: ManagedTimeout lifecycle
+            let timeoutExecuted = false;
+            const testTimeout = new ManagedTimeout(() => timeoutExecuted = true, 50, 'testTimeout');
+            testTimeout.start();
+            const scheduled = testTimeout.isScheduled();
+
+            setTimeout(() => {
+                const valid2 = scheduled && timeoutExecuted;
+                addResult(
+                    'MEMORY-2: ManagedTimeout execution',
+                    valid2,
+                    valid2 ? 'Timeout schedules and executes correctly' : 'FAILED: Timeout not executed',
+                    `Scheduled: ${scheduled}\nExecuted: ${timeoutExecuted}`
+                );
+                displayResults();
+                updateSummary();
+            }, 100);
+
+            // Test 4.3: ImageCache size management
+            const cache = new ImageCache(3);
+            cache.addImage('image1');
+            cache.addImage('image2');
+            cache.addImage('image3');
+            cache.addImage('image4'); // Should evict image1
+            const sizeCorrect = cache.size() === 3;
+            const latestCorrect = cache.getLatest() === 'image4';
+            const oldestEvicted = cache.getImage(0) === 'image2'; // image1 evicted
+            const valid3 = sizeCorrect && latestCorrect && oldestEvicted;
+            addResult(
+                'MEMORY-3: ImageCache size management',
+                valid3,
+                valid3 ? 'Cache limits size and evicts oldest correctly' : 'FAILED: Cache size management broken',
+                `Size: ${cache.size()}\nLatest: ${cache.getLatest()}\nOldest: ${cache.getImage(0)}`
+            );
+
+            // Test 4.4: ToastManager cleanup
+            const testToast = new ToastManager();
+            testToast.show('Test toast', 'info', 1000);
+            const elementCreated = !!testToast.toastElement;
+
+            setTimeout(() => {
+                testToast.cleanup();
+                const elementRemoved = !testToast.toastElement;
+                const valid4 = elementCreated && elementRemoved;
+                addResult(
+                    'MEMORY-4: ToastManager cleanup',
+                    valid4,
+                    valid4 ? 'Toast created and cleaned up correctly' : 'FAILED: Toast cleanup incomplete',
+                    `Element created: ${elementCreated}\nElement removed: ${elementRemoved}`
+                );
+                displayResults();
+                updateSummary();
+            }, 1500);
+
+            // Test 4.5: ResourceManager centralized cleanup
+            const resMgr = new ResourceManager();
+            const resInterval = new ManagedInterval(() => {}, 1000, 'resourceTest');
+            resInterval.start();
+            resMgr.registerInterval('test', resInterval);
+
+            const resTimeout = new ManagedTimeout(() => {}, 1000, 'resourceTest');
+            resTimeout.start();
+            resMgr.registerTimeout('test', resTimeout);
+
+            const registered = resMgr.intervals.size === 1 && resMgr.timeouts.size === 1;
+
+            resMgr.cleanupAll();
+            const cleaned = resMgr.intervals.size === 0 && resMgr.timeouts.size === 0;
+            const valid5 = registered && cleaned;
+            addResult(
+                'MEMORY-5: ResourceManager cleanup',
+                valid5,
+                valid5 ? 'ResourceManager registers and cleans all resources' : 'FAILED: Cleanup incomplete',
+                `Registered: ${registered}\nCleaned: ${cleaned}`
+            );
+        }
+
+        /**
+         * Test 5: Secure Fetch
+         */
+        async function testSecureFetch() {
+            console.log('Testing secure fetch...');
+
+            // Initialize auth for testing
+            initializeAuth('test_token_for_fetch_123');
+
+            // Test 5.1: Auth header inclusion
+            // Note: This will fail to fetch, but we can check if headers are set
+            try {
+                const testUrl = 'http://localhost:9999/fake-endpoint';
+                const mockFetch = window.fetch;
+                let capturedHeaders = null;
+
+                // Mock fetch to capture headers
+                window.fetch = async (url, options) => {
+                    capturedHeaders = options.headers;
+                    throw new Error('Mock fetch - expected');
+                };
+
+                await secureFetch(testUrl, { method: 'GET' });
+
+                window.fetch = mockFetch; // Restore
+
+                const hasAuth = capturedHeaders && capturedHeaders['Authorization'];
+                const hasCSRF = capturedHeaders && capturedHeaders['X-CSRF-Token'];
+                const valid1 = hasAuth && hasCSRF;
+
+                addResult(
+                    'FETCH-1: Secure headers inclusion',
+                    valid1,
+                    valid1 ? 'Auth and CSRF headers included in fetch' : 'FAILED: Headers missing',
+                    `Authorization: ${hasAuth ? 'Present' : 'Missing'}\nCSRF: ${hasCSRF ? 'Present' : 'Missing'}`
+                );
+            } catch (e) {
+                addResult(
+                    'FETCH-1: Secure headers inclusion',
+                    false,
+                    'FAILED: Could not test header inclusion',
+                    `Error: ${e.message}`
+                );
+            }
+
+            displayResults();
+            updateSummary();
+        }
+
+        /**
+         * Display test results
+         */
+        function displayResults() {
+            const container = document.getElementById('testResults');
+            container.innerHTML = '';
+
+            // Group by category
+            const categories = {
+                'XSS': testResults.filter(r => r.name.startsWith('XSS')),
+                'CSRF': testResults.filter(r => r.name.startsWith('CSRF')),
+                'AUTH': testResults.filter(r => r.name.startsWith('AUTH')),
+                'MEMORY': testResults.filter(r => r.name.startsWith('MEMORY')),
+                'FETCH': testResults.filter(r => r.name.startsWith('FETCH'))
+            };
+
+            Object.keys(categories).forEach(category => {
+                const tests = categories[category];
+                if (tests.length === 0) return;
+
+                const section = document.createElement('div');
+                section.className = 'test-section';
+
+                const categoryPassed = tests.filter(t => t.passed).length;
+                const categoryTotal = tests.length;
+                const icon = categoryPassed === categoryTotal ? '✅' : '⚠️';
+
+                section.innerHTML = `<h2>${icon} ${category} Tests (${categoryPassed}/${categoryTotal})</h2>`;
+
+                tests.forEach(test => {
+                    const testCase = document.createElement('div');
+                    testCase.className = `test-case ${test.passed ? 'passed' : 'failed'}`;
+
+                    testCase.innerHTML = `
+                        <div class="test-name">
+                            ${test.passed ? '✅' : '❌'} ${test.name}
+                            <span class="status-badge ${test.passed ? 'pass' : 'fail'}">
+                                ${test.passed ? 'PASS' : 'FAIL'}
+                            </span>
+                        </div>
+                        <div class="test-result">${test.message}</div>
+                        ${test.details ? `<div class="test-details">${test.details.replace(/\n/g, '<br>')}</div>` : ''}
+                    `;
+
+                    section.appendChild(testCase);
+                });
+
+                container.appendChild(section);
+            });
+        }
+
+        /**
+         * Update summary statistics
+         */
+        function updateSummary() {
+            document.getElementById('totalTests').textContent = totalTests;
+            document.getElementById('passedTests').textContent = passedTests;
+            document.getElementById('failedTests').textContent = failedTests;
+
+            const rate = totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0;
+            document.getElementById('successRate').textContent = rate + '%';
+        }
+
+        // Auto-run on load
+        window.addEventListener('load', () => {
+            console.log('Security test suite loaded');
+            runAllTests();
+        });
+    </script>
+</body>
+</html>
