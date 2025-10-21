@@ -617,6 +617,36 @@
         <button onclick="stopMood()" class="stop-btn">⏹️ Stop Current Mood</button>
     </div>
 
+    <!-- Security Utilities Library -->
+    <script src="dashboard-security-utils.js"></script>
+    <script>
+        // Initialize security managers with authentication token
+        // Production token from SUPER-CODER auth system (Phase 2: fd81ba71-43f6-4bb3-afb5-e8dc3f9eb12e)
+        const AUTH_TOKEN = localStorage.getItem('r2d2_auth_token') || 'fd81ba71-43f6-4bb3-afb5-e8dc3f9eb12e';
+
+        // Initialize auth manager
+        if (AUTH_TOKEN) {
+            initializeAuth(AUTH_TOKEN);
+            console.log('✓ Auth manager initialized with token');
+        } else {
+            console.warn('⚠️ No auth token found - API calls will fail');
+        }
+
+        // Authentication required handler
+        function handleAuthenticationRequired() {
+            console.error('Authentication required');
+            toastManager.show('Please log in to continue', 'warning', 5000);
+            // Optionally redirect to login page
+            // window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.href);
+        }
+
+        // Network error handler
+        function handleNetworkError(error) {
+            console.error('Network error:', error);
+            toastManager.show('Network error: ' + error.message, 'error', 5000);
+        }
+    </script>
+
     <!-- JavaScript -->
     <script>
         // WCB API Configuration
@@ -630,6 +660,8 @@
         let moodStartTime = null;
         let statusPollInterval = null;
         let visionWs = null;
+        let visionConnected = false;
+        let wcbConnected = false;
 
         // Mood name mapping
         const MOOD_NAMES = {
@@ -654,25 +686,31 @@
         async function executeMood(moodId, priority = 7) {
             try {
                 showToast(`Executing ${MOOD_NAMES[moodId]}...`, 'success');
-                
-                const response = await fetch(`${WCB_API_URL}/api/wcb/mood/execute`, {
+
+                // SECURITY FIX: Use secureFetch with automatic auth and CSRF protection
+                const response = await secureFetch(`${WCB_API_URL}/api/wcb/mood/execute`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({mood_id: moodId, priority: priority})
                 });
-                
+
+                // Handle auth failure
+                if (!response) {
+                    showToast('Authentication required', 'error');
+                    return;
+                }
+
                 const result = await response.json();
-                
+
                 if (response.ok) {
                     currentMoodId = moodId;
                     moodStartTime = Date.now();
                     totalMoodsExecuted++;
                     totalCommandsSent += result.commands_sent || 0;
-                    
+
                     updateMoodStatus(result.mood, 'executing', 0);
                     updateStatistics();
                     highlightActiveMood(moodId);
-                    
+
                     console.log(`✅ Mood executed: ${result.mood}, ${result.commands_sent} commands`);
                 } else {
                     showToast(`Error: ${result.detail || 'Mood execution failed'}`, 'error');
@@ -686,11 +724,19 @@
         // Stop current mood
         async function stopMood() {
             try {
-                const response = await fetch(`${WCB_API_URL}/api/wcb/mood/stop`, {
+                // SECURITY FIX: Use secureFetch with automatic auth and CSRF protection
+                const response = await secureFetch(`${WCB_API_URL}/api/wcb/mood/stop`, {
                     method: 'POST'
                 });
+
+                // Handle auth failure
+                if (!response) {
+                    showToast('Authentication required', 'error');
+                    return;
+                }
+
                 const result = await response.json();
-                
+
                 if (response.ok) {
                     updateMoodStatus('Stopped', 'stopped', 0);
                     clearActiveMood();
@@ -703,13 +749,25 @@
 
         // Poll mood status (every 500ms)
         function startStatusPolling() {
-            if (statusPollInterval) clearInterval(statusPollInterval);
-            statusPollInterval = setInterval(pollMoodStatus, 500);
+            // MEMORY LEAK FIX: Use ManagedInterval for automatic cleanup
+            if (statusPollInterval) statusPollInterval.stop();
+
+            statusPollInterval = new ManagedInterval(
+                pollMoodStatus,
+                500,
+                'statusPoll'
+            );
+            statusPollInterval.start();
+
+            // Register for automatic cleanup
+            resourceManager.registerInterval('statusPoll', statusPollInterval);
         }
 
         async function pollMoodStatus() {
             try {
-                const response = await fetch(`${WCB_API_URL}/api/wcb/mood/status`);
+                // SECURITY FIX: Use secureFetch with automatic auth and CSRF protection
+                const response = await secureFetch(`${WCB_API_URL}/api/wcb/mood/status`);
+                if (!response) return; // Silent fail for polling on auth error
                 const status = await response.json();
                 
                 if (status.active) {
@@ -767,11 +825,16 @@
         // Check WCB API connection
         async function checkWCBConnection() {
             try {
-                const response = await fetch(`${WCB_API_URL}/api/wcb/mood/status`);
-                if (response.ok) {
+                // SECURITY FIX: Use secureFetch with automatic auth and CSRF protection
+                const response = await secureFetch(`${WCB_API_URL}/api/wcb/mood/status`);
+                if (response && response.ok) {
                     document.getElementById('wcbApiStatus').textContent = '✓';
                     document.getElementById('wcbApiStatus').style.color = '#10b981';
                     showToast('WCB API connected', 'success');
+                } else {
+                    document.getElementById('wcbApiStatus').textContent = '✗';
+                    document.getElementById('wcbApiStatus').style.color = '#ef4444';
+                    showToast('WCB API authentication failed', 'error');
                 }
             } catch (error) {
                 document.getElementById('wcbApiStatus').textContent = '✗';
@@ -781,42 +844,71 @@
         }
 
         // Update connection status indicator
-        function updateConnectionStatus(connected) {
+        function updateConnectionStatus(connected, isVision = false) {
             const statusEl = document.getElementById('connectionStatus');
-            if (connected) {
+
+            if (isVision) {
+                visionConnected = connected;
+            } else {
+                wcbConnected = connected;
+            }
+
+            // Show combined status
+            if (visionConnected && wcbConnected) {
                 statusEl.className = 'connection-status connected';
-                statusEl.textContent = 'WCB Connected';
+                statusEl.textContent = 'CONNECTED (Vision + WCB)';
+            } else if (visionConnected) {
+                statusEl.className = 'connection-status connected';
+                statusEl.textContent = 'CONNECTED (Vision Only)';
+            } else if (wcbConnected) {
+                statusEl.className = 'connection-status connected';
+                statusEl.textContent = 'CONNECTED (WCB Only)';
             } else {
                 statusEl.className = 'connection-status disconnected';
-                statusEl.textContent = 'WCB Disconnected';
+                statusEl.textContent = 'DISCONNECTED';
             }
         }
 
         // Connect to vision feed
         function connectVisionFeed() {
             try {
-                visionWs = new WebSocket(VISION_WS_URL);
+                // SECURITY FIX: Add authentication token to WebSocket URL
+                const wsUrlWithAuth = `${VISION_WS_URL}?token=${AUTH_TOKEN}`;
+                visionWs = new WebSocket(wsUrlWithAuth);
                 
                 visionWs.onopen = () => {
                     console.log('✅ Vision feed connected');
-                    document.getElementById('noVideo').innerHTML = '<div style="text-align: center;"><div>📷 Vision system connected</div><div style="font-size: 14px; margin-top: 10px;">Waiting for frames...</div></div>';
+                    updateConnectionStatus(true, true); // Set vision connected
+                    // XSS FIX: Use textContent instead of innerHTML for static content
+                    const noVideo = document.getElementById('noVideo');
+                    noVideo.textContent = '📷 Vision system connected - Waiting for frames...';
                 };
                 
                 visionWs.onmessage = (event) => {
                     const data = JSON.parse(event.data);
-                    
-                    if (data.type === 'vision_data' && data.image) {
+
+                    // Handle ALL vision message types: character_vision_data, vision_data, video_frame
+                    if ((data.type === 'character_vision_data' || data.type === 'vision_data' || data.type === 'video_frame') && data.frame) {
                         const img = document.getElementById('videoFeed');
-                        img.src = 'data:image/jpeg;base64,' + data.image;
+                        img.src = 'data:image/jpeg;base64,' + data.frame;
                         img.style.display = 'block';
                         document.getElementById('noVideo').style.display = 'none';
-                        
+
+                        // Update connection status to CONNECTED when frames arrive
+                        updateConnectionStatus(true, true); // Vision is connected
+
                         // Update character detection if available
-                        if (data.detected_person) {
-                            document.getElementById('characterName').textContent = 
+                        if (data.detected_person || data.character_detected) {
+                            document.getElementById('characterName').textContent =
                                 data.character_name || 'Person Detected';
-                            document.getElementById('characterConfidence').textContent = 
+                            document.getElementById('characterConfidence').textContent =
                                 `Confidence: ${Math.round((data.confidence || 0) * 100)}%`;
+
+                            // Update reaction if available
+                            if (data.r2d2_reaction) {
+                                document.getElementById('characterReaction').textContent =
+                                    `R2D2 Reaction: ${data.r2d2_reaction}`;
+                            }
                         }
                     }
                 };
@@ -827,31 +919,59 @@
                 
                 visionWs.onclose = () => {
                     console.log('Vision feed disconnected, reconnecting...');
-                    setTimeout(connectVisionFeed, 3000);
+                    updateConnectionStatus(false, true); // Vision disconnected
+                    document.getElementById('videoFeed').style.display = 'none';
+                    document.getElementById('noVideo').style.display = 'flex';
+                    // XSS FIX: Use textContent instead of innerHTML for static content
+                    const noVideo = document.getElementById('noVideo');
+                    noVideo.textContent = '📷 Reconnecting to vision system...';
+
+                    // MEMORY LEAK FIX: Use ManagedTimeout for automatic cleanup
+                    const reconnectTimeout = new ManagedTimeout(
+                        connectVisionFeed,
+                        3000,
+                        'visionReconnect'
+                    );
+                    reconnectTimeout.start();
+                    resourceManager.registerTimeout('visionReconnect', reconnectTimeout);
                 };
             } catch (error) {
                 console.error('Vision connection error:', error);
-                setTimeout(connectVisionFeed, 5000);
+
+                // MEMORY LEAK FIX: Use ManagedTimeout for automatic cleanup
+                const reconnectTimeout = new ManagedTimeout(
+                    connectVisionFeed,
+                    5000,
+                    'visionReconnectError'
+                );
+                reconnectTimeout.start();
+                resourceManager.registerTimeout('visionReconnectError', reconnectTimeout);
             }
         }
 
         // Show toast notification
         function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            // MEMORY LEAK FIX: Use ToastManager for automatic cleanup
+            toastManager.show(message, type, 3000);
         }
 
         // Cleanup on page unload
         window.addEventListener('beforeunload', () => {
-            if (statusPollInterval) clearInterval(statusPollInterval);
-            if (visionWs) visionWs.close();
+            // MEMORY LEAK FIX: Comprehensive cleanup using ResourceManager
+            console.log('Page unloading - cleaning up all resources...');
+
+            // Stop intervals
+            if (statusPollInterval && statusPollInterval.stop) {
+                statusPollInterval.stop();
+            }
+
+            // Close WebSocket
+            if (visionWs) {
+                visionWs.close();
+            }
+
+            // Global cleanup via ResourceManager (handles all registered resources)
+            resourceManager.cleanupAll();
         });
     </script>
 </body>
