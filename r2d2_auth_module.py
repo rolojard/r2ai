@@ -23,34 +23,57 @@ class AuthManager:
     """
 
     def __init__(self):
-        """Initialize authentication manager"""
+        """Initialize authentication manager with persistent token"""
         self.valid_tokens: Dict[str, dict] = {}
         self.revoked_tokens: Set[str] = set()
+        self.primary_token: Optional[str] = None
         self.load_or_create_initial_tokens()
 
     def load_or_create_initial_tokens(self):
-        """Load tokens from environment or create initial test token"""
-        # Option 1: Load from environment variable
-        env_token = os.environ.get('R2D2_AUTH_TOKEN')
-        if env_token:
-            self.valid_tokens[env_token] = {
+        """Load tokens from environment or create initial persistent token"""
+        # Check if token already set in environment
+        existing_token = os.environ.get('R2D2_AUTH_TOKEN')
+
+        if existing_token:
+            # Use existing token from environment (most important!)
+            self.primary_token = existing_token
+            self.valid_tokens[existing_token] = {
                 'created': datetime.now(),
                 'active': True,
                 'source': 'environment',
-                'description': 'Token loaded from R2D2_AUTH_TOKEN'
+                'description': 'Persistent token from R2D2_AUTH_TOKEN'
             }
-            logger.info(f"Loaded auth token from environment: {env_token[:8]}...")
+            logger.info(f"✅ Using existing R2D2_AUTH_TOKEN from environment: {existing_token[:8]}...")
+            print(f"✅ Using existing R2D2_AUTH_TOKEN: {existing_token[:8]}...")
+        else:
+            # Generate NEW token and store in environment
+            self.primary_token = str(uuid.uuid4())
+            os.environ['R2D2_AUTH_TOKEN'] = self.primary_token
+            self.valid_tokens[self.primary_token] = {
+                'created': datetime.now(),
+                'active': True,
+                'source': 'generated',
+                'description': 'Generated persistent token'
+            }
+            logger.info(f"✅ Generated new R2D2_AUTH_TOKEN: {self.primary_token}")
+            print(f"✅ Generated new R2D2_AUTH_TOKEN: {self.primary_token}")
+            logger.info("="*70)
+            logger.info("R2D2 AUTHENTICATION INITIALIZED")
+            logger.info("="*70)
+            logger.info(f"Primary Token: {self.primary_token}")
+            logger.info(f"Total Active Tokens: {len(self.valid_tokens)}")
+            logger.info("="*70)
+            logger.warning("SAVE THIS TOKEN - Required for all API/WebSocket requests")
+            logger.info("="*70)
 
-        # Option 2: Create initial test token for development
-        test_token = self.generate_token(description="Initial test token")
-        logger.info("="*70)
-        logger.info("R2D2 AUTHENTICATION INITIALIZED")
-        logger.info("="*70)
-        logger.info(f"Test Token: {test_token}")
-        logger.info(f"Total Active Tokens: {len(self.valid_tokens)}")
-        logger.info("="*70)
-        logger.warning("SAVE THIS TOKEN - Required for all API/WebSocket requests")
-        logger.info("="*70)
+    def get_primary_token(self) -> str:
+        """
+        Get the primary token that should be used by all clients
+
+        Returns:
+            str: The primary authentication token
+        """
+        return self.primary_token
 
     def generate_token(self, description: str = "Generated token") -> str:
         """
