@@ -41,7 +41,9 @@ class AuthManager:
                 'created': datetime.now(),
                 'active': True,
                 'source': 'environment',
-                'description': 'Persistent token from R2D2_AUTH_TOKEN'
+                'description': 'Persistent token from R2D2_AUTH_TOKEN',
+                'last_used': None,
+                'use_count': 0
             }
             logger.info(f"✅ Using existing R2D2_AUTH_TOKEN from environment: {existing_token[:8]}...")
             print(f"✅ Using existing R2D2_AUTH_TOKEN: {existing_token[:8]}...")
@@ -53,7 +55,9 @@ class AuthManager:
                 'created': datetime.now(),
                 'active': True,
                 'source': 'generated',
-                'description': 'Generated persistent token'
+                'description': 'Generated persistent token',
+                'last_used': None,
+                'use_count': 0
             }
             logger.info(f"✅ Generated new R2D2_AUTH_TOKEN: {self.primary_token}")
             print(f"✅ Generated new R2D2_AUTH_TOKEN: {self.primary_token}")
