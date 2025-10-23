@@ -21,6 +21,8 @@ from collections import deque
 import sys
 import os
 import signal
+import subprocess
+import re
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -81,8 +83,18 @@ class OrinNanoOptimizedVision:
             'total_detections': 0,
             'confidence_threshold': 0.5,
             'gpu_memory_usage': 0,
-            'capture_latency': 0
+            'capture_latency': 0,
+            'gpu_utilization': 0,
+            'gpu_memory_mb': 0,
+            'temperature_celsius': 0,
+            'cpu_utilization': 0,
+            'system_memory_mb': 0
         }
+
+        # GPU metrics collection thread
+        self.metrics_thread = None
+        self.last_metrics_update = 0
+        self.metrics_update_interval = 0.5  # Update metrics every 500ms
 
         # Frame timing for flicker elimination
         self.target_fps = 15
@@ -442,6 +454,117 @@ class OrinNanoOptimizedVision:
         colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255)]
         return colors[class_id % len(colors)]
 
+    def _collect_gpu_metrics(self):
+        """Collect GPU utilization, memory, and temperature metrics for Orin Nano"""
+        try:
+            # Method 1: Try tegrastats (Orin Nano specific)
+            try:
+                result = subprocess.run(['tegrastats', '--interval', '100'],
+                                      capture_output=True, text=True, timeout=0.3)
+                if result.stdout:
+                    # Parse tegrastats output
+                    # Example: RAM 2047/7766MB (lfb 1x4MB) CPU [5%@1190,2%@1190,2%@1190,2%@1190,3%@1190,2%@1190]
+                    # EMC_FREQ 0% GR3D_FREQ 0% VIC_FREQ 153 APE 150 MTS fg 0% bg 0% AO@34.5C GPU@33C
+                    output = result.stdout
+
+                    # GPU utilization from GR3D_FREQ
+                    gpu_match = re.search(r'GR3D_FREQ\s+(\d+)%', output)
+                    if gpu_match:
+                        self.performance_stats['gpu_utilization'] = int(gpu_match.group(1))
+
+                    # GPU temperature
+                    temp_match = re.search(r'GPU@(\d+(?:\.\d+)?)C', output)
+                    if temp_match:
+                        self.performance_stats['temperature_celsius'] = float(temp_match.group(1))
+
+                    # System memory
+                    mem_match = re.search(r'RAM\s+(\d+)/(\d+)MB', output)
+                    if mem_match:
+                        self.performance_stats['system_memory_mb'] = int(mem_match.group(1))
+
+                    # CPU utilization (average)
+                    cpu_matches = re.findall(r'CPU\s+\[([\d%@,]+)\]', output)
+                    if cpu_matches:
+                        cpu_vals = re.findall(r'(\d+)%', cpu_matches[0])
+                        if cpu_vals:
+                            avg_cpu = sum(int(v) for v in cpu_vals) / len(cpu_vals)
+                            self.performance_stats['cpu_utilization'] = round(avg_cpu, 1)
+
+                    return
+            except (subprocess.TimeoutExpired, FileNotFoundError, subprocess.CalledProcessError):
+                pass
+
+            # Method 2: Try nvidia-smi (general NVIDIA GPU)
+            try:
+                result = subprocess.run(['nvidia-smi', '--query-gpu=utilization.gpu,memory.used,temperature.gpu',
+                                       '--format=csv,noheader,nounits'],
+                                      capture_output=True, text=True, timeout=0.5)
+                if result.returncode == 0 and result.stdout:
+                    parts = result.stdout.strip().split(',')
+                    if len(parts) >= 3:
+                        self.performance_stats['gpu_utilization'] = int(parts[0].strip())
+                        self.performance_stats['gpu_memory_mb'] = float(parts[1].strip())
+                        self.performance_stats['temperature_celsius'] = float(parts[2].strip())
+                    return
+            except (subprocess.TimeoutExpired, FileNotFoundError, subprocess.CalledProcessError):
+                pass
+
+            # Method 3: Try PyTorch CUDA metrics (GPU memory only)
+            try:
+                import torch
+                if torch.cuda.is_available():
+                    self.performance_stats['gpu_memory_mb'] = torch.cuda.memory_allocated(0) / 1024**2
+            except (RuntimeError, ImportError):
+                pass
+
+            # Method 4: Try reading /sys/class/thermal for temperature
+            try:
+                thermal_zones = ['/sys/class/thermal/thermal_zone0/temp',
+                               '/sys/class/thermal/thermal_zone1/temp']
+                for zone in thermal_zones:
+                    if os.path.exists(zone):
+                        with open(zone, 'r') as f:
+                            temp = int(f.read().strip()) / 1000.0
+                            if temp > 20 and temp < 100:  # Sanity check
+                                self.performance_stats['temperature_celsius'] = temp
+                                break
+            except (IOError, ValueError):
+                pass
+
+            # Method 5: Try psutil for CPU and system memory
+            try:
+                import psutil
+                self.performance_stats['cpu_utilization'] = psutil.cpu_percent(interval=0.1)
+                mem = psutil.virtual_memory()
+                self.performance_stats['system_memory_mb'] = mem.used / 1024**2
+            except ImportError:
+                pass
+
+        except Exception as e:
+            logger.error(f"Error collecting GPU metrics: {e}")
+
+    def _gpu_metrics_collector_thread(self):
+        """Background thread to continuously collect GPU metrics"""
+        logger.info("Starting GPU metrics collector thread")
+        metrics_count = 0
+
+        while self.running:
+            try:
+                self._collect_gpu_metrics()
+                metrics_count += 1
+
+                if metrics_count % 10 == 0:
+                    logger.info(f"[METRICS] GPU: {self.performance_stats['gpu_utilization']}%, "
+                              f"Mem: {self.performance_stats['gpu_memory_mb']:.1f}MB, "
+                              f"Temp: {self.performance_stats['temperature_celsius']}°C, "
+                              f"CPU: {self.performance_stats['cpu_utilization']}%")
+
+                time.sleep(self.metrics_update_interval)
+
+            except Exception as e:
+                logger.error(f"GPU metrics collection error: {e}")
+                time.sleep(1.0)
+
     async def _handle_websocket_stable(self, websocket):
         """Stable WebSocket handler with connection limiting"""
         client_addr = websocket.remote_address
@@ -611,7 +734,11 @@ class OrinNanoOptimizedVision:
         self.detection_thread = threading.Thread(target=self._process_detections_gpu_optimized, daemon=False, name="DetectionThread")
         self.detection_thread.start()
 
-        logger.info("All threads started successfully")
+        # Start GPU metrics collector thread
+        self.metrics_thread = threading.Thread(target=self._gpu_metrics_collector_thread, daemon=False, name="MetricsThread")
+        self.metrics_thread.start()
+
+        logger.info("All threads started successfully (capture, detection, metrics)")
 
         # Start WebSocket server
         try:
@@ -640,6 +767,12 @@ class OrinNanoOptimizedVision:
             self.detection_thread.join(timeout=5.0)
             if self.detection_thread.is_alive():
                 logger.warning("Detection thread did not finish in time")
+
+        if self.metrics_thread and self.metrics_thread.is_alive():
+            logger.info("Waiting for metrics thread to finish...")
+            self.metrics_thread.join(timeout=5.0)
+            if self.metrics_thread.is_alive():
+                logger.warning("Metrics thread did not finish in time")
 
         # Release camera
         if self.camera:

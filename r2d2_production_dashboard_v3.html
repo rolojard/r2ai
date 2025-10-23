@@ -600,8 +600,16 @@
         // Configuration
         const VISION_WS_URL = 'ws://localhost:8767';
         const WCB_API_URL = 'http://localhost:8770';
-        const AUTH_TOKEN = localStorage.getItem('r2d2_auth_token') || 'c83e8861-e618-4496-8107-f9cef1fc23ef';
-        
+
+        // SECURITY FIX: No hardcoded token fallback - enforce proper authentication
+        const AUTH_TOKEN = localStorage.getItem('r2d2_auth_token');
+
+        // Validate token on page load
+        if (!AUTH_TOKEN || AUTH_TOKEN.trim() === '') {
+            alert('⚠️ AUTHENTICATION REQUIRED\n\nNo authentication token found.\n\nPlease set your token in localStorage:\nlocalStorage.setItem(\'r2d2_auth_token\', \'YOUR_TOKEN_HERE\');\n\nThen refresh the page.');
+            throw new Error('Authentication token required');
+        }
+
         initializeAuth(AUTH_TOKEN);
         
         // Moods
@@ -709,17 +717,21 @@
         function handleVisionMessage(data) {
             try {
                 const msg = JSON.parse(data);
-                
+
                 if (msg.frame) {
                     renderFrame(msg.frame);
                 }
-                
+
                 if (msg.detections) {
                     renderDetections(msg.detections);
                     updateDetectionList(msg.detections);
                 }
-                
-                updateMetrics(msg);
+
+                // Update metrics from stats object
+                if (msg.stats) {
+                    updateMetrics(msg.stats);
+                }
+
                 frameCount++;
                 setTextContent(document.getElementById('frameNumber'), frameCount);
             } catch (error) {
