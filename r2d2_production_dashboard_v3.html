@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R2D2 Production Dashboard v3.0</title>
+    <meta name="description" content="Phase 3 Production Dashboard - Real-time R2D2 Control & Monitoring">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <style>
+        /* CSS VARIABLES */
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #10b981;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        /* HEADER */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+        
+        /* CONNECTION STATUS */
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .connection-status.connected {
+            background: var(--accent-secondary);
+        }
+        
+        .connection-status.disconnected {
+            background: var(--accent-danger);
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: white;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* MAIN CONTAINER */
+        .main-container {
+            display: grid;
+            grid-template-columns: 2fr 1.75fr 1.25fr;
+            gap: 20px;
+            max-width: 1920px;
+            margin: 0 auto;
+        }
+        
+        /* PANEL BASE */
+        .panel {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--accent-primary);
+            border-bottom: 2px solid var(--accent-primary);
+            padding-bottom: 8px;
+        }
+        
+        /* VIDEO FEED */
+        .video-container {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            margin-bottom: 15px;
+        }
+        
+        #videoFeed {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+        
+        #detectionCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .video-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+        
+        .video-stat {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            color: var(--accent-secondary);
+        }
+        
+        /* LOADING OVERLAY */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* VIDEO INFO */
+        .video-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .video-info-item {
+            background: var(--bg-tertiary);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .video-info-item label {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-bottom: 5px;
+        }
+        
+        .video-info-item value {
+            display: block;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* DETECTION LIST */
+        .detection-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .detection-item {
+            background: var(--bg-tertiary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            border-left: 3px solid var(--accent-secondary);
+        }
+        
+        /* MOOD GRID */
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .mood-btn, .animation-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mood-btn:hover, .animation-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        .mood-btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            animation: mood-pulse 1.5s infinite;
+        }
+        
+        @keyframes mood-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .animation-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        /* MOOD STATUS */
+        .mood-status {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .mood-status-current {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--bg-primary);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        
+        /* METRICS */
+        .metrics-grid {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .metric-card {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            color: var(--accent-secondary);
+        }
+        
+        .metric-value.warning {
+            color: var(--accent-warning);
+        }
+        
+        .metric-value.danger {
+            color: var(--accent-danger);
+        }
+        
+        .metric-unit {
+            font-size: 1rem;
+            margin-left: 5px;
+        }
+        
+        /* ALERTS */
+        .alert-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .alert.success {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--accent-secondary);
+            color: var(--accent-secondary);
+        }
+        
+        .alert.warning {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: var(--accent-warning);
+            color: var(--accent-warning);
+        }
+        
+        .alert.error {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: var(--accent-danger);
+            color: var(--accent-danger);
+        }
+        
+        .alert.info {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        /* EMERGENCY STOP */
+        .emergency-stop {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+        
+        .emergency-stop button {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: white;
+            border: none;
+            padding: 20px 30px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+            transition: all 0.3s ease;
+            animation: emergencyPulse 2s infinite;
+        }
+        
+        .emergency-stop button:hover {
+            transform: scale(1.1);
+        }
+        
+        @keyframes emergencyPulse {
+            0%, 100% { box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4); }
+            50% { box-shadow: 0 8px 35px rgba(220, 38, 38, 0.7); }
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 1439px) {
+            .main-container {
+                grid-template-columns: 1.8fr 1fr;
+            }
+        }
+        
+        @media (max-width: 1023px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>R2D2 Production Dashboard</h1>
+        <p>Phase 3 - Real-time Control & Monitoring System</p>
+    </div>
+    
+    <!-- Connection Status -->
+    <div class="connection-status disconnected" id="connectionStatus">
+        <span class="status-dot"></span>
+        <span>DISCONNECTED</span>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- LEFT: Video Feed -->
+        <div class="panel">
+            <h2 class="panel-title">Live Vision Feed</h2>
+            <div class="video-container">
+                <img id="videoFeed" alt="R2D2 Vision Feed">
+                <canvas id="detectionCanvas" width="640" height="480"></canvas>
+                <div class="video-overlay">
+                    <div class="video-stat" id="fpsStat">FPS: --</div>
+                    <div class="video-stat" id="latencyStat">Latency: --</div>
+                </div>
+                <div class="loading-overlay" id="videoLoading">
+                    <div class="spinner"></div>
+                    <div>Connecting to vision system...</div>
+                </div>
+            </div>
+            
+            <div class="video-info">
+                <div class="video-info-item">
+                    <label>Frame</label>
+                    <value id="frameNumber">0</value>
+                </div>
+                <div class="video-info-item">
+                    <label>Detections</label>
+                    <value id="detectionCount">0</value>
+                </div>
+                <div class="video-info-item">
+                    <label>FPS</label>
+                    <value id="fpsValue">0.0</value>
+                </div>
+            </div>
+            
+            <h3 class="panel-title" style="font-size: 1rem; margin-top: 20px;">Active Detections</h3>
+            <div class="detection-list" id="detectionList">
+                <div style="color: var(--text-muted); text-align: center; padding: 20px;">
+                    No detections
+                </div>
+            </div>
+        </div>
+        
+        <!-- CENTER: Controls -->
+        <div>
+            <!-- Mood Control -->
+            <div class="panel" style="margin-bottom: 20px;">
+                <h2 class="panel-title">Mood Control</h2>
+                <div class="mood-grid" id="moodGrid"></div>
+                <div class="mood-status">
+                    <div class="mood-status-current" id="currentMood">Idle</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="moodProgress" style="width: 0%">0%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Animations -->
+            <div class="panel">
+                <h2 class="panel-title">Animations</h2>
+                <div class="mood-grid" id="animationGrid"></div>
+            </div>
+        </div>
+        
+        <!-- RIGHT: Metrics & Alerts -->
+        <div>
+            <!-- Metrics -->
+            <div class="panel" style="margin-bottom: 20px;">
+                <h2 class="panel-title">System Performance</h2>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">GPU</div>
+                        <div class="metric-value" id="gpuValue">--<span class="metric-unit">%</span></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Memory</div>
+                        <div class="metric-value" id="memoryValue">--<span class="metric-unit">GB</span></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Temp</div>
+                        <div class="metric-value" id="tempValue">--<span class="metric-unit">°C</span></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Latency</div>
+                        <div class="metric-value" id="latencyValue">--<span class="metric-unit">ms</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Alerts -->
+            <div class="panel">
+                <h2 class="panel-title">System Alerts</h2>
+                <div class="alert-container" id="alertContainer">
+                    <div class="alert info">
+                        <span>🟦</span>
+                        <span>Dashboard initialized</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Emergency Stop -->
+    <div class="emergency-stop">
+        <button onclick="emergencyStop()">🚨 EMERGENCY</button>
+    </div>
+    
+    <!-- Security Utilities -->
+    <script src="dashboard-security-utils.js"></script>
+    
+    <!-- Main Script -->
+    <script>
+        // Configuration
+        const VISION_WS_URL = 'ws://localhost:8767';
+        const WCB_API_URL = 'http://localhost:8770';
+        const AUTH_TOKEN = localStorage.getItem('r2d2_auth_token') || 'c83e8861-e618-4496-8107-f9cef1fc23ef';
+        
+        initializeAuth(AUTH_TOKEN);
+        
+        // Moods
+        const MOODS = [
+            { id: 1, name: 'Greeting', emoji: '👋' },
+            { id: 2, name: 'Acknowledge', emoji: '✅' },
+            { id: 3, name: 'Curious', emoji: '🤔' },
+            { id: 4, name: 'Playful', emoji: '😊' },
+            { id: 5, name: 'Excited', emoji: '🎉' },
+            { id: 6, name: 'Alert', emoji: '⚠️' },
+            { id: 7, name: 'Sassy', emoji: '😏' },
+            { id: 8, name: 'Tired', emoji: '😴' },
+            { id: 9, name: 'Confused', emoji: '😕' },
+            { id: 10, name: 'Proud', emoji: '😎' }
+        ];
+        
+        const ANIMATIONS = [
+            { id: 1, name: 'Wave', emoji: '👋' },
+            { id: 2, name: 'Nod', emoji: '✓' },
+            { id: 3, name: 'Shake', emoji: '✗' },
+            { id: 4, name: 'Spin', emoji: '🔄' },
+            { id: 5, name: 'Dance', emoji: '💃' },
+            { id: 6, name: 'Scared', emoji: '😨' },
+            { id: 7, name: 'Scan', emoji: '🔍' },
+            { id: 8, name: 'Sleep', emoji: '😴' }
+        ];
+        
+        // State
+        let visionWs = null;
+        let visionConnected = false;
+        let wcbConnected = false;
+        let frameCount = 0;
+        let lastFrameTime = Date.now();
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Phase 3 Production Dashboard initializing...');
+            generateMoodButtons();
+            generateAnimationButtons();
+            connectVisionFeed();
+            startMoodStatusPolling();
+            checkWCBHealth();
+            console.log('✅ Dashboard ready');
+        });
+        
+        // Generate buttons
+        function generateMoodButtons() {
+            const grid = document.getElementById('moodGrid');
+            MOODS.forEach(mood => {
+                const btn = createSafeElement('button', {
+                    className: 'mood-btn',
+                    'data-mood': mood.id
+                }, `${mood.emoji} ${mood.name}`);
+                btn.onclick = () => executeMood(mood.id, mood.name);
+                grid.appendChild(btn);
+            });
+        }
+        
+        function generateAnimationButtons() {
+            const grid = document.getElementById('animationGrid');
+            ANIMATIONS.forEach(anim => {
+                const btn = createSafeElement('button', {
+                    className: 'animation-btn'
+                }, `${anim.emoji} ${anim.name}`);
+                btn.onclick = () => executeAnimation(anim.id, anim.name);
+                grid.appendChild(btn);
+            });
+        }
+        
+        // Vision connection
+        function connectVisionFeed() {
+            console.log('Connecting to vision...');
+            try {
+                const wsUrl = `${VISION_WS_URL}?token=${AUTH_TOKEN}`;
+                visionWs = new WebSocket(wsUrl);
+                
+                visionWs.onopen = () => {
+                    console.log('✅ Vision connected');
+                    visionConnected = true;
+                    updateConnectionStatus();
+                    document.getElementById('videoLoading').style.display = 'none';
+                    showAlert('Vision system connected', 'success', 3000);
+                };
+                
+                visionWs.onmessage = (event) => {
+                    handleVisionMessage(event.data);
+                };
+                
+                visionWs.onerror = (error) => {
+                    console.error('Vision error:', error);
+                };
+                
+                visionWs.onclose = () => {
+                    console.log('Vision disconnected');
+                    visionConnected = false;
+                    updateConnectionStatus();
+                    document.getElementById('videoLoading').style.display = 'flex';
+                    setTimeout(connectVisionFeed, 3000);
+                };
+            } catch (error) {
+                console.error('Vision connect error:', error);
+            }
+        }
+        
+        function handleVisionMessage(data) {
+            try {
+                const msg = JSON.parse(data);
+                
+                if (msg.frame) {
+                    renderFrame(msg.frame);
+                }
+                
+                if (msg.detections) {
+                    renderDetections(msg.detections);
+                    updateDetectionList(msg.detections);
+                }
+                
+                updateMetrics(msg);
+                frameCount++;
+                setTextContent(document.getElementById('frameNumber'), frameCount);
+            } catch (error) {
+                console.error('Parse error:', error);
+            }
+        }
+        
+        function renderFrame(base64Frame) {
+            const img = document.getElementById('videoFeed');
+            img.src = `data:image/jpeg;base64,${base64Frame}`;
+            img.style.display = 'block';
+            
+            const now = Date.now();
+            const delta = (now - lastFrameTime) / 1000;
+            const fps = delta > 0 ? 1 / delta : 0;
+            lastFrameTime = now;
+            
+            setTextContent(document.getElementById('fpsStat'), `FPS: ${fps.toFixed(1)}`);
+            setTextContent(document.getElementById('fpsValue'), fps.toFixed(1));
+        }
+        
+        function renderDetections(detections) {
+            const canvas = document.getElementById('detectionCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            detections.forEach(det => {
+                const [x1, y1, x2, y2] = det.bbox;
+                const w = x2 - x1;
+                const h = y2 - y1;
+                
+                ctx.strokeStyle = '#22c55e';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x1, y1, w, h);
+                
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(x1, y1 - 25, 150, 25);
+                
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = '14px Inter';
+                ctx.fillText(`${det.class} (${(det.confidence * 100).toFixed(0)}%)`, x1 + 5, y1 - 8);
+            });
+            
+            setTextContent(document.getElementById('detectionCount'), detections.length);
+        }
+        
+        function updateDetectionList(detections) {
+            const list = document.getElementById('detectionList');
+            list.innerHTML = '';
+            
+            if (detections.length === 0) {
+                list.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">No detections</div>';
+                return;
+            }
+            
+            detections.forEach(det => {
+                const item = createSafeElement('div', { className: 'detection-item' });
+                const classEl = createSafeElement('span', {}, det.class);
+                const confEl = createSafeElement('span', {}, `${(det.confidence * 100).toFixed(0)}%`);
+                item.appendChild(classEl);
+                item.appendChild(confEl);
+                list.appendChild(item);
+            });
+        }
+        
+        function updateMetrics(data) {
+            if (data.gpu_utilization !== undefined) {
+                const gpuEl = document.getElementById('gpuValue');
+                setTextContent(gpuEl, data.gpu_utilization);
+                gpuEl.className = data.gpu_utilization > 90 ? 'metric-value danger' :
+                                 data.gpu_utilization > 75 ? 'metric-value warning' : 'metric-value';
+            }
+            
+            if (data.gpu_memory_mb !== undefined) {
+                setTextContent(document.getElementById('memoryValue'), (data.gpu_memory_mb / 1024).toFixed(1));
+            }
+            
+            if (data.temperature_celsius !== undefined) {
+                const tempEl = document.getElementById('tempValue');
+                setTextContent(tempEl, data.temperature_celsius);
+                tempEl.className = data.temperature_celsius > 80 ? 'metric-value danger' :
+                                  data.temperature_celsius > 70 ? 'metric-value warning' : 'metric-value';
+            }
+            
+            if (data.latency_ms !== undefined) {
+                setTextContent(document.getElementById('latencyStat'), `Latency: ${data.latency_ms}ms`);
+                setTextContent(document.getElementById('latencyValue'), data.latency_ms);
+            }
+        }
+        
+        // Mood execution
+        async function executeMood(moodId, moodName) {
+            try {
+                console.log(`Executing: ${moodName}`);
+                showAlert(`Executing: ${moodName}`, 'info', 3000);
+                
+                const response = await secureFetch(`${WCB_API_URL}/api/wcb/mood/execute`, {
+                    method: 'POST',
+                    body: JSON.stringify({ mood_id: moodId, priority: 7 })
+                });
+                
+                if (!response) {
+                    showAlert('Authentication required', 'error', 5000);
+                    return;
+                }
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    highlightActiveMood(moodId);
+                    showAlert(`Activated: ${moodName}`, 'success', 3000);
+                } else {
+                    showAlert(`Error: ${result.detail}`, 'error', 5000);
+                }
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error', 5000);
+            }
+        }
+        
+        function highlightActiveMood(moodId) {
+            document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('active'));
+            const button = document.querySelector(`[data-mood="${moodId}"]`);
+            if (button) button.classList.add('active');
+        }
+        
+        // Animation execution
+        async function executeAnimation(animId, animName) {
+            try {
+                console.log(`Animation: ${animName}`);
+                showAlert(`Animation: ${animName}`, 'info', 3000);
+                
+                const response = await secureFetch(`${WCB_API_URL}/api/wcb/animation/execute`, {
+                    method: 'POST',
+                    body: JSON.stringify({ animation_id: animId })
+                });
+                
+                if (response && response.ok) {
+                    showAlert(`Complete: ${animName}`, 'success', 3000);
+                }
+            } catch (error) {
+                showAlert(`Error: ${error.message}`, 'error', 5000);
+            }
+        }
+        
+        // Mood status polling
+        function startMoodStatusPolling() {
+            setInterval(pollMoodStatus, 500);
+        }
+        
+        async function pollMoodStatus() {
+            try {
+                const response = await secureFetch(`${WCB_API_URL}/api/wcb/mood/status`);
+                if (!response) return;
+                
+                const status = await response.json();
+                
+                if (status.active) {
+                    setTextContent(document.getElementById('currentMood'), status.mood || 'Active');
+                    const progress = status.progress_percent || 0;
+                    const progressEl = document.getElementById('moodProgress');
+                    progressEl.style.width = `${progress}%`;
+                    setTextContent(progressEl, `${progress}%`);
+                } else {
+                    setTextContent(document.getElementById('currentMood'), 'Idle');
+                    document.getElementById('moodProgress').style.width = '0%';
+                    document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('active'));
+                }
+            } catch (error) {
+                // Silent fail
+            }
+        }
+        
+        // WCB health check
+        async function checkWCBHealth() {
+            try {
+                const response = await secureFetch(`${WCB_API_URL}/api/wcb/health`);
+                wcbConnected = response && response.ok;
+                updateConnectionStatus();
+            } catch (error) {
+                wcbConnected = false;
+                updateConnectionStatus();
+            }
+            setTimeout(checkWCBHealth, 10000);
+        }
+        
+        // Connection status
+        function updateConnectionStatus() {
+            const statusEl = document.getElementById('connectionStatus');
+            const textEl = statusEl.querySelector('span:last-child');
+            
+            if (visionConnected && wcbConnected) {
+                statusEl.className = 'connection-status connected';
+                setTextContent(textEl, 'CONNECTED');
+            } else if (visionConnected || wcbConnected) {
+                statusEl.className = 'connection-status connected';
+                const which = visionConnected ? 'Vision' : 'WCB';
+                setTextContent(textEl, `PARTIAL (${which})`);
+            } else {
+                statusEl.className = 'connection-status disconnected';
+                setTextContent(textEl, 'DISCONNECTED');
+            }
+        }
+        
+        // Alerts
+        function showAlert(message, type = 'info', duration = 5000) {
+            const container = document.getElementById('alertContainer');
+            const alert = createSafeElement('div', { className: `alert ${type}` });
+            
+            const icon = type === 'success' ? '🟩' :
+                        type === 'warning' ? '🟨' :
+                        type === 'error' ? '🟥' : '🟦';
+            
+            alert.appendChild(createSafeElement('span', {}, icon));
+            alert.appendChild(createSafeElement('span', {}, message));
+            
+            container.insertBefore(alert, container.firstChild);
+            
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            }, duration);
+            
+            while (container.children.length > 5) {
+                container.lastChild.remove();
+            }
+        }
+        
+        // Emergency stop
+        async function emergencyStop() {
+            if (!confirm('⚠️ EMERGENCY STOP - Are you sure?')) return;
+            
+            console.log('🚨 EMERGENCY STOP');
+            showAlert('EMERGENCY STOP ACTIVATED', 'error', 10000);
+            
+            try {
+                const response = await secureFetch(`${WCB_API_URL}/api/wcb/mood/stop`, {
+                    method: 'POST'
+                });
+                
+                if (response && response.ok) {
+                    showAlert('All operations stopped', 'success', 5000);
+                }
+            } catch (error) {
+                console.error('Stop error:', error);
+            }
+        }
+        
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+            if (visionWs) visionWs.close();
+            resourceManager.cleanupAll();
+        });
+    </script>
+</body>
+</html>
