@@ -86,7 +86,7 @@ class OrinNanoOptimizedVision:
             'capture_latency': 0,
             'gpu_utilization': 0,
             'gpu_memory_mb': 0,
-            'temperature_celsius': 0,
+            'temperature_c': 0,  # FIXED: Changed from temperature_celsius to match dashboard
             'cpu_utilization': 0,
             'system_memory_mb': 0
         }
@@ -475,7 +475,7 @@ class OrinNanoOptimizedVision:
                     # GPU temperature
                     temp_match = re.search(r'GPU@(\d+(?:\.\d+)?)C', output)
                     if temp_match:
-                        self.performance_stats['temperature_celsius'] = float(temp_match.group(1))
+                        self.performance_stats['temperature_c'] = float(temp_match.group(1))
 
                     # System memory
                     mem_match = re.search(r'RAM\s+(\d+)/(\d+)MB', output)
@@ -499,14 +499,14 @@ class OrinNanoOptimizedVision:
                 result = subprocess.run(['nvidia-smi', '--query-gpu=utilization.gpu,memory.used,temperature.gpu',
                                        '--format=csv,noheader,nounits'],
                                       capture_output=True, text=True, timeout=0.5)
-                if result.returncode == 0 and result.stdout:
+                if result.returncode == 0 and result.stdout and '[N/A]' not in result.stdout:
                     parts = result.stdout.strip().split(',')
                     if len(parts) >= 3:
                         self.performance_stats['gpu_utilization'] = int(parts[0].strip())
                         self.performance_stats['gpu_memory_mb'] = float(parts[1].strip())
-                        self.performance_stats['temperature_celsius'] = float(parts[2].strip())
+                        self.performance_stats['temperature_c'] = float(parts[2].strip())
                     return
-            except (subprocess.TimeoutExpired, FileNotFoundError, subprocess.CalledProcessError):
+            except (subprocess.TimeoutExpired, FileNotFoundError, subprocess.CalledProcessError, ValueError):
                 pass
 
             # Method 3: Try PyTorch CUDA metrics (GPU memory only)
@@ -526,7 +526,7 @@ class OrinNanoOptimizedVision:
                         with open(zone, 'r') as f:
                             temp = int(f.read().strip()) / 1000.0
                             if temp > 20 and temp < 100:  # Sanity check
-                                self.performance_stats['temperature_celsius'] = temp
+                                self.performance_stats['temperature_c'] = temp
                                 break
             except (IOError, ValueError):
                 pass
@@ -556,7 +556,7 @@ class OrinNanoOptimizedVision:
                 if metrics_count % 10 == 0:
                     logger.info(f"[METRICS] GPU: {self.performance_stats['gpu_utilization']}%, "
                               f"Mem: {self.performance_stats['gpu_memory_mb']:.1f}MB, "
-                              f"Temp: {self.performance_stats['temperature_celsius']}°C, "
+                              f"Temp: {self.performance_stats['temperature_c']}°C, "
                               f"CPU: {self.performance_stats['cpu_utilization']}%")
 
                 time.sleep(self.metrics_update_interval)
